@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Student Game Navigation</title>
+    <link rel="stylesheet" th:href="@{/css/HomePage.css}" />
+    <link rel="stylesheet" th:href="@{/css/MenuBar.css}" />
+  </head>
+  <body>
+    <div th:replace="fragments/MenuBar :: header"></div>
+
+    <div class="container">
+      <div class="left-panel">
+       <button class="money">Money</button></a>
+       <button class="energy">Energy</button></a>
+       <button class="stress">Stress</button></a>
+       <button class="gpa">Số tín + GPA</button></a>
+       <button class="schedule">Lịch</button></a>
+      </div>
+
+      <div class="avatar-section">
+        <div class="avatar-box"></div>
+        <a th:href="@{/change-cloth}"
+          ><button class="change-cloth">Change cloth</button></a
+        >
+      </div>
+
+      <div class="right-panel">
+       <div class="friend-list">List bạn bè</div></a>
+      </div>
+    </div>
+  </body>
+</html>

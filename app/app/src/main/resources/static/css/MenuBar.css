@@ -1,0 +1,46 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #d3d3d3;
+  padding: 10px;
+}
+
+.header button {
+  margin: 0 5px;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.logo {
+  background-color: orange;
+}
+
+.pink-btn {
+  background-color: pink;
+}
+
+.circle-btn {
+  background-color: pink;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 12px;
+  text-decoration: none;
+  color: black;
+  border: none;
+  cursor: pointer;
+}
+
+.circle-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}

@@ -1,0 +1,21 @@
+.grid-panel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 60%;
+  margin: 0 auto;
+  margin-top: 50px;
+}
+
+.grid-panel button {
+  background-color: salmon;
+  color: white;
+  font-weight: bold;
+  padding: 50px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+

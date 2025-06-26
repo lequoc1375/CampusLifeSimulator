@@ -1,0 +1,20 @@
+<div th:fragment="header">
+  <div class="header">
+    <a th:href="@{/logo}"><button class="logo">Logo</button></a>
+
+    <div>
+      <a th:href="@{/menu}"><button class="pink-btn">Menu</button></a>
+      <a th:href="@{/Game/university}"
+        ><button class="pink-btn">University Town</button></a
+      >
+      <a th:href="@{/register}"
+        ><button class="pink-btn">Register Subject</button></a
+      >
+    </div>
+
+    <div class="circle-group">
+      <a th:href="@{/notifications}" class="circle-btn">Thông báo</a>
+      <a th:href="@{/profile}" class="circle-btn">Avatar</a>
+    </div>
+  </div>
+</div>

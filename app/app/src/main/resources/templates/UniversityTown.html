@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>University town</title>
+    <link rel="stylesheet" th:href="@{/css/UniversityTown.css}" />
+    <link rel="stylesheet" th:href="@{/css/MenuBar.css}" />
+  </head>
+  <body>
+    <div th:replace="fragments/MenuBar :: header"></div>
+
+    <div class="container">
+      <div class="grid-panel">
+        <button>University</button>
+        <button>Register Work</button>
+        <button>Shop</button>
+        <button>Ăn uống</button>
+        <button>Gym</button>
+        <button>Home</button>
+        <button>Hội chợ</button>
+        <button>Net</button>
+      </div>
+    </div>
+  </body>
+</html>

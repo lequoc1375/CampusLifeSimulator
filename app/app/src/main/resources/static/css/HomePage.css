@@ -1,0 +1,103 @@
+body {
+  background-color: #add8e6;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #d3d3d3;
+  padding: 10px;
+}
+
+.header button {
+  margin: 0 5px;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.logo {
+  background-color: orange;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.left-panel,
+.right-panel {
+  width: 20%;
+  background-color: #d3d3d3;
+  padding: 10px;
+}
+
+.left-panel button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  color: white;
+}
+
+.money {
+  background-color: limegreen;
+}
+
+.energy {
+  background-color: deepskyblue;
+}
+
+.stress {
+  background-color: peru;
+}
+
+.gpa {
+  background-color: salmon;
+}
+
+.schedule {
+  background-color: salmon;
+}
+
+.avatar-section {
+  width: 50%;
+  text-align: center;
+}
+
+.avatar-box {
+  width: 300px;
+  height: 400px;
+  background-color: white;
+  margin: 0 auto;
+  border: 2px solid #ccc;
+}
+
+.change-cloth {
+  margin-top: 20px;
+  background-color: pink;
+  padding: 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.friend-list {
+  width: 100%;
+  height: 500px;
+  background-color: salmon;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+}
