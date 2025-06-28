@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Campus Life Simulator - Login</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}" href="css/auth.css" />
+  </head>
+  <body>
+    <div class="background-text">CAMPUS LIFE SIMULATOR</div>
+
+    <div class="auth-container">
+      <h2>Login</h2>
+      <form th:action="@{/login}" method="post" th:object="${loginDTOrq}">
+        <input
+          type="text"
+          name="username"
+          th:field="*{username}"
+          placeholder="Username"
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          th:field="*{password}"
+          placeholder="Password"
+          required
+        />
+        <button type="submit">Login</button>
+        <p>Don't have an account? <a th:href="@{/register}">Register</a></p>
+      </form>
+    </div>
+  </body>
+</html>
