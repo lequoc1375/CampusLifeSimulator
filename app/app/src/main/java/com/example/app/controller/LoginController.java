@@ -1,31 +1,49 @@
 package com.example.app.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.app.dto.requestDTO.LoginDTOrq;
-
-
+import com.example.app.entity.User;
+import com.example.app.service.serviceInterface.UserService;
+import com.example.app.util.UserSession;
 
 @Controller
 public class LoginController {
 
+    @Autowired
+    private UserSession userSession;
+
+    @Autowired
+    private UserService userService;
+
     @GetMapping("/login")
     public String showLoginForm(Model model) {
         LoginDTOrq loginDTOrq = new LoginDTOrq();
-        model.addAttribute("loginDTOrq",loginDTOrq);
+        model.addAttribute("loginDTOrq", loginDTOrq);
         return "Login";
     }
 
     @PostMapping("/login")
-    public String postMethodName(@RequestBody(required=false) String entity) {
-        //TODO: process POST request
-        
+    public String postMethodName(@ModelAttribute LoginDTOrq loginDTOrq) {
+        User user = userService.login(loginDTOrq.getUsername(), loginDTOrq.getPassword());
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+        if (user.getRole() == User.Role.admin) {
+            return "Admin";
+        }
+
+        userSession.setUsername(user.getUsername());
+        userSession.setRole(user.getRole().toString());
+        userSession.setUserId(user.getUser_id());
+
         return "redirect:/Game/HomePage";
     }
-    
-    
+
 }
