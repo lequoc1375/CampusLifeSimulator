@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.app.entity.User;
+import com.example.app.entity.User.Role;
 import com.example.app.repository.UserRepo;
 import com.example.app.service.serviceInterface.UserService;
 
@@ -11,7 +12,7 @@ import com.example.app.service.serviceInterface.UserService;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private UserRepo userRepo;
+    private UserRepo userRepo; 
 
     @Override
     public User login(String username, String password) {
@@ -20,6 +21,19 @@ public class UserServiceImpl implements UserService {
             return user;
         }
         return null;
+    }
+
+    @Override
+    public boolean register(String username, String password) {
+        if (userRepo.findByUsername(username) != null) {
+            return false;
+        }
+        User user = new User();
+        user.setPassword(password);
+        user.setRole(Role.player);
+        user.setUsername(username);
+        userRepo.save(user);
+        return true;
     }
 
 }
