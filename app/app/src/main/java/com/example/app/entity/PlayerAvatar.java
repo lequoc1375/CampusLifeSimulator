@@ -10,11 +10,11 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="PlayerAvatar")
+@Table(name="player_avatar")
 public class PlayerAvatar {
 
-     @Id
-    private int user_id;
+    @Id
+    private int player_avatar_id;
 
     @Column(name = "cloth_id")
     private int cloth_id;
@@ -26,16 +26,15 @@ public class PlayerAvatar {
     private String color;
 
     @OneToOne
-    @MapsId
     @JoinColumn(name = "user_id")
     private User user;
 
-    public int getUser_id() {
-        return user_id;
+    public int getPlayer_avatar_id() {
+        return player_avatar_id;
     }
 
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
+    public void setPlayer_avatar_id(int player_avatar_id) {
+        this.player_avatar_id = player_avatar_id;
     }
 
     public int getCloth_id() {
