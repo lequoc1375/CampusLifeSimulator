@@ -17,19 +17,49 @@
           placeholder="Username"
           required
         />
-        <input type="email" th:field="*{email}" placeholder="Email" required />
+
         <input
           type="password"
           th:field="*{password}"
           placeholder="Password"
           required
         />
+
         <input
           type="password"
           th:field="*{confirmPassword}"
           placeholder="Confirm Password"
           required
         />
+
+        <input
+          type="text"
+          th:field="*{firstname}"
+          placeholder="First Name"
+          required
+        />
+
+        <input
+          type="text"
+          th:field="*{lastname}"
+          placeholder="Last Name"
+          required
+        />
+
+        <input 
+          type="email" 
+          th:field="*{email}" 
+          placeholder="Email" 
+          required 
+        />
+
+        <input 
+          type="text" 
+          th:field="*{phone}" 
+          placeholder="Phone Number" 
+          required 
+        />
+
         <button type="submit">Register</button>
       </form>
 
