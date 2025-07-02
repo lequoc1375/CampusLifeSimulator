@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -26,6 +27,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name="role")
     private Role role;
+    
+
+    @OneToOne(mappedBy="user")
+    private UserCurriculum userCurriculum;
     
     public enum Role {
         admin, player
@@ -61,6 +66,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public UserCurriculum getUserCurriculum() {
+        return userCurriculum;
+    }
+
+    public void setUserCurriculum(UserCurriculum userCurriculum) {
+        this.userCurriculum = userCurriculum;
     }
 
     
