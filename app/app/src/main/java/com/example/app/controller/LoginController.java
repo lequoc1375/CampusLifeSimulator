@@ -36,7 +36,7 @@ public class LoginController {
             return "redirect:/login";
         }
         if (user.getRole() == User.Role.admin) {
-            return "redirect:/admin/lesson/form";
+            return "redirect:/admin/subject/form";
         }
 
         userSession.setUsername(user.getUsername());

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.example.app.dto.mapper.SubjectMapper;
 import com.example.app.dto.requestDTO.SubjectDTORequest;
 import com.example.app.dto.responseDTO.SubjectDTOResponse;
+import com.example.app.entity.Subject;
 import com.example.app.repository.SubjectRepo;
 import com.example.app.service.serviceInterface.SubjectService;
 
@@ -35,20 +36,25 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Override
     public void createSubject(SubjectDTORequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createSubject'");
+        Subject subject = subjectMapper.convertToSubject(request);
+        subjectRepo.save(subject);
+
     }
 
     @Override
     public void updateSubject(int id, SubjectDTORequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateSubject'");
+        Subject subject = subjectRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Subject not found for update"));
+        subject.setName(request.getName());
+        subject.setCredit(request.getCredit());
+        subjectRepo.save(subject);
+
     }
 
     @Override
     public void deleteSubject(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteSubject'");
+        Subject subject = subjectRepo.findById(id).orElseThrow(()-> new RuntimeException("Not find subject for delete"));
+        subjectRepo.delete(subject);
     }
 
 }
