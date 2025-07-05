@@ -3,7 +3,7 @@ package com.example.app.dto.requestDTO;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class LoginDTOrq {
+public class LoginDTORequest {
     @NotBlank
     private String username;
     @NotBlank
