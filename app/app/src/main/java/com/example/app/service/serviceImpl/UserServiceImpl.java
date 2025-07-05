@@ -2,13 +2,9 @@ package com.example.app.service.serviceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.example.app.dto.requestDTO.RegisterDTOrq;
-import com.example.app.entity.PlayerProfile;
 import com.example.app.entity.User;
 import com.example.app.entity.User.Role;
-import com.example.app.repository.PlayerProfileRepo;
 import com.example.app.repository.UserRepo;
 import com.example.app.service.serviceInterface.UserService;
 
