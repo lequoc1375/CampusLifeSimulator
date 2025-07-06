@@ -5,20 +5,20 @@
     <title>University town</title>
     <link rel="stylesheet" th:href="@{/css/UniversityTown.css}" />
     <link rel="stylesheet" th:href="@{/css/MenuBar.css}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
     <div th:replace="fragments/MenuBar :: header"></div>
-
-    <div class="container">
-      <div class="grid-panel">
-        <button>University</button>
-        <button>Register Work</button>
-        <button>Shop</button>
-        <button>Ăn uống</button>
-        <button>Gym</button>
-        <button>Home</button>
-        <button>Hội chợ</button>
-        <button>Net</button>
+    <div class="map-wrapper">
+      <div class="map-container">
+        <button class="map-button btn-university" onclick="location.href='/university'"></button>
+        <button class="map-button btn-gym" onclick="location.href='/gym'"></button>
+        <button class="map-button btn-dorm" onclick="location.href='/dorm'"></button>
+        <button class="map-button btn-mall" onclick="location.href='/mall'"></button>
+        <button class="map-button btn-fair" onclick="location.href='/fair'"></button>
+        <button class="map-button btn-internet" onclick="location.href='/net'"></button>
+        <button class="map-button btn-restaurant" onclick="location.href='/food'"></button>
+        <button class="map-button btn-work" onclick="location.href='/work'"></button>
       </div>
     </div>
   </body>

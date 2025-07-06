@@ -1,21 +1,122 @@
-.grid-panel {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  width: 60%;
-  margin: 0 auto;
-  margin-top: 50px;
+.map-wrapper {
+  width: 100%;
+  max-width: 512px;
+  margin: auto;
+  position: relative;
 }
 
-.grid-panel button {
-  background-color: salmon;
-  color: white;
-  font-weight: bold;
-  padding: 50px;
+.map-container {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* giữ đúng tỉ lệ vuông 256x256 */
+  background-image: url('../images/UniversityTownMap1.png'); /* đảm bảo đúng tên file */
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* Nút trong suốt đặt theo phần trăm ảnh gốc 256x256 */
+.map-button {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0);
   border: none;
-  border-radius: 10px;
   cursor: pointer;
-  font-size: 16px;
+}
+
+/* Ví dụ: đặt nút cho HCMIU tại x:110 y:125 width:50 height:30 (trong ảnh 256x256) */
+.btn-university {
+  top: 39%;
+  left: 39%;
+  width: 36%;
+  height: 24%;
+}
+
+.btn-gym {
+  top: 40%;
+  left: 1%;
+  width: 34%;
+  height: 23%;
+}
+
+.btn-dorm {
+  top: 11%;
+  left: 2%;
+  width: 33%;
+  height: 24%;
+}
+
+.btn-mall {
+  top: 67%;
+  left: 39%;
+  width: 36%;
+  height: 23%;
+}
+
+.btn-fair {
+  top: 10%;
+  left: 79%;
+  width: 21%;
+  height: 26%;
+}
+
+.btn-internet {
+  top: 67%;
+  left: 1%;
+  width: 34%;
+  height: 23%;
+}
+
+.btn-restaurant {
+  top: 12%;
+  left: 39%;
+  width: 36%;
+  height: 23%;
+}
+
+.btn-work {
+  top: 39%;
+  left: 79%;
+  width: 21%;
+  height: 24%
+}
+
+.map-button:hover {
+  background-color: rgba(255, 255, 255, 0.15); 
+  outline: none;
+}
+
+/* .map-button {
+  position: absolute;
+  background-color: rgba(0, 191, 255, 0.2); 
+  border: 1px solid rgba(0, 191, 255, 0.8);  
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.map-button:hover {
+  background-color: rgba(30, 144, 255, 0.4); 
+  border-color: #1e90ff;
+} */
+
+.map-button::after {
+  content: '▼';
+  color: white;
+  font-size: 24px;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  pointer-events: none;
+  
+  text-shadow:
+    -1px -1px 0 black,
+    1px -1px 0 black,
+    -1px 1px 0 black,
+    1px 1px 0 black;
 }
 
 
+.map-button:hover::after {
+  opacity: 1;
+}
