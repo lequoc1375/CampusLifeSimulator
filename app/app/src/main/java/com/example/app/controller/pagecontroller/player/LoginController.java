@@ -1,4 +1,4 @@
-package com.example.app.controller;
+package com.example.app.controller.pagecontroller.player;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,7 +36,7 @@ public class LoginController {
             return "redirect:/login";
         }
         if (user.getRole() == User.Role.admin) {
-            return "redirect:/admin/subject/form";
+            return "redirect:/admin/HomePage";
         }
 
         userSession.setUsername(user.getUsername());

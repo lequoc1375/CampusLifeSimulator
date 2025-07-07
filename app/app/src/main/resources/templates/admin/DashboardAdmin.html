@@ -1,11 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home page</title>
+  </head>
+  <body>
+    <div class="btn-mod">
+      <button
+        th:onclick="'window.location.href=\'' + @{/admin/subject/form} + '\''"
+      >
+        Subject
+      </button>
+      <button
+        th:onclick="'window.location.href=\'' + @{/admin/lesson/form} + '\''"
+      >
+        Lesson
+      </button>
+    </div>
+  </body>
 </html>
