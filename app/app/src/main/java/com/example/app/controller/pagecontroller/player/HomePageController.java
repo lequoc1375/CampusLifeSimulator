@@ -1,4 +1,4 @@
-package com.example.app.controller;
+package com.example.app.controller.pagecontroller.player;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,7 +21,7 @@ public class HomePageController {
         return "HomePage";
     }
 
-    @GetMapping("/university")
+    @GetMapping("/UniversityTown")
     public String moveUniversityTown(@RequestParam(required = false) String param) {
         return "UniversityTown";
     }
