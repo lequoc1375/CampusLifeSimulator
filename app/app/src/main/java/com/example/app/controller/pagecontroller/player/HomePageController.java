@@ -22,7 +22,8 @@ public class HomePageController {
     }
 
     @GetMapping("/UniversityTown")
-    public String moveUniversityTown(@RequestParam(required = false) String param) {
+    public String moveUniversityTown(Model model) {
+        model.addAttribute("user", userSession);
         return "UniversityTown";
     }
 
