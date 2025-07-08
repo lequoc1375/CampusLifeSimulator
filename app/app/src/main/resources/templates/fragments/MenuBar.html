@@ -3,7 +3,7 @@
     <a th:href="@{/logo}"><button class="logo">Logo</button></a>
 
     <div>
-      <a th:href="@{/menu}"><button class="pink-btn">Menu</button></a>
+      <a th:href="@{/Game/HomePage}"><button class="pink-btn">Menu</button></a>
       <a th:href="@{/Game/UniversityTown}"
         ><button class="pink-btn">University Town</button></a
       >
@@ -12,6 +12,7 @@
       >
     </div>
 
+    <h1 th:text="|Hello ${user.username}|"></h1>
     <div class="circle-group">
       <a th:href="@{/notifications}" class="circle-btn">Thông báo</a>
       <a th:href="@{/profile}" class="circle-btn">Avatar</a>

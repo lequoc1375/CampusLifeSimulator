@@ -11,23 +11,41 @@
 
     <div class="container">
       <div class="left-panel">
-       <button class="money">Money</button></a>
-       <button class="energy">Energy</button></a>
-       <button class="stress">Stress</button></a>
-       <button class="gpa">Số tín + GPA</button></a>
-       <button class="schedule">Lịch</button></a>
+        <button class="money"></button>
+        <button class="energy"></button>
+        <button class="stress"></button>
+        <button class="gpa">Số tín + GPA</button>
+        <button class="schedule">Lịch</button>
       </div>
-      <h1 th:text = "'Hello' + ${user.username}"></h1>
+
       <div class="avatar-section">
         <div class="avatar-box"></div>
-        <a th:href="@{/change-cloth}"
-          ><button class="change-cloth">Change cloth</button></a
-        >
+        <a th:href="@{/change-cloth}">
+          <button class="change-cloth">Change cloth</button>
+        </a>
       </div>
 
       <div class="right-panel">
-       <div class="friend-list">List bạn bè</div></a>
+        <div class="friend-list">List bạn bè</div>
       </div>
     </div>
   </body>
+
+  <script th:inline="javascript">
+    let stats = [];
+
+    async function loadPlayerStats() {
+      const response = await fetch("/player/api/stats/getByUser/[[${user.getUserId}]]");
+      stats = await response.json();
+      updateUI(stats);
+    }
+
+    function updateUI(stats) {
+      document.querySelector('.money').innerText = `Cash: $${stats.money}`;
+      document.querySelector('.energy').innerText = `Energy: ${stats.currentEnergy}/${stats.maxEnergy}`;
+      document.querySelector('.stress').innerText = `Stress: ${stats.currentStress}/${stats.maxStress}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', loadPlayerStats);
+  </script>
 </html>
