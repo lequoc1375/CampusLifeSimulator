@@ -1,5 +1,8 @@
 package com.example.app.entity;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,32 +10,34 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "Lesson")
 public class Lesson {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int lesson_id;
-    
 
     @ManyToOne
-    @JoinColumn(name="subject_id", referencedColumnName="subject_id")
+    @JoinColumn(name = "subject_id", referencedColumnName = "subject_id")
     private Subject subject;
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
 
-    @Column(name="lesson_order")
+    @Column(name = "lesson_order")
     private int lesson_order;
 
-
-    @Column(name="length")
+    @Column(name = "length")
     private int length;
 
-    @Column(name="link_video")
+    @Column(name = "link_video")
     private String link_video;
+
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL)
+    private List<Problem> problem;
 
     public int getLesson_id() {
         return lesson_id;
@@ -82,5 +87,12 @@ public class Lesson {
         this.link_video = link_video;
     }
 
-    
+    public List<Problem> getProblem() {
+        return problem;
+    }
+
+    public void setProblem(List<Problem> problem) {
+        this.problem = problem;
+    }
+
 }
