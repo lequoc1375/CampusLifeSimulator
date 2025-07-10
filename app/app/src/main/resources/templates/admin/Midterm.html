@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Midterm</title>
+  </head>
+  <body>
+    <h2>Number of Midterm to add:</h2>
+    <input type="number" id="noOfMidterms" min="1" max="10" value="1" />
+    <button onclick="generateMidtermForm()">Generate Midterm Table</button>
+
+    <form id="formMidterm">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Time (minutes)</th>
+          </tr>
+        </thead>
+        <tbody id="midtermTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add Midterm</button>
+    </form>
+
+    <h2>Midterm List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Subject</th>
+          <th>Time</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="midtermListTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      "
+    >
+      <h3>Update Midterm</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateMidtermId" />
+        <label>Subject:</label><br />
+        <select id="updateSubjectId" required></select
+        ><br /><br />
+        <label>Time (minutes):</label><br />
+        <input type="number" id="updateTime" required /><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      let subjectList = []
+
+      async function loadSubjects() {
+        const response = await fetch('/admin/api/subjects/get')
+        subjectList = await response.json()
+      }
+
+      async function generateMidtermForm() {
+        const noOfRow = parseInt(document.getElementById('noOfMidterms').value)
+        if (noOfRow <= 0) return
+
+        await loadSubjects()
+        if (!subjectList) {
+          console.error('Error fetching subjects')
+          return
+        }
+
+        const table = document.getElementById('midtermTable')
+        table.innerHTML = ''
+
+        for (let i = 0; i < noOfRow; i++) {
+          const row = document.createElement('tr')
+          let options = `<option value=""></option>`
+          subjectList.forEach((sub) => {
+            options += `<option value="${sub.subject_id}">${sub.name}</option>`
+          })
+          row.innerHTML = `
+            <td><select name="subject_id" required>${options}</select></td>
+            <td><input type="number" name="time" min="1" required></td>
+          `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadMidterms() {
+        const response = await fetch('/admin/api/midterm/list')
+        const midtermList = await response.json()
+
+        const tableBody = document.getElementById('midtermListTableBody')
+        tableBody.innerHTML = ''
+
+        midtermList.forEach((midterm) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td>${midterm.midtermId}</td>
+            <td>${midterm.subject_name}</td>
+            <td>${midterm.time}</td>
+            <td><button class="btn-delete" data-id="${midterm.midtermId}">🗑️ Delete</button></td>
+            <td><button class="btn-update" data-id="${midterm.midtermId}">✏️ Update</button></td>
+          `
+          tableBody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formMidterm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#midtermTable tr')
+          const midterms = []
+          rows.forEach((row) => {
+            const inputs = row.querySelectorAll('input, select')
+            const midterm = {
+              subject_id: parseInt(inputs[0].value),
+              time: parseInt(inputs[1].value),
+            }
+            midterms.push(midterm)
+          })
+
+          try {
+            for (const midterm of midterms) {
+              const res = await fetch('/admin/api/midterm/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(midterm),
+              })
+              if (!res.ok) throw new Error('Error adding midterm')
+            }
+            await loadMidterms()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const midtermId = e.target.getAttribute('data-id')
+          if (!confirm('Confirm delete?')) return
+          try {
+            const res = await fetch(`/admin/api/midterm/delete/${midtermId}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadMidterms()
+            alert('Midterm deleted successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          const midterm = {
+            midtermId: e.target.getAttribute('data-id'),
+            subjectName: row.children[1].innerText,
+            time: row.children[2].innerText,
+          }
+          openModal(midterm)
+        }
+      })
+
+      async function openModal(midterm) {
+        if (!subjectList || subjectList.length === 0) {
+          await loadSubjects()
+        }
+
+        document.getElementById('updateMidtermId').value = midterm.midtermId
+        document.getElementById('updateTime').value = midterm.time
+
+        const subjectSelect = document.getElementById('updateSubjectId')
+        subjectSelect.innerHTML = ''
+        subjectList.forEach((subject) => {
+          const opt = document.createElement('option')
+          opt.value = subject.subject_id
+          opt.textContent = subject.name
+          if (subject.name === midterm.subjectName) opt.selected = true
+          subjectSelect.appendChild(opt)
+        })
+
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const midterm = {
+            midtermId: document.getElementById('updateMidtermId').value,
+            subject_id: parseInt(
+              document.getElementById('updateSubjectId').value
+            ),
+            time: parseInt(document.getElementById('updateTime').value),
+          }
+
+          try {
+            const res = await fetch(
+              `/admin/api/midterm/update/${midterm.midtermId}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(midterm),
+              }
+            )
+            if (!res.ok) throw new Error('Update failed')
+            await loadMidterms()
+            closeModal()
+            alert('Midterm updated successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', () => {
+        loadSubjects()
+        loadMidterms()
+      })
+    </script>
+  </body>
+</html>

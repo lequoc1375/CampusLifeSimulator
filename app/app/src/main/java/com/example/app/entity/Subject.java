@@ -30,6 +30,8 @@ public class Subject {
     @OneToMany(mappedBy="subject" , cascade = CascadeType.ALL)
     private List<Lesson> lessons = new ArrayList<>();
 
+    @OneToMany(mappedBy="subject", cascade = CascadeType.ALL)
+    private List<Midterm> midterms = new ArrayList<>();
 
     public int getSubject_id() {
         return subject_id;
@@ -62,8 +64,5 @@ public class Subject {
     public void setLessons(List<Lesson> lessons) {
         this.lessons = lessons;
     }
-
-
-    
 
 }
