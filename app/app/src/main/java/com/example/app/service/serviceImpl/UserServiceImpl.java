@@ -40,4 +40,9 @@ public class UserServiceImpl implements UserService {
 
         return user;
     }
+
+    @Override
+    public User getUserByUserId(int userId) {
+        return userRepo.findByUserId(userId);
+    }
 }
