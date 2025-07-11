@@ -24,8 +24,14 @@ public class FriendRelationshipServiceImpl implements FriendRelationshipService 
     @Override
     public void createRelationship(User player1, User player2) {
         FriendRelationship friendRelationship = new FriendRelationship();
-        friendRelationship.setFirstUser(player1);
-        friendRelationship.setSecondUser(player2);
+        if(player1.getUser_id() < player2.getUser_id()) {
+            friendRelationship.setFirstUser(player1);
+            friendRelationship.setSecondUser(player2);
+        } else {
+            friendRelationship.setFirstUser(player2);
+            friendRelationship.setSecondUser(player1);
+        }
+        
         friendRelationship.setCurrentPoint(0);
         friendRelationship.setRelationship(relationshipService.getRelationshipById(1));
         

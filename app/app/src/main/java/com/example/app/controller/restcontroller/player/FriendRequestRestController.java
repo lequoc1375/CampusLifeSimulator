@@ -50,6 +50,17 @@ public class FriendRequestRestController {
                 return ResponseEntity.badRequest().body("Already send request to this ID");
             }
 
+            boolean alreadyReceive = friendRequestService.existsBySender_UserIdAndReceiver_UserId(receiverId, senderId);
+            if (alreadyReceive) {
+                FriendRequest existingRequest = friendRequestService
+                    .findBySender_UserIdAndReceiver_UserId(receiverId, senderId)
+                    .orElseThrow(() -> new RuntimeException("Request not found"));
+
+                friendRequestService.acceptRequest(existingRequest.getRequestId());
+                return ResponseEntity.ok("Accepted pending request from user: " + receiverId);
+            }
+
+
             friendRequestService.createRequest(sender, receiver);
             return ResponseEntity.ok("Sent friend request to ID: " + receiverId);
 
@@ -69,13 +80,13 @@ public class FriendRequestRestController {
     }
 
     @PostMapping("/accept/{requestId}")
-    public String acceptFriendRequest(@PathVariable int requestId) {
+    public String acceptFriendRequest(@PathVariable Long requestId) {
         friendRequestService.acceptRequest(requestId);
         return "Friend request accepted";
     }
 
     @PostMapping("/decline/{requestId}")
-    public String declineFriendRequest(@PathVariable int requestId) {
+    public String declineFriendRequest(@PathVariable Long requestId) {
         friendRequestService.declineRequest(requestId);
         return "Friend request declined";
     }

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.app.entity.FriendRequest;
 import com.example.app.entity.FriendRequest.RequestStatus;
 
-public interface FriendRequestRepo extends JpaRepository<FriendRequest, Integer> {
+public interface FriendRequestRepo extends JpaRepository<FriendRequest, Long> {
     List<FriendRequest> findBySender_UserId(int senderId);
 
     List<FriendRequest> findByReceiver_UserId(int receiverId);

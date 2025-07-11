@@ -52,7 +52,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     }
 
     @Override
-    public void acceptRequest(int requestId) {
+    public void acceptRequest(Long requestId) {
         Optional<FriendRequest> optionalRequest = friendRequestRepo.findById(requestId);
         if (optionalRequest.isPresent()) {
             FriendRequest request = optionalRequest.get();
@@ -68,9 +68,14 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     }
 
     @Override
-    public void declineRequest(int requestId) {
+    public void declineRequest(Long requestId) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'declineRequest'");
+    }
+
+    @Override
+    public Optional<FriendRequest> findBySender_UserIdAndReceiver_UserId(int senderId, int receiverId) {
+        return friendRequestRepo.findBySender_UserIdAndReceiver_UserId(senderId, receiverId);
     }
     
 }

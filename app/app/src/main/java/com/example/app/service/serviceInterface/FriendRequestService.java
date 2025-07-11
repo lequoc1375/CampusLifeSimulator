@@ -1,6 +1,7 @@
 package com.example.app.service.serviceInterface;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.example.app.entity.FriendRequest;
 import com.example.app.entity.User;
@@ -15,7 +16,10 @@ public interface FriendRequestService {
 
     List<FriendRequest> getPendingRequests(int userId);
 
-    void acceptRequest(int requestId);
+    void acceptRequest(Long requestId);
 
-    void declineRequest(int requestId);
+    void declineRequest(Long requestId);
+
+    Optional<FriendRequest> findBySender_UserIdAndReceiver_UserId(int senderId, int receiverId);
+
 }
