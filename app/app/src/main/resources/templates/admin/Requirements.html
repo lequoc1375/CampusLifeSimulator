@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Requirements</title>
+  </head>
+  <body>
+    <h2>Number of Requirements to add:</h2>
+    <input type="number" id="noOfRequirements" min="1" max="10" value="1" />
+    <button onclick="generateRequirementForm()">
+      Generate Requirement Table
+    </button>
+
+    <form id="formRequirement">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Field</th>
+            <th>Min Require</th>
+          </tr>
+        </thead>
+        <tbody id="requirementTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add Requirements</button>
+    </form>
+
+    <h2>Requirement List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Field</th>
+          <th>Min Require</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="requirementListTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+      "
+    >
+      <h3>Update Requirement</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateRequirementId" />
+        <label>Name:</label><br />
+        <input type="text" id="updateName" required /><br /><br />
+        <label>Field:</label><br />
+        <input type="text" id="updateField" required /><br /><br />
+        <label>Min Require:</label><br />
+        <input
+          type="number"
+          step="0.1"
+          id="updateMinRequire"
+          required
+        /><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      async function generateRequirementForm() {
+        const count = parseInt(
+          document.getElementById('noOfRequirements').value
+        )
+        const table = document.getElementById('requirementTable')
+        table.innerHTML = ''
+
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+          <td><input type="text" name="name" required></td>
+          <td><input type="text" name="field" required></td>
+          <td><input type="number" name="min_require" step="0.1" required></td>
+          `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadRequirements() {
+        const res = await fetch('/admin/api/requirement/list')
+        const requirements = await res.json()
+
+        const tableBody = document.getElementById('requirementListTableBody')
+        tableBody.innerHTML = ''
+
+        requirements.forEach((r) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td>${r.requirementId}</td>
+            <td>${r.name}</td>
+            <td>${r.field}</td>
+            <td>${r.minRequire}</td>
+            <td><button class="btn-delete" data-id="${r.requirementId}">🗑️ Delete</button></td>
+            <td><button class="btn-update" data-id="${r.requirementId}">✏️ Update</button></td>
+          `
+          tableBody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formRequirement')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#requirementTable tr')
+          const requirements = Array.from(rows).map((row) => {
+            const inputs = row.querySelectorAll('input')
+            return {
+              name: inputs[0].value,
+              field: inputs[1].value,
+              minRequire: parseFloat(inputs[2].value),
+            }
+          })
+
+          try {
+            for (const r of requirements) {
+              const res = await fetch('/admin/api/requirement/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(r),
+              })
+              if (!res.ok) throw new Error('Error adding requirement')
+            }
+            await loadRequirements()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const id = e.target.getAttribute('data-id')
+          if (!confirm('Confirm delete?')) return
+          try {
+            const res = await fetch(`/admin/api/requirement/delete/${id}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadRequirements()
+            alert('Deleted successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          openModal({
+            requirementId: e.target.getAttribute('data-id'),
+            name: row.children[1].innerText,
+            field: row.children[2].innerText,
+            minRequire: row.children[3].innerText,
+          })
+        }
+      })
+
+      function openModal(req) {
+        document.getElementById('updateRequirementId').value = req.requirementId
+        document.getElementById('updateName').value = req.name
+        document.getElementById('updateField').value = req.field
+        document.getElementById('updateMinRequire').value = req.minRequire
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const r = {
+            requirementId: document.getElementById('updateRequirementId').value,
+            name: document.getElementById('updateName').value,
+            field: document.getElementById('updateField').value,
+            minRequire: parseFloat(
+              document.getElementById('updateMinRequire').value
+            ),
+          }
+
+          try {
+            const res = await fetch(
+              `/admin/api/requirement/update/${r.requirementId}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(r),
+              }
+            )
+            if (!res.ok) throw new Error('Update failed')
+            await loadRequirements()
+            closeModal()
+            alert('Updated successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', loadRequirements)
+    </script>
+  </body>
+</html>
