@@ -3,45 +3,39 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add Lesson</title>
+    <title>Manage Final</title>
   </head>
   <body>
-    <h2>Number of lessons to add:</h2>
-    <input type="number" id="noOfLessons" min="1" max="10" value="1" />
-    <button onclick="generateLessonForm()">Generate Lesson Table</button>
+    <h2>Number of Final to add:</h2>
+    <input type="number" id="noOfFinals" min="1" max="10" value="1" />
+    <button onclick="generateFinalForm()">Generate Final Table</button>
 
-    <form id="formLesson">
+    <form id="formFinal">
       <table border="1">
         <thead>
           <tr>
-            <th>Lesson Name</th>
-            <th>Lesson Order</th>
-            <th>Length</th>
-            <th>Video Link</th>
             <th>Subject</th>
+            <th>Time (minutes)</th>
           </tr>
         </thead>
-        <tbody id="lessonsTable"></tbody>
+        <tbody id="finalTable"></tbody>
       </table>
       <br />
-      <button type="submit">Add Lesson</button>
+      <button type="submit">Add Final</button>
     </form>
 
-    <h2>Lesson List</h2>
+    <h2>Final List</h2>
     <table border="1">
       <thead>
         <tr>
           <th>ID</th>
-          <th>Name</th>
           <th>Subject</th>
-          <th>Order</th>
-          <th>Length</th>
-          <th>Video Link</th>
+          <th>Time</th>
           <th>Delete</th>
           <th>Update</th>
         </tr>
       </thead>
-      <tbody id="lessonListTableBody"></tbody>
+      <tbody id="finalListTableBody"></tbody>
     </table>
 
     <div
@@ -56,23 +50,16 @@
         padding: 20px;
         border: 1px solid black;
         z-index: 999;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       "
     >
-      <h3>Update Lesson</h3>
+      <h3>Update Final</h3>
       <form id="updateForm">
-        <input type="hidden" id="updateLessonId" />
-        <label>Name:</label><br />
-        <input type="text" id="updateName" required /><br /><br />
+        <input type="hidden" id="updateFinalId" />
         <label>Subject:</label><br />
         <select id="updateSubjectId" required></select
         ><br /><br />
-        <label>Order:</label><br />
-        <input type="number" id="updateOrder" required /><br /><br />
-        <label>Length:</label><br />
-        <input type="number" id="updateLength" required /><br /><br />
-        <label>Video Link:</label><br />
-        <input type="text" id="updateLink" required /><br /><br />
+        <label>Time (minutes):</label><br />
+        <input type="number" id="updateTime" required /><br /><br />
         <button type="submit">Save</button>
         <button type="button" onclick="closeModal()">Cancel</button>
       </form>
@@ -82,91 +69,71 @@
       let subjectList = []
 
       async function loadSubjects() {
-        const response = await fetch('/admin/api/subjects/get')
-        subjectList = await response.json()
+        const res = await fetch('/admin/api/subjects/get')
+        subjectList = await res.json()
       }
 
-      async function generateLessonForm() {
-        const noOfRow = parseInt(document.getElementById('noOfLessons').value)
-        if (noOfRow <= 0) return
-
+      async function generateFinalForm() {
+        const count = parseInt(document.getElementById('noOfFinals').value)
         await loadSubjects()
-        if (!subjectList) {
-          console.error('Error fetching subjects')
-          return
-        }
-
-        const table = document.getElementById('lessonsTable')
+        const table = document.getElementById('finalTable')
         table.innerHTML = ''
 
-        for (let i = 0; i < noOfRow; i++) {
+        for (let i = 0; i < count; i++) {
           const row = document.createElement('tr')
-          let options = `<option value=""></option>`
+          let options = '<option value=""></option>'
           subjectList.forEach((sub) => {
             options += `<option value="${sub.subject_id}">${sub.name}</option>`
           })
           row.innerHTML = `
-                <td><input type="text" name="name" required></td>
-                <td><input type="number" name="lesson_order" min="1" required></td>
-                <td><input type="number" name="length" min="1" required></td>
-                <td><input type="text" name="link_video" required></td>
-                <td><select name="subject_id">${options}</select></td>
-              `
+          <td><select name="subject_id" required>${options}</select></td>
+          <td><input type="number" name="time" min="1" required></td>
+        `
           table.appendChild(row)
         }
       }
 
-      async function loadLesson() {
-        const response = await fetch('/admin/api/lessons/list')
-        const lessonList = await response.json()
-
-        const tableBody = document.getElementById('lessonListTableBody')
+      async function loadFinals() {
+        const res = await fetch('/admin/api/final/list')
+        const finalList = await res.json()
+        const tableBody = document.getElementById('finalListTableBody')
         tableBody.innerHTML = ''
-
-        lessonList.forEach((lesson) => {
+        finalList.forEach((final) => {
           const row = document.createElement('tr')
           row.innerHTML = `
-                <td>${lesson.lesson_id}</td>
-                <td>${lesson.name}</td>
-                <td>${lesson.subject_name}</td>
-                <td>${lesson.lesson_order}</td>
-                <td>${lesson.length}</td>
-                <td>${lesson.link_video}</td>
-                <td><button class="btn-delete" data-id="${lesson.lesson_id}">🗑️ Delete</button></td>
-                <td><button class="btn-update" data-id="${lesson.lesson_id}">✏️ Update</button></td>
-              `
+          <td>${final.finalId}</td>
+          <td>${final.subject_name}</td>
+          <td>${final.time}</td>
+          <td><button class="btn-delete" data-id="${final.finalId}">🗑️ Delete</button></td>
+          <td><button class="btn-update" data-id="${final.finalId}">✏️ Update</button></td>
+        `
           tableBody.appendChild(row)
         })
       }
 
       document
-        .getElementById('formLesson')
+        .getElementById('formFinal')
         .addEventListener('submit', async function (e) {
           e.preventDefault()
-          const rows = document.querySelectorAll('#lessonsTable tr')
-          const lessons = []
-          rows.forEach((row) => {
+          const rows = document.querySelectorAll('#finalTable tr')
+          const finals = Array.from(rows).map((row) => {
             const inputs = row.querySelectorAll('input, select')
-            const lesson = {
-              name: inputs[0].value,
-              lesson_order: parseInt(inputs[1].value),
-              length: parseInt(inputs[2].value),
-              link_video: inputs[3].value,
-              subject_id: parseInt(inputs[4].value),
+            return {
+              subjectId: parseInt(inputs[0].value),
+              time: parseInt(inputs[1].value),
             }
-            lessons.push(lesson)
           })
+
           try {
-            for (const lesson of lessons) {
-              const res = await fetch('/admin/api/lesson/add', {
+            for (const final of finals) {
+              const res = await fetch('/admin/api/final/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(lesson),
+                body: JSON.stringify(final),
               })
-              if (!res.ok)
-                throw new Error(`Error adding lesson: ${lesson.name}`)
+              if (!res.ok) throw new Error('Error adding final')
             }
-            await loadLesson()
+            await loadFinals()
           } catch (err) {
             console.error(err)
             alert(err.message)
@@ -175,15 +142,15 @@
 
       document.addEventListener('click', async function (e) {
         if (e.target.classList.contains('btn-delete')) {
-          const lessonId = e.target.getAttribute('data-id')
+          const id = e.target.getAttribute('data-id')
           if (!confirm('Confirm delete?')) return
           try {
-            const res = await fetch(`/admin/api/lesson/delete/${lessonId}`, {
+            const res = await fetch(`/admin/api/final/delete/${id}`, {
               method: 'DELETE',
             })
             if (!res.ok) throw new Error('Delete failed')
-            await loadLesson()
-            alert('Lesson deleted successfully!')
+            await loadFinals()
+            alert('Final deleted successfully!')
           } catch (err) {
             console.error(err)
             alert(err.message)
@@ -191,43 +158,30 @@
         }
 
         if (e.target.classList.contains('btn-update')) {
-          const lessonId = e.target.getAttribute('data-id')
           const row = e.target.closest('tr')
-          const lesson = {
-            lesson_id: lessonId,
-            name: row.children[1].innerText,
-            subject_name: row.children[2].innerText,
-            lesson_order: row.children[3].innerText,
-            length: row.children[4].innerText,
-            link_video: row.children[5].innerText,
-          }
-          openModal(lesson)
+          openModal({
+            finalId: e.target.getAttribute('data-id'),
+            subjectName: row.children[1].innerText,
+            time: row.children[2].innerText,
+          })
         }
       })
 
-      async function openModal(lesson) {
-        if (!subjectList || subjectList.length === 0) {
-          await loadSubjects()
-        }
-        document.getElementById('updateLessonId').value = lesson.lesson_id
-        document.getElementById('updateName').value = lesson.name
-        document.getElementById('updateOrder').value = lesson.lesson_order
-        document.getElementById('updateLength').value = lesson.length
-        document.getElementById('updateLink').value = lesson.link_video
-        document.getElementById('updateModal').style.display = 'block'
+      async function openModal(final) {
+        if (subjectList.length === 0) await loadSubjects()
+        document.getElementById('updateFinalId').value = final.finalId
+        document.getElementById('updateTime').value = final.time
 
-        const subjectId = document.getElementById('updateSubjectId')
-        subjectId.innerHTML = ''
-
-        subjectList.forEach((subject) => {
+        const select = document.getElementById('updateSubjectId')
+        select.innerHTML = ''
+        subjectList.forEach((sub) => {
           const opt = document.createElement('option')
-          opt.value = subject.subject_id
-          opt.textContent = subject.name
-          if (subject.name === lesson.subject_name) {
-            opt.selected = true
-          }
-          subjectId.appendChild(opt)
+          opt.value = sub.subject_id
+          opt.textContent = sub.name
+          if (sub.name === final.subjectName) opt.selected = true
+          select.appendChild(opt)
         })
+
         document.getElementById('updateModal').style.display = 'block'
       }
 
@@ -239,38 +193,37 @@
         .getElementById('updateForm')
         .addEventListener('submit', async function (e) {
           e.preventDefault()
-          const lesson = {
-            lesson_id: document.getElementById('updateLessonId').value,
-            name: document.getElementById('updateName').value,
-            subject_id: parseInt(
+          const final = {
+            finalId: document.getElementById('updateFinalId').value,
+            subjectId: parseInt(
               document.getElementById('updateSubjectId').value
             ),
-            lesson_order: parseInt(
-              document.getElementById('updateOrder').value
-            ),
-            length: parseInt(document.getElementById('updateLength').value),
-            link_video: document.getElementById('updateLink').value,
+            time: parseInt(document.getElementById('updateTime').value),
           }
+
           try {
             const res = await fetch(
-              `/admin/api/lesson/update/${lesson.lesson_id}`,
+              `/admin/api/final/update/${final.finalId}`,
               {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(lesson),
+                body: JSON.stringify(final),
               }
             )
             if (!res.ok) throw new Error('Update failed')
-            await loadLesson()
+            await loadFinals()
             closeModal()
-            alert('Lesson updated successfully!')
+            alert('Final updated successfully!')
           } catch (err) {
             console.error(err)
             alert(err.message)
           }
         })
 
-      window.addEventListener('DOMContentLoaded', loadLesson)
+      window.addEventListener('DOMContentLoaded', () => {
+        loadSubjects()
+        loadFinals()
+      })
     </script>
   </body>
 </html>

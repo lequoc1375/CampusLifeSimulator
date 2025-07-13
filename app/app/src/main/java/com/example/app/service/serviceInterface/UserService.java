@@ -5,4 +5,5 @@ import com.example.app.entity.User;
 public interface UserService {
     User login(String username, String password);
     User register(String username, String password);
+    User getUserByUserId(int userId);
 }

@@ -18,7 +18,7 @@ import com.example.app.service.serviceInterface.LessonService;
 
 @RestController
 @RequestMapping("admin/api")
-public class LessonAdminRestController {
+public class LessonRestController {
 
     @Autowired
     private LessonService lessonService;

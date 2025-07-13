@@ -26,12 +26,31 @@ public class Subject {
 
     @Column(name = "credit")
     private int credit;
-    
-    @OneToMany(mappedBy="subject" , cascade = CascadeType.ALL)
+
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
     private List<Lesson> lessons = new ArrayList<>();
 
-    @OneToMany(mappedBy="subject", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
     private List<Midterm> midterms = new ArrayList<>();
+
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
+    private List<FinalExam> finalExams = new ArrayList<>();
+
+    public List<Midterm> getMidterms() {
+        return midterms;
+    }
+
+    public void setMidterms(List<Midterm> midterms) {
+        this.midterms = midterms;
+    }
+
+    public List<FinalExam> getFinalExams() {
+        return finalExams;
+    }
+
+    public void setFinalExams(List<FinalExam> finalExams) {
+        this.finalExams = finalExams;
+    }
 
     public int getSubject_id() {
         return subject_id;
