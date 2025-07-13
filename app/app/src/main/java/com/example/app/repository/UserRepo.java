@@ -6,5 +6,5 @@ import com.example.app.entity.User;
 
 public interface UserRepo extends JpaRepository<User, Integer>{
     User findByUsername(String username);
-    
+    User findByUserId (int id);
 }
