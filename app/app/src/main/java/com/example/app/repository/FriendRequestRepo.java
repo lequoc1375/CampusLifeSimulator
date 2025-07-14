@@ -18,5 +18,10 @@ public interface FriendRequestRepo extends JpaRepository<FriendRequest, Long> {
     boolean existsBySender_UserIdAndReceiver_UserId(int senderId, int receiverId);
 
     List<FriendRequest> findByReceiver_UserIdAndStatus(int receiverId, RequestStatus status);
+
+    void deleteByRequestId(Long requestId);
+
+    List<FriendRequest> findBySender_UserIdAndStatus(int userId, RequestStatus status);
+
 }
 

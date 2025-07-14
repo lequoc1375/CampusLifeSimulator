@@ -1,6 +1,7 @@
 package com.example.app.service.serviceImpl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,4 +48,16 @@ public class FriendRelationshipServiceImpl implements FriendRelationshipService 
             .collect(Collectors.toList());
     }
 
+    @Override
+    public void removeRelationship(int userId1, int userId2) {
+        Optional<FriendRelationship> relationship = friendRelationshipRepo
+            .findRelationship(userId1, userId2);
+
+        relationship.ifPresent(friendRelationshipRepo::delete);
+    }
+
+    @Override
+    public boolean isFriend(int userId1, int userId2) {
+        return friendRelationshipRepo.existsByFirstUser_UserIdAndSecondUser_UserId(userId1, userId2);
+    }
 }

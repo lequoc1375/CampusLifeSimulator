@@ -1,65 +1,84 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Student Game Navigation</title>
-    <link rel="stylesheet" th:href="@{/css/HomePage.css}" />
-    <link rel="stylesheet" th:href="@{/css/MenuBar.css}" />
-  </head>
-  <body>
-    <div th:replace="fragments/MenuBar :: header"></div>
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Game Navigation</title>
+  <link rel="stylesheet" th:href="@{/css/HomePage.css}" />
+  <link rel="stylesheet" th:href="@{/css/MenuBar.css}" />
+</head>
+<body>
+  <div th:replace="fragments/MenuBar :: header"></div>
 
-    <div class="container">
-      <div class="left-panel">
-        <button class="money"></button>
-        <button class="energy"></button>
-        <button class="stress"></button>
-        <button class="gpa">Credits + GPA</button>
-        <button class="schedule">Schedule</button>
-      </div>
+  <div class="container">
+    <div class="left-panel">
+      <button class="money"></button>
+      <button class="energy"></button>
+      <button class="stress"></button>
+      <button class="gpa">Credits + GPA</button>
+      <button class="schedule">Schedule</button>
+    </div>
 
-      <div class="avatar-section">
-        <div class="avatar-box"></div>
-        <a th:href="@{/change-cloth}">
-          <button class="change-cloth">Change Clothes</button>
-        </a>
-      </div>
+    <div class="avatar-section">
+      <div class="avatar-box"></div>
+      <a th:href="@{/change-cloth}">
+        <button class="change-cloth">Change Clothes</button>
+      </a>
+    </div>
 
-      <div class="right-panel">
-        <div class="friend-list">
-          
-          <!-- Add friend-->
+    <div class="right-panel">
+      <div class="friend-list">
+
+        <!-- Tabs -->
+        <div class="friend-list-tabs">
+          <button id="btnFriendList" onclick="showFriendList()" class="active-tab">Friends</button>
+          <button id="btnRequestList" onclick="showRequestList()">
+            Find Friend <span id="requestIndicator" style="color: red; display: none;">●</span>
+          </button>
+        </div>
+
+        <!-- Friend List Tab -->
+        <div id="friendListContainer" class="tab-content">
+          <ul id="friendList"></ul>
+        </div>
+
+        <!-- Request Tab -->
+        <div id="requestListContainer" class="tab-content" style="display: none;">
+
+          <!-- Find Friend -->
           <div class="add-friend-form">
-            <h4>Add new friend</h4>
+            <h4>Find Friend</h4>
             <div class="input-group">
               <input type="number" id="friendIdInput" placeholder="Enter friend's ID" />
-              <button onclick="sendFriendRequest()">Send Request</button>
+              <button onclick="previewFriendName()">Search</button>
             </div>
+            <div id="previewFriendInfo" style="margin-top: 10px;"></div>
             <p id="friendRequestStatus"></p>
           </div>
 
-          <!-- Tabs: Friends / Requests -->
-          <div class="friend-list-tabs">
-            <button id="btnFriendList" onclick="showFriendList()" class="active-tab">Friends</button>
-            <button id="btnRequestList" onclick="showRequestList()">Requests</button>
+          <!-- Sent Requests -->
+          <div class="sent-request-list">
+            <h4>Sent Requests</h4>
+            <ul id="sentRequestsContainer"></ul>
           </div>
 
-          <!-- Friend list / Request list -->
-          <div id="friendListContainer" class="tab-content">
-            <ul id="friendList"></ul>
-          </div>
-
-          <div id="requestListContainer" class="tab-content" style="display: none;">
+          <!-- Incoming Requests -->
+          <div class="pending-request-list">
+            <h4>Incoming Requests</h4>
             <ul id="pendingRequestsContainer"></ul>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
-  </body>
+  </div>
+
+  <!-- WebSocket libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 
   <script th:inline="javascript">
     let stats = [];
+    let stompClient = null;
 
     async function loadPlayerStats() {
       const response = await fetch("/player/api/stats/getByUser/[[${user.userId}]]");
@@ -73,26 +92,65 @@
       document.querySelector('.stress').innerText = `Stress: ${stats.currentStress}/${stats.maxStress}`;
     }
 
-    // Send friend request
-    async function sendFriendRequest() {
-      const friendId = document.getElementById("friendIdInput").value;
+    async function previewFriendName() {
+      const id = document.getElementById("friendIdInput").value;
+      const display = document.getElementById("previewFriendInfo");
+      display.innerHTML = "";
 
+      if (!id || isNaN(id)) {
+        display.innerText = "Please enter a valid ID.";
+        return;
+      }
+
+      try {
+        const response = await fetch(`/player/api/friend-request/user/${id}`);
+        if (!response.ok) {
+          const msg = await response.text();
+          display.innerText = msg;
+          return;
+        }
+
+        const data = await response.json();
+        const { userId, username, relation } = data;
+
+        if (relation === "friend") {
+          display.innerHTML = `<b>${username}</b> - <span style="color: green;">Friend</span>`;
+        } else if (relation === "incoming_request") {
+          display.innerHTML = `
+            <b>${username}</b> 
+            <button onclick="acceptFriendRequestFromSearch(${userId})">Accept</button>
+            <button onclick="declineFriendRequestFromSearch(${userId})">Decline</button>
+          `;
+        } else {
+          display.innerHTML = `
+            <b>${username}</b> 
+            <button onclick="sendFriendRequest(${userId})">Add</button>
+          `;
+        }
+
+      } catch (err) {
+        console.error(err);
+        display.innerText = "Error fetching user info.";
+      }
+    }
+
+    async function sendFriendRequest(friendId) {
       if (!friendId) {
-        alert("Please enter your friend's ID.");
+        alert("No user selected.");
         return;
       }
 
       try {
         const response = await fetch("/player/api/friend-request/send", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ receiverId: parseInt(friendId) }),
         });
 
         if (response.ok) {
           document.getElementById("friendRequestStatus").innerText = "Friend request sent successfully.";
+          document.getElementById("previewFriendInfo").innerHTML = "";
+          loadSentRequests();
         } else {
           const err = await response.text();
           document.getElementById("friendRequestStatus").innerText = `Error: ${err}`;
@@ -115,7 +173,9 @@
       document.getElementById("requestListContainer").style.display = "block";
       document.getElementById("btnFriendList").classList.remove("active-tab");
       document.getElementById("btnRequestList").classList.add("active-tab");
+
       loadPendingRequests();
+      loadSentRequests();
     }
 
     async function loadFriends() {
@@ -124,7 +184,12 @@
 
       const list = document.getElementById("friendList");
       list.innerHTML = friends.map(friend => `
-        <li>${friend.username || "User #" + friend.userId}</li>
+        <li>
+          ${friend.username || "User #" + friend.user_id}
+          <button onclick="removeFriend(${friend.user_id})" style="margin-left: 10px; color: red;">
+            Unfriend
+          </button>
+        </li>
       `).join("");
     }
 
@@ -153,6 +218,33 @@
       } catch (error) {
         console.error(error);
         container.innerHTML = "<li>Error while loading requests.</li>";
+      }
+      document.getElementById("requestIndicator").style.display = "none";
+    }
+
+    async function loadSentRequests() {
+      const container = document.getElementById("sentRequestsContainer");
+      try {
+        const response = await fetch("/player/api/friend-request/sent");
+        if (!response.ok) {
+          container.innerHTML = "<li>Failed to load sent requests.</li>";
+          return;
+        }
+
+        const requests = await response.json();
+        if (requests.length === 0) {
+          container.innerHTML = "<li>No sent requests.</li>";
+          return;
+        }
+
+        container.innerHTML = requests.map(req => `
+          <li>
+            Sent to <b>${req.receiver.username || "User #" + req.receiver.userId}</b> at ${req.requestTime}
+          </li>
+        `).join("");
+      } catch (error) {
+        console.error(error);
+        container.innerHTML = "<li>Error loading sent requests.</li>";
       }
     }
 
@@ -193,9 +285,85 @@
       }
     }
 
+    async function acceptFriendRequestFromSearch(senderId) {
+      try {
+        const res = await fetch(`/player/api/friend-request/pending`);
+        const requests = await res.json();
+        const request = requests.find(r => r.sender.user_id === senderId);
+        if (!request) {
+          alert("Request not found.");
+          return;
+        }
+        await acceptFriendRequest(request.requestId);
+        previewFriendName(); 
+      } catch (err) {
+        console.error(err);
+        alert("Server error.");
+      }
+    }
+
+    async function declineFriendRequestFromSearch(senderId) {
+      try {
+        const res = await fetch(`/player/api/friend-request/pending`);
+        const requests = await res.json();
+        const request = requests.find(r => r.sender.user_id === senderId);
+        if (!request) {
+          alert("Request not found.");
+          return;
+        }
+        await declineFriendRequest(request.requestId);
+        previewFriendName(); 
+      } catch (err) {
+        console.error(err);
+        alert("Server error.");
+      }
+    }
+
+    function connectWebSocket() {
+      const socket = new SockJS('/ws');
+      stompClient = Stomp.over(socket);
+
+      stompClient.connect({}, function (frame) {
+        stompClient.subscribe(`/topic/friend-request/[[${user.userId}]]`, function (message) {
+          const data = JSON.parse(message.body);
+          const container = document.getElementById("pendingRequestsContainer");
+          const html = `
+            <li>
+              <b>${data.senderUsername || "User #" + data.senderId}</b> sent a request
+              <button onclick="showRequestList()">View</button>
+            </li>
+          `;
+          container.innerHTML += html;
+          document.getElementById("requestIndicator").style.display = "inline";
+        });
+      });
+    }
+
+    async function removeFriend(friendId) {
+      if (!confirm("Are you sure you want to unfriend this user?")) return;
+
+      try {
+        const response = await fetch(`/player/api/friend-relationship/remove/${friendId}`, {
+          method: "DELETE"
+        });
+
+        if (response.ok) {
+          alert("Friend removed.");
+          loadFriends();
+        } else {
+          alert("Failed to remove friend.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Server error.");
+      }
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       loadPlayerStats();
       loadFriends();
+      connectWebSocket();
     });
   </script>
+</body>
 </html>
