@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Pets</title>
+  </head>
+  <body>
+    <h2>Number of Pets to Add:</h2>
+    <input type="number" id="noOfPets" min="1" max="10" value="1" />
+    <button onclick="generatePetForm()">Generate Pet Table</button>
+
+    <form id="formPet">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Image</th>
+            <th>Price Buy</th>
+            <th>Price Sell</th>
+            <th>Energy Affected</th>
+            <th>Stress Affected</th>
+          </tr>
+        </thead>
+        <tbody id="petTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add Pets</button>
+    </form>
+
+    <h2>Pet List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Image</th>
+          <th>Buy</th>
+          <th>Sell</th>
+          <th>Energy</th>
+          <th>Stress</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="petListTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+      "
+    >
+      <h3>Update Pet</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updatePetId" />
+        <label>Name:</label><br />
+        <input type="text" id="updatePetName" required /><br /><br />
+        <label>Image URL:</label><br />
+        <input type="text" id="updatePetImage" required /><br /><br />
+        <label>Price Buy:</label><br />
+        <input
+          type="number"
+          id="updatePriceBuy"
+          required
+          step="0.01"
+        /><br /><br />
+        <label>Price Sell:</label><br />
+        <input
+          type="number"
+          id="updatePriceSell"
+          required
+          step="0.01"
+        /><br /><br />
+        <label>Energy Affected:</label><br />
+        <input type="number" id="updateEnergyAffected" required /><br /><br />
+        <label>Stress Affected:</label><br />
+        <input type="number" id="updateStressAffected" required /><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      async function loadPets() {
+        const res = await fetch('/admin/api/pet')
+        const pets = await res.json()
+        const table = document.getElementById('petListTableBody')
+        table.innerHTML = ''
+        pets.forEach((pet) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+          <td>${pet.petId}</td>
+          <td>${pet.name}</td>
+          <td><img src="${pet.image}" width="50"/></td>
+          <td>${pet.priceBuy}</td>
+          <td>${pet.priceSell}</td>
+          <td>${pet.energyAffected}</td>
+          <td>${pet.stressAffected}</td>
+          <td><button class="btn-delete" data-id="${pet.petId}">🗑️</button></td>
+          <td><button class="btn-update" data-id="${pet.petId}">✏️</button></td>
+        `
+          table.appendChild(row)
+        })
+      }
+
+      function generatePetForm() {
+        const count = parseInt(document.getElementById('noOfPets').value)
+        const table = document.getElementById('petTable')
+        table.innerHTML = ''
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+          <td><input name="name" required /></td>
+          <td><input name="image" required /></td>
+          <td><input type="number" name="priceBuy" step="0.01" required /></td>
+          <td><input type="number" name="priceSell" step="0.01" required /></td>
+          <td><input type="number" name="energyAffected" required /></td>
+          <td><input type="number" name="stressAffected" required /></td>
+        `
+          table.appendChild(row)
+        }
+      }
+
+      document
+        .getElementById('formPet')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#petTable tr')
+          const pets = Array.from(rows).map((row) => {
+            const inputs = row.querySelectorAll('input')
+            return {
+              name: inputs[0].value,
+              image: inputs[1].value,
+              priceBuy: parseFloat(inputs[2].value),
+              priceSell: parseFloat(inputs[3].value),
+              energyAffected: parseInt(inputs[4].value),
+              stressAffected: parseInt(inputs[5].value),
+            }
+          })
+
+          try {
+            for (const pet of pets) {
+              const res = await fetch('/admin/api/pet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pet),
+              })
+              if (!res.ok) throw new Error('Add failed')
+            }
+            await loadPets()
+            alert('Pet(s) added!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const id = e.target.getAttribute('data-id')
+          if (!confirm('Confirm delete?')) return
+          try {
+            const res = await fetch(`/admin/api/pet/${id}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadPets()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          openModal({
+            petId: e.target.getAttribute('data-id'),
+            name: row.children[1].innerText,
+            image: row.children[2].querySelector('img').src,
+            priceBuy: row.children[3].innerText,
+            priceSell: row.children[4].innerText,
+            energyAffected: row.children[5].innerText,
+            stressAffected: row.children[6].innerText,
+          })
+        }
+      })
+
+      function openModal(pet) {
+        document.getElementById('updatePetId').value = pet.petId
+        document.getElementById('updatePetName').value = pet.name
+        document.getElementById('updatePetImage').value = pet.image
+        document.getElementById('updatePriceBuy').value = pet.priceBuy
+        document.getElementById('updatePriceSell').value = pet.priceSell
+        document.getElementById('updateEnergyAffected').value =
+          pet.energyAffected
+        document.getElementById('updateStressAffected').value =
+          pet.stressAffected
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const pet = {
+            name: document.getElementById('updatePetName').value,
+            image: document.getElementById('updatePetImage').value,
+            priceBuy: parseFloat(
+              document.getElementById('updatePriceBuy').value
+            ),
+            priceSell: parseFloat(
+              document.getElementById('updatePriceSell').value
+            ),
+            energyAffected: parseInt(
+              document.getElementById('updateEnergyAffected').value
+            ),
+            stressAffected: parseInt(
+              document.getElementById('updateStressAffected').value
+            ),
+          }
+          const id = document.getElementById('updatePetId').value
+          try {
+            const res = await fetch(`/admin/api/pet/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(pet),
+            })
+            if (!res.ok) throw new Error('Update failed')
+            await loadPets()
+            closeModal()
+            alert('Pet updated!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', loadPets)
+    </script>
+  </body>
+</html>
