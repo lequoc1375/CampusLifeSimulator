@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +30,45 @@ public class FriendRequestRestController {
 
     @Autowired
     private FriendRequestService friendRequestService;
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<?> getUserInfo(@PathVariable int id) {
+        int currentUserId = userSession.getUserId();
+        if (id == currentUserId) {
+            return ResponseEntity.badRequest().body("You cannot add yourself.");
+        }
+
+        try {
+            User user = userService.getUserByUserId(id);
+
+            boolean isFriend = friendRequestService.isFriend(currentUserId, id);
+            boolean hasReceivedRequest = friendRequestService.existsBySender_UserIdAndReceiver_UserId(id, currentUserId);
+
+            String relation;
+            if (isFriend) {
+                relation = "friend";
+            } else if (hasReceivedRequest) {
+                relation = "incoming_request";
+            } else {
+                relation = "none";
+            }
+
+            return ResponseEntity.ok(Map.of(
+                "userId", user.getUser_id(),
+                "username", user.getUsername(),
+                "relation", relation
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("User not found.");
+        }
+    }
+
+    @GetMapping("/sent")
+    public ResponseEntity<?> getSentRequests() {
+        int userId = userSession.getUserId();
+        List<FriendRequest> sent = friendRequestService.getSentRequests(userId);
+        return ResponseEntity.ok(sent);
+    }
     
     @PostMapping("/send")
     public ResponseEntity<?> sendFriendRequest(@RequestBody Map<String, Object> payload) {
@@ -90,4 +128,6 @@ public class FriendRequestRestController {
         friendRequestService.declineRequest(requestId);
         return "Friend request declined";
     }
+
+
 }

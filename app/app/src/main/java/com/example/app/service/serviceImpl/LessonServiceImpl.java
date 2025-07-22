@@ -54,7 +54,6 @@ public class LessonServiceImpl implements LessonService {
         Lesson lesson = lessonRepo.findById(id).orElseThrow(() -> new RuntimeException("lesson 4.2 is not exist"));
 
         lesson.setName(request.getName());
-        lesson.setLesson_order(request.getLesson_order());
         lesson.setLength(request.getLength());
         lesson.setLink_video(request.getLink_video());
 

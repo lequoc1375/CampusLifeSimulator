@@ -27,9 +27,6 @@ public class Lesson {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "lesson_order")
-    private int lesson_order;
-
     @Column(name = "length")
     private int length;
 
@@ -61,14 +58,6 @@ public class Lesson {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getLesson_order() {
-        return lesson_order;
-    }
-
-    public void setLesson_order(int lesson_order) {
-        this.lesson_order = lesson_order;
     }
 
     public int getLength() {

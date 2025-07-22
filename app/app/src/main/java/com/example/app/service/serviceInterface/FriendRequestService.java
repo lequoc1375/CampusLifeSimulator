@@ -22,4 +22,8 @@ public interface FriendRequestService {
 
     Optional<FriendRequest> findBySender_UserIdAndReceiver_UserId(int senderId, int receiverId);
 
+    List<FriendRequest> getSentRequests(int userId);
+
+    boolean isFriend(int userId1, int userId2);
+
 }
