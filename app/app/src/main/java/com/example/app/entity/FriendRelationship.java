@@ -6,7 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -17,15 +17,15 @@ public class FriendRelationship {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long friendRelationshipId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "first_user_id", referencedColumnName = "user_id", nullable = false)
     private User firstUser;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "second_user_id", referencedColumnName = "user_id", nullable = false)
     private User secondUser;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "relationship_id", referencedColumnName = "relationship_id", nullable = false)
     private Relationship relationship;
     

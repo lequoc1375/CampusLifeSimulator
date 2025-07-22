@@ -9,5 +9,7 @@ public interface FriendRelationshipService {
 
     void createRelationship(User player1, User player2);
 
+    void removeRelationship(int userId1, int userId2);
 
+    boolean isFriend(int userId1, int userId2);
 }

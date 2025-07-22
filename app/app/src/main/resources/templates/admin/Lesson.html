@@ -15,7 +15,6 @@
         <thead>
           <tr>
             <th>Lesson Name</th>
-            <th>Lesson Order</th>
             <th>Length</th>
             <th>Video Link</th>
             <th>Subject</th>
@@ -34,7 +33,6 @@
           <th>ID</th>
           <th>Name</th>
           <th>Subject</th>
-          <th>Order</th>
           <th>Length</th>
           <th>Video Link</th>
           <th>Delete</th>
@@ -67,8 +65,6 @@
         <label>Subject:</label><br />
         <select id="updateSubjectId" required></select
         ><br /><br />
-        <label>Order:</label><br />
-        <input type="number" id="updateOrder" required /><br /><br />
         <label>Length:</label><br />
         <input type="number" id="updateLength" required /><br /><br />
         <label>Video Link:</label><br />
@@ -107,7 +103,6 @@
           })
           row.innerHTML = `
                 <td><input type="text" name="name" required></td>
-                <td><input type="number" name="lesson_order" min="1" required></td>
                 <td><input type="number" name="length" min="1" required></td>
                 <td><input type="text" name="link_video" required></td>
                 <td><select name="subject_id">${options}</select></td>
@@ -129,7 +124,6 @@
                 <td>${lesson.lesson_id}</td>
                 <td>${lesson.name}</td>
                 <td>${lesson.subject_name}</td>
-                <td>${lesson.lesson_order}</td>
                 <td>${lesson.length}</td>
                 <td>${lesson.link_video}</td>
                 <td><button class="btn-delete" data-id="${lesson.lesson_id}">🗑️ Delete</button></td>
@@ -149,10 +143,9 @@
             const inputs = row.querySelectorAll('input, select')
             const lesson = {
               name: inputs[0].value,
-              lesson_order: parseInt(inputs[1].value),
-              length: parseInt(inputs[2].value),
-              link_video: inputs[3].value,
-              subject_id: parseInt(inputs[4].value),
+              length: parseInt(inputs[1].value),
+              link_video: inputs[2].value,
+              subject_id: parseInt(inputs[3].value),
             }
             lessons.push(lesson)
           })
@@ -197,9 +190,8 @@
             lesson_id: lessonId,
             name: row.children[1].innerText,
             subject_name: row.children[2].innerText,
-            lesson_order: row.children[3].innerText,
-            length: row.children[4].innerText,
-            link_video: row.children[5].innerText,
+            length: row.children[3].innerText,
+            link_video: row.children[4].innerText,
           }
           openModal(lesson)
         }
@@ -211,7 +203,6 @@
         }
         document.getElementById('updateLessonId').value = lesson.lesson_id
         document.getElementById('updateName').value = lesson.name
-        document.getElementById('updateOrder').value = lesson.lesson_order
         document.getElementById('updateLength').value = lesson.length
         document.getElementById('updateLink').value = lesson.link_video
         document.getElementById('updateModal').style.display = 'block'
@@ -244,9 +235,6 @@
             name: document.getElementById('updateName').value,
             subject_id: parseInt(
               document.getElementById('updateSubjectId').value
-            ),
-            lesson_order: parseInt(
-              document.getElementById('updateOrder').value
             ),
             length: parseInt(document.getElementById('updateLength').value),
             link_video: document.getElementById('updateLink').value,
