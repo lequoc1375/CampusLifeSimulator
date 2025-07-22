@@ -14,7 +14,6 @@ import com.example.app.entity.FriendRequest;
 import com.example.app.entity.FriendRequest.RequestStatus;
 import com.example.app.entity.User;
 import com.example.app.repository.FriendRequestRepo;
-import com.example.app.service.serviceInterface.ConversationParticipantService;
 import com.example.app.service.serviceInterface.ConversationService;
 import com.example.app.service.serviceInterface.FriendRelationshipService;
 import com.example.app.service.serviceInterface.FriendRequestService;
@@ -29,10 +28,10 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     FriendRelationshipService friendRelationshipService;
 
     @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    SimpMessagingTemplate messagingTemplate;
 
     @Autowired
-    private ConversationService conversationService;
+    ConversationService conversationService;
 
     @Override
     public List<FriendRequest> getFriendRequestsByUserId(int user_id) {
@@ -77,7 +76,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
             request.setResponseTime(LocalDateTime.now());
             friendRequestRepo.save(request);
             
-            conversationService.createPrivateConversation(request.getSender(), request.getReceiver());
+            conversationService.createConversation(request.getSender(), request.getReceiver());
             friendRelationshipService.createRelationship(request.getSender(), request.getReceiver());
 
             friendRequestRepo.deleteById(requestId);

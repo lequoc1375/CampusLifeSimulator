@@ -460,9 +460,17 @@
       if (box) {
         const body = box.querySelector('.chat-body');
         const input = box.querySelector('.chat-input');
-        const hidden = body.style.display === 'none';
-        body.style.display = hidden ? 'block' : 'none';
-        input.style.display = hidden ? 'flex' : 'none';
+        const isHidden = body.style.display === 'none';
+
+        if (isHidden) {
+          body.style.display = 'block';
+          input.style.display = 'flex';
+          box.style.height = '400px';
+        } else {
+          body.style.display = 'none';
+          input.style.display = 'none';
+          box.style.height = '40px';
+        }
       }
     }
 
@@ -475,22 +483,26 @@
       const content = input.value.trim();
       if (!content) return;
 
-      const conversationId = conversationMap.get(friendId);
-      stompClient.send("/app/chat/send", {}, JSON.stringify({
-        senderId: currentUserId,
-        receiverId: friendId,
-        content: content,
-        conversationId: conversationId || null
-      }));
+      fetch('/api/chat/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          senderId: currentUserId,
+          receiverId: friendId,
+          content: content
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const body = document.getElementById('chat-body-' + friendId);
+        const div = document.createElement('div');
+        div.classList.add("my-message");
+        div.innerText = 'You: ' + content;
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
 
-      const body = document.getElementById('chat-body-' + friendId);
-      const div = document.createElement('div');
-      div.classList.add("my-message"); 
-      div.innerText = 'You: ' + content;
-      body.appendChild(div);
-      body.scrollTop = body.scrollHeight;
-
-      input.value = '';
+        input.value = '';
+      });
     }
 
     window.addEventListener("DOMContentLoaded", () => {

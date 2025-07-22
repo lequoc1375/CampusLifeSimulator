@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.app.entity.FriendRelationship;
 import com.example.app.entity.User;
 import com.example.app.repository.FriendRelationshipRepo;
+import com.example.app.service.serviceInterface.ConversationService;
 import com.example.app.service.serviceInterface.FriendRelationshipService;
 import com.example.app.service.serviceInterface.RelationshipService;
 
@@ -21,6 +22,9 @@ public class FriendRelationshipServiceImpl implements FriendRelationshipService 
 
     @Autowired
     private RelationshipService relationshipService;
+
+    @Autowired
+    ConversationService conversationService;
 
     @Override
     public void createRelationship(User player1, User player2) {
@@ -52,8 +56,9 @@ public class FriendRelationshipServiceImpl implements FriendRelationshipService 
     public void removeRelationship(int userId1, int userId2) {
         Optional<FriendRelationship> relationship = friendRelationshipRepo
             .findRelationship(userId1, userId2);
-
         relationship.ifPresent(friendRelationshipRepo::delete);
+
+        conversationService.deleteConversation(userId1, userId2);
     }
 
     @Override

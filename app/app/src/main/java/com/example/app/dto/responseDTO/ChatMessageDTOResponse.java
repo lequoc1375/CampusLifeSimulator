@@ -1,24 +1,11 @@
 package com.example.app.dto.responseDTO;
 
-import java.time.LocalDateTime;
-
 public class ChatMessageDTOResponse {
-    private Long messageId;
     private int senderId;
     private String senderUsername;
     private int receiverId;
-    private Long conversationId;
     private String content;
-    private LocalDateTime sentAt;
-
-    // Getters and setters
-    public Long getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId(Long messageId) {
-        this.messageId = messageId;
-    }
+    private String sendAt;
 
     public int getSenderId() {
         return senderId;
@@ -44,14 +31,6 @@ public class ChatMessageDTOResponse {
         this.receiverId = receiverId;
     }
 
-    public Long getConversationId() {
-        return conversationId;
-    }
-
-    public void setConversationId(Long conversationId) {
-        this.conversationId = conversationId;
-    }
-
     public String getContent() {
         return content;
     }
@@ -60,11 +39,11 @@ public class ChatMessageDTOResponse {
         this.content = content;
     }
 
-    public LocalDateTime getSentAt() {
-        return sentAt;
+    public String getSendAt() {
+        return sendAt;
     }
 
-    public void setSentAt(LocalDateTime sentAt) {
-        this.sentAt = sentAt;
+    public void setSendAt(String sendAt) {
+        this.sendAt = sendAt;
     }
 }

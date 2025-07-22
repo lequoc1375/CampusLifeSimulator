@@ -1,28 +1,19 @@
 package com.example.app.service.serviceInterface;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.example.app.entity.Conversation;
-import com.example.app.entity.ConversationParticipant;
 import com.example.app.entity.User;
 
 public interface ConversationService {
+    Conversation getConversationByTwoUser(int user1, int user2);
 
-    Conversation createPrivateConversation(User user1, User user2);
+    Conversation createConversation(User user1, User user2);
 
-    Optional<Conversation> getPrivateConversation(int userId1, int userId2);
+    void deleteConversation(int userId1, int userId2);
 
-    List<Conversation> getAllConversationsForUser(int userId);
+    List<Conversation> findAllByUser(User user);
 
-    boolean isParticipant(Long conversationId, int userId);
+    Conversation findById(Long id);
 
-    List<ConversationParticipant> getParticipants(Long conversationId);
-
-    Optional<Conversation> findPrivateConversationBetween(int user1, int user2);
-
-    Conversation save(Conversation conversation);
-
-    Conversation getConversationByConversationId(Long conversation_id);
 }
-

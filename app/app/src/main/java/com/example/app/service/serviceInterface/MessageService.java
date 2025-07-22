@@ -2,14 +2,11 @@ package com.example.app.service.serviceInterface;
 
 import java.util.List;
 
-import com.example.app.dto.responseDTO.ChatMessageDTOResponse;
+import com.example.app.entity.Conversation;
 import com.example.app.entity.Message;
 
 public interface MessageService {
+    List<Message> getAllMessageByConversation(Conversation conversation);
 
-    Message sendMessage(Long conversationId, int senderId, String content);
-
-    List<ChatMessageDTOResponse> getMessages(Long conversationId, int receiverId);
-
+    Message sendMessage(Conversation conversation, int sender, String content);
 }
-

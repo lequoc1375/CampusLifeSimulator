@@ -2,30 +2,34 @@ package com.example.app.entity;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "message")
 public class Message {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "message_id")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long messageId;
 
     @ManyToOne
-    @JoinColumn(name = "conversation_id", nullable = false)
+    @JoinColumn(name = "conversation_id", referencedColumnName = "conversation_id", nullable = false)
     private Conversation conversation;
 
     @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
+    @JoinColumn(name = "sender_id", referencedColumnName = "user_id", nullable = false)
     private User sender;
 
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
-    private String content;
+    @Column(name="send_at")
+    private LocalDateTime sendAt;
 
-    @Column(name = "sent_at")
-    private LocalDateTime sentAt = LocalDateTime.now();
+    @Column(name="content")
+    private String content;
 
     public Long getMessageId() {
         return messageId;
@@ -51,6 +55,14 @@ public class Message {
         this.sender = sender;
     }
 
+    public LocalDateTime getSendAt() {
+        return sendAt;
+    }
+
+    public void setSendAt(LocalDateTime sendAt) {
+        this.sendAt = sendAt;
+    }
+
     public String getContent() {
         return content;
     }
@@ -59,12 +71,6 @@ public class Message {
         this.content = content;
     }
 
-    public LocalDateTime getSentAt() {
-        return sentAt;
-    }
-
-    public void setSentAt(LocalDateTime sentAt) {
-        this.sentAt = sentAt;
-    }
+    
 }
 
