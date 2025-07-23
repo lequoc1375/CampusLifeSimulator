@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wall Management</title>
+  </head>
+  <body>
+    <h2>Number of walls to add:</h2>
+    <input type="number" id="noOfWalls" min="1" max="10" value="1" />
+    <button onclick="generateWallForm()">Generate Wall Table</button>
+
+    <form id="formWall">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Price</th>
+            <th>Image URL</th>
+          </tr>
+        </thead>
+        <tbody id="wallsTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add Wall(s)</button>
+    </form>
+
+    <h2>Wall List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Price</th>
+          <th>Image</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="wallListTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      "
+    >
+      <h3>Update Wall</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateWallId" />
+        <label>Price:</label><br />
+        <input type="number" id="updatePrice" required /><br /><br />
+        <label>Image URL:</label><br />
+        <input type="text" id="updateImage" required /><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      async function generateWallForm() {
+        const count = parseInt(document.getElementById('noOfWalls').value)
+        if (count <= 0) return
+
+        const table = document.getElementById('wallsTable')
+        table.innerHTML = ''
+
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+          <td><input type="number" name="price" required></td>
+          <td><input type="text" name="image" required></td>
+        `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadWalls() {
+        const response = await fetch('/admin/api/wall/all')
+        const wallList = await response.json()
+
+        const tableBody = document.getElementById('wallListTableBody')
+        tableBody.innerHTML = ''
+
+        wallList.forEach((wall) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+          <td>${wall.wallId}</td>
+          <td>${wall.price}</td>
+          <td><img src="${wall.image}" alt="Wall Image" width="100"/></td>
+          <td><button class="btn-delete" data-id="${wall.wallId}">🗑️ Delete</button></td>
+          <td><button class="btn-update" data-id="${wall.wallId}">✏️ Update</button></td>
+        `
+          tableBody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formWall')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#wallsTable tr')
+          const walls = []
+          rows.forEach((row) => {
+            const inputs = row.querySelectorAll('input')
+            const wall = {
+              price: parseFloat(inputs[0].value),
+              image: inputs[1].value,
+            }
+            walls.push(wall)
+          })
+
+          try {
+            for (const wall of walls) {
+              const res = await fetch('/admin/api/wall/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(wall),
+              })
+              if (!res.ok) throw new Error(`Error adding wall`)
+            }
+            await loadWalls()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const wallId = e.target.getAttribute('data-id')
+          if (!confirm('Confirm delete?')) return
+
+          try {
+            const res = await fetch(`/admin/api/wall/delete/${wallId}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadWalls()
+            alert('Wall deleted successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          const wall = {
+            wallId: row.children[0].innerText,
+            price: row.children[1].innerText,
+            image: row.children[2].querySelector('img').src,
+          }
+          openModal(wall)
+        }
+      })
+
+      function openModal(wall) {
+        document.getElementById('updateWallId').value = wall.wallId
+        document.getElementById('updatePrice').value = wall.price
+        document.getElementById('updateImage').value = wall.image
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const wall = {
+            price: parseFloat(document.getElementById('updatePrice').value),
+            image: document.getElementById('updateImage').value,
+          }
+          const wallId = document.getElementById('updateWallId').value
+
+          try {
+            const res = await fetch(`/admin/api/wall/update/${wallId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(wall),
+            })
+            if (!res.ok) throw new Error('Update failed')
+            await loadWalls()
+            closeModal()
+            alert('Wall updated successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', loadWalls)
+    </script>
+  </body>
+</html>

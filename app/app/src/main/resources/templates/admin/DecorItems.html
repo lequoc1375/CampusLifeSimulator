@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Decor Item Management</title>
+    <style>
+      table,
+      th,
+      td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 4px;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 20%;
+        left: 30%;
+        background: #fff;
+        padding: 20px;
+        border: 1px solid #000;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Number of Decor Items to Add:</h2>
+    <input type="number" id="numRowsInput" />
+    <button onclick="generateFormRows()">Generate Rows</button>
+
+    <form id="decorForm">
+      <table id="decorTable">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Energy</th>
+            <th>Stress</th>
+            <th>Size X</th>
+            <th>Size Y</th>
+            <th>Size Z</th>
+          </tr>
+        </thead>
+        <tbody id="decorFormBody"></tbody>
+      </table>
+      <button type="submit">Add Decor Items</button>
+    </form>
+
+    <hr />
+    <h2>Existing Decor Items</h2>
+    <table id="decorList">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Image</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Energy</th>
+          <th>Stress</th>
+          <th>Size</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Modal -->
+    <div id="updateModal" class="modal">
+      <h3>Update Decor Item</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateId" />
+        <input placeholder="Image" id="updateImage" /><br />
+        <input placeholder="Category" id="updateCategory" /><br />
+        <input placeholder="Price" id="updatePrice" type="number" /><br />
+        <input placeholder="Energy" id="updateEnergy" type="number" /><br />
+        <input placeholder="Stress" id="updateStress" type="number" /><br />
+        <input placeholder="Size X" id="updateSizeX" type="number" /><br />
+        <input placeholder="Size Y" id="updateSizeY" type="number" /><br />
+        <input placeholder="Size Z" id="updateSizeZ" type="number" /><br />
+        <button type="submit">Update</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      const api = '/admin/api/decor-item'
+
+      function generateFormRows() {
+        const num = parseInt(document.getElementById('numRowsInput').value)
+        const tbody = document.getElementById('decorFormBody')
+        tbody.innerHTML = ''
+        for (let i = 0; i < num; i++) {
+          tbody.innerHTML += `
+      <tr>
+        <td><input name="image" /></td>
+        <td><input name="category" /></td>
+        <td><input name="price" type="number"/></td>
+        <td><input name="energyAffected" type="number"/></td>
+        <td><input name="stressAffected" type="number"/></td>
+        <td><input name="sizeX" type="number"/></td>
+        <td><input name="sizeY" type="number"/></td>
+        <td><input name="sizeZ" type="number"/></td>
+      </tr>`
+        }
+      }
+
+      document
+        .getElementById('decorForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#decorFormBody tr')
+          for (const row of rows) {
+            const inputs = row.querySelectorAll('input')
+            const dto = {
+              image: inputs[0].value,
+              category: inputs[1].value,
+              price: parseFloat(inputs[2].value),
+              energyAffected: parseInt(inputs[3].value),
+              stressAffected: parseInt(inputs[4].value),
+              sizeX: parseInt(inputs[5].value),
+              sizeY: parseInt(inputs[6].value),
+              sizeZ: parseInt(inputs[7].value),
+            }
+            await fetch(`${api}/add`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(dto),
+            })
+          }
+          loadData()
+        })
+
+      async function loadData() {
+        const res = await fetch(api)
+        const data = await res.json()
+        const tbody = document.querySelector('#decorList tbody')
+        tbody.innerHTML = ''
+        data.forEach((d) => {
+          tbody.innerHTML += `
+          <tr>
+            <td>${d.decorItemId}</td>
+            <td>${d.image}</td>
+            <td>${d.category}</td>
+            <td>${d.price}</td>
+            <td>${d.energyAffected}</td>
+            <td>${d.stressAffected}</td>
+            <td>${d.sizeX} x ${d.sizeY} x ${d.sizeZ}</td>
+            <td>
+              <button onclick='openModal(${JSON.stringify(d)})'>Edit</button>
+              <button onclick='deleteItem(${d.decorItemId})'>Delete</button>
+            </td>
+          </tr>`
+        })
+      }
+
+      function openModal(d) {
+        document.getElementById('updateId').value = d.decorItemId
+        document.getElementById('updateImage').value = d.image
+        document.getElementById('updateCategory').value = d.category
+        document.getElementById('updatePrice').value = d.price
+        document.getElementById('updateEnergy').value = d.energyAffected
+        document.getElementById('updateStress').value = d.stressAffected
+        document.getElementById('updateSizeX').value = d.sizeX
+        document.getElementById('updateSizeY').value = d.sizeY
+        document.getElementById('updateSizeZ').value = d.sizeZ
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault()
+          const id = document.getElementById('updateId').value
+          const dto = {
+            image: document.getElementById('updateImage').value,
+            category: document.getElementById('updateCategory').value,
+            price: parseFloat(document.getElementById('updatePrice').value),
+            energyAffected: parseInt(
+              document.getElementById('updateEnergy').value
+            ),
+            stressAffected: parseInt(
+              document.getElementById('updateStress').value
+            ),
+            sizeX: parseInt(document.getElementById('updateSizeX').value),
+            sizeY: parseInt(document.getElementById('updateSizeY').value),
+            sizeZ: parseInt(document.getElementById('updateSizeZ').value),
+          }
+          await fetch(`${api}/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dto),
+          })
+          closeModal()
+          loadData()
+        })
+
+      async function deleteItem(id) {
+        if (confirm('Are you sure?')) {
+          await fetch(`${api}/${id}`, { method: 'DELETE' })
+          loadData()
+        }
+      }
+
+      window.onload = loadData
+    </script>
+  </body>
+</html>
