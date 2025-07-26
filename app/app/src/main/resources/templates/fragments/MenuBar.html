@@ -1,21 +1,43 @@
+<!-- Google Icons -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
 <div th:fragment="header">
   <div class="header">
-    <a th:href="@{/logo}"><button class="logo">Logo</button></a>
 
-    <div>
-      <a th:href="@{/Game/HomePage}"><button class="pink-btn">Menu</button></a>
-      <a th:href="@{/Game/UniversityTown}"
-        ><button class="pink-btn">University Town</button></a
-      >
-      <a th:href="@{/register}"
-        ><button class="pink-btn">Register Subject</button></a
-      >
+    <!-- Logo trái -->
+    <a th:href="@{/logo}" class="logo-circle">
+      <img th:src="@{/images/LogoCLS.png}" alt="Logo" class="logo-img" />
+    </a>
+
+    <!-- Menu chính giữa -->
+    <div class="menu-group">
+      <a th:href="@{/Game/HomePage}" class="menu-btn">
+        <span class="material-symbols-outlined">home</span>
+        <span class="btn-label">Home</span>
+      </a>
+      <a th:href="@{/Game/UniversityTown}" class="menu-btn">
+        <span class="material-symbols-outlined">map</span>
+        <span class="btn-label">Map</span>
+      </a>
+      <a th:href="@{/register}" class="menu-btn">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span class="btn-label">Register</span>
+      </a>
     </div>
 
-    <h1 th:text="|Hello ${user.username}|"></h1>
+    <!-- Avatar, Notification, Username phải -->
     <div class="circle-group">
-      <a th:href="@{/notifications}" class="circle-btn">Thông báo</a>
-      <a th:href="@{/profile}" class="circle-btn">Avatar</a>
+      <a th:href="@{/notifications}" class="circle-icon">
+        <span class="material-symbols-outlined">notifications</span>
+        <span class="btn-label">Notifications</span>
+      </a>
+
+      <!-- Profile -->
+      <a class="circle-icon">
+        <span class="material-symbols-outlined">person</span>
+        <span class="btn-label">Profile</span>
+      </a>
     </div>
+
   </div>
 </div>
