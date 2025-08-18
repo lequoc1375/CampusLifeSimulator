@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>2FA Setup</title>
+  </head>
+  <body>
+    <h2>Scan this QR code with Google Authenticator</h2>
+    <p th:text="'Username: ' + ${username}"></p>
+    <img th:src="'data:image/png;base64,' + ${qrBase64}" alt="QR Code" />
+    <br /><br />
+    <a href="/login">Continue to Login</a>
+  </body>
+</html>

@@ -12,27 +12,29 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "user")
-public class User { 
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="user_id")
+    @Column(name = "user_id")
     private int userId;
 
-    @Column(name="username")
+    @Column(name = "username")
     private String username;
 
-    @Column(name="password")
+    @Column(name = "password")
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="role")
+    @Column(name = "role")
     private Role role;
-    
 
-    @OneToOne(mappedBy="user")
+    @Column(name = "secret")
+    private String secret;
+
+    @OneToOne(mappedBy = "user")
     private UserCurriculum userCurriculum;
-    
+
     public enum Role {
         admin, player
     }
@@ -77,5 +79,20 @@ public class User {
         this.userCurriculum = userCurriculum;
     }
 
-    
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+
 }

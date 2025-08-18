@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Two-Factor Authentication</title>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      .otp-box {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        width: 300px;
+      }
+      input[type='text'] {
+        padding: 10px;
+        font-size: 18px;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      button {
+        background: #4caf50;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+      }
+      button:hover {
+        background: #45a049;
+      }
+      .error {
+        color: red;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="otp-box">
+      <h2>Enter 2FA Code</h2>
+      <form th:action="@{/2fa/verify}" method="post">
+        <input
+          type="hidden"
+          name="username"
+          th:value="${#authentication.name}"
+        />
+        <input
+          type="text"
+          name="code"
+          placeholder="6-digit code"
+          required
+          maxlength="6"
+        />
+        <button type="submit">Verify</button>
+      </form>
+
+      <div th:if="${param.error}" class="error">
+        Invalid code, please try again.
+      </div>
+    </div>
+  </body>
+</html>

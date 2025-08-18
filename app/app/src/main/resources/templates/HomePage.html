@@ -84,7 +84,7 @@
     const currentUserId = /*[[${user.userId}]]*/ 0;
 
     async function loadPlayerStats() {
-      const response = await fetch("/player/api/stats/getByUser/[[${user.userId}]]");
+      const response = await fetch("/player/api/stats/me");
       stats = await response.json();
       updateUI(stats);
     }

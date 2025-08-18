@@ -86,11 +86,37 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-		</dependency> -->
-		<!-- <dependency>
+		</dependency>  -->
+		<!-- https://mvnrepository.com/artifact/com.warrenstrange/googleauth -->
+		<dependency>
+    <groupId>com.google.zxing</groupId>
+    <artifactId>core</artifactId>
+    <version>3.5.3</version>
+</dependency>
+<dependency>
+    <groupId>com.google.zxing</groupId>
+    <artifactId>javase</artifactId>
+    <version>3.5.3</version>
+</dependency>
+		<dependency>
+    		<groupId>com.warrenstrange</groupId>
+    		<artifactId>googleauth</artifactId>
+    		<version>1.5.0</version>
+		</dependency>
+		<dependency>
+        	<groupId>com.github.ulisesbocchio</groupId>
+        	<artifactId>jasypt-spring-boot-starter</artifactId>
+        	<version>3.0.5</version>
+		</dependency>
+		<dependency>
+    		<groupId>org.jboss.aerogear</groupId>
+    		<artifactId>aerogear-otp-java</artifactId>
+    		<version>1.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency> -->
+		</dependency> 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
