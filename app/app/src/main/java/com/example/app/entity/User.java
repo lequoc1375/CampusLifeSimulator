@@ -29,9 +29,6 @@ public class User {
     @Column(name = "role")
     private Role role;
 
-    @Column(name = "secret")
-    private String secret;
-
     @OneToOne(mappedBy = "user")
     private UserCurriculum userCurriculum;
 
@@ -85,14 +82,6 @@ public class User {
 
     public void setUserId(int userId) {
         this.userId = userId;
-    }
-
-    public String getSecret() {
-        return secret;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
     }
 
 }

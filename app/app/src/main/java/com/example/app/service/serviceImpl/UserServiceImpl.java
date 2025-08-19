@@ -1,8 +1,6 @@
 package com.example.app.service.serviceImpl;
 
-import org.jasypt.encryption.StringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +9,6 @@ import com.example.app.entity.User;
 import com.example.app.entity.User.Role;
 import com.example.app.repository.UserRepo;
 import com.example.app.service.serviceInterface.UserService;
-import com.warrenstrange.googleauth.GoogleAuthenticator;
-import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 
 @Service
 @Transactional
@@ -26,9 +22,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PlayerProfileServiceImpl playerProfileServiceImpl;
 
-    @Autowired
-    @Qualifier("jasyptStringEncryptor")
-    private StringEncryptor stringEncryptor;
 
     @Override
     public User login(String username, String password) {
@@ -50,11 +43,6 @@ public class UserServiceImpl implements UserService {
         user.setPassword(encodedPassword);
         user.setRole(Role.player);
         user.setUsername(username);
-
-        GoogleAuthenticator googleAuthenticator = new GoogleAuthenticator();
-        GoogleAuthenticatorKey secretKey = googleAuthenticator.createCredentials();
-        String encodedSecret = stringEncryptor.encrypt(secretKey.getKey());
-        user.setSecret(encodedSecret);
         userRepo.save(user);
 
         return user;

@@ -12,7 +12,7 @@
       >
     </div>
 
-    <h1 th:text="|Hello ${user.username}|"></h1>
+    <h1 th:text="|Hello ${#authentication.name}|"></h1>
     <div class="circle-group">
       <a th:href="@{/notifications}" class="circle-btn">Thông báo</a>
       <a th:href="@{/profile}" class="circle-btn">Avatar</a>

@@ -47,7 +47,7 @@ public class RegisterController {
 
         playerStatsService.create(user, 18, 150.0, 100, 100, 100, 0);
 
-        return "redirect:/2fa/setup?username=" + user.getUsername();
+        return "redirect:/login";
     }
 
 }
