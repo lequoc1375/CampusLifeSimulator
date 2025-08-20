@@ -42,7 +42,6 @@ body {
   flex-direction: column;
 }
 
-
 .left-panel {
   width: 320px;
   border-radius: 16px;
@@ -269,7 +268,7 @@ body {
 }
 
 .avatar-section {
-  width: 50%;
+  width: 40%;
   text-align: center;
 }
 
@@ -559,4 +558,20 @@ body {
   background: #ecf0f1;
   padding: 5px 10px;
   border-radius: 10px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .left-panel,
+  .avatar-section,
+  .right-panel {
+    width: 90%;
+    max-width: none;
+  }
 }

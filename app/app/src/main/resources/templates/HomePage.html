@@ -12,7 +12,6 @@
 
   <div class="container">
     <div class="left-panel">
-      <!-- Bảng 1: Thông tin người chơi -->
       <div class="player-stats-wrapper">
         <div class="player-stats-container">
           <!-- Money -->
@@ -49,7 +48,6 @@
         </div>
       </div>
 
-      <!-- Bảng 2: Lịch -->
       <div class="calendar-wrapper">
         <div class="calendar-container">
           <div class="calendar-header">
@@ -66,7 +64,6 @@
             <div class="day-label">Fri</div>
             <div class="day-label">Sat</div>
             <div class="day-label">Sun</div>
-            <!-- JS sẽ render các ngày -->
           </div>
         </div>
       </div>
@@ -102,17 +99,11 @@
           <div class="add-friend-form">
             <h4>Find Friend</h4>
             <div class="input-group">
-              <input type="number" id="friendIdInput" placeholder="Enter friend's ID" />
+              <input id="friendIdInput" placeholder="Enter friend's username" />
               <button onclick="previewFriendName()">Search</button>
             </div>
             <div id="previewFriendInfo" style="margin-top: 10px;"></div>
             <p id="friendRequestStatus"></p>
-          </div>
-
-          <!-- Sent Requests -->
-          <div class="sent-request-list">
-            <h4>Sent Requests</h4>
-            <ul id="sentRequestsContainer"></ul>
           </div>
 
           <!-- Incoming Requests -->
@@ -167,25 +158,26 @@
     }
 
     async function previewFriendName() {
-      const id = document.getElementById("friendIdInput").value;
+      const inputUsername = document.getElementById("friendIdInput").value.trim().toLowerCase();
       const display = document.getElementById("previewFriendInfo");
       display.innerHTML = "";
 
-      if (!id || isNaN(id)) {
-        display.innerText = "Please enter a valid ID.";
+      if (!inputUsername) {
+        display.innerText = "Please enter a valid username.";
         return;
       }
 
+      display.innerText = "Loading...";
+
       try {
-        const response = await fetch(`/player/api/friend-request/user/${id}`);
+        const response = await fetch(`/player/api/friend-request/user/${inputUsername}`);
         if (!response.ok) {
           const msg = await response.text();
           display.innerText = msg;
           return;
         }
 
-        const data = await response.json();
-        const { userId, username, relation } = data;
+        const { userId, username, relation } = await response.json();
 
         if (relation === "friend") {
           display.innerHTML = `<b>${username}</b> - <span style="color: green;">Friend</span>`;
@@ -195,13 +187,14 @@
             <button onclick="acceptFriendRequestFromSearch(${userId})">Accept</button>
             <button onclick="declineFriendRequestFromSearch(${userId})">Decline</button>
           `;
+        } else if (relation === "outgoing_request") {
+          display.innerHTML = `<b>${username}</b> - <span style="color: gray;">Request Sent</span>`;
         } else {
           display.innerHTML = `
             <b>${username}</b> 
             <button onclick="sendFriendRequest(${userId})">Add</button>
           `;
         }
-
       } catch (err) {
         console.error(err);
         display.innerText = "Error fetching user info.";
@@ -227,7 +220,7 @@
           loadSentRequests();
         } else {
           const err = await response.text();
-          document.getElementById("friendRequestStatus").innerText = `Error: ${err}`;
+          document.getElementById("friendRequestStatus").innerText = `${err}`;
         }
       } catch (error) {
         console.error(error);
@@ -280,7 +273,6 @@
     function toggleOptionsMenu(btn) {
       const menu = btn.nextElementSibling;
 
-      // Đóng tất cả menu khác trước khi mở cái mới
       document.querySelectorAll('.options-menu').forEach(m => {
         if (m !== menu) m.style.display = 'none';
       });
@@ -288,7 +280,6 @@
       menu.style.display = menu.style.display === "block" ? "none" : "block";
     }
 
-    // Tắt menu nếu click ra ngoài
     document.addEventListener("click", function (e) {
       if (!e.target.closest(".friend-options")) {
         document.querySelectorAll(".options-menu").forEach(menu => {
@@ -324,32 +315,6 @@
         container.innerHTML = "<li>Error while loading requests.</li>";
       }
       document.getElementById("requestIndicator").style.display = "none";
-    }
-
-    async function loadSentRequests() {
-      const container = document.getElementById("sentRequestsContainer");
-      try {
-        const response = await fetch("/player/api/friend-request/sent");
-        if (!response.ok) {
-          container.innerHTML = "<li>Failed to load sent requests.</li>";
-          return;
-        }
-
-        const requests = await response.json();
-        if (requests.length === 0) {
-          container.innerHTML = "<li>No sent requests.</li>";
-          return;
-        }
-
-        container.innerHTML = requests.map(req => `
-          <li>
-            Sent to <b>${req.receiver.username || "User #" + req.receiver.userId}</b> at ${req.requestTime}
-          </li>
-        `).join("");
-      } catch (error) {
-        console.error(error);
-        container.innerHTML = "<li>Error loading sent requests.</li>";
-      }
     }
 
     async function acceptFriendRequest(requestId) {

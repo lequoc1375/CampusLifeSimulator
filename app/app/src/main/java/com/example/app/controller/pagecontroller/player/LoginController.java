@@ -43,7 +43,7 @@ public class LoginController {
         userSession.setRole(user.getRole().toString());
         userSession.setUserId(user.getUser_id());
 
-        return "redirect:/Game/HomePage";
+        return "redirect:/CampusLife/HomePage";
     }
 
 }
