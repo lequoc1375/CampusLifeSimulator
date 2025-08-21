@@ -33,12 +33,13 @@ public class RegisterController {
     @PostMapping("/register")
     public String postMethodName(@ModelAttribute RegisterDTORequest registerDTOrq) {
         User user = userService.register(registerDTOrq.getUsername(), registerDTOrq.getPassword());
-        
+
         if (user == null) {
             return "Register";
         }
 
-        boolean success = playerProfileService.registerProfile(registerDTOrq.getFirstname(), registerDTOrq.getLastname(),registerDTOrq.getEmail(), registerDTOrq.getPhone(), user);
+        boolean success = playerProfileService.registerProfile(registerDTOrq.getFirstname(),
+                registerDTOrq.getLastname(), registerDTOrq.getEmail(), registerDTOrq.getPhone(), user);
 
         if (!success) {
             return "Register";

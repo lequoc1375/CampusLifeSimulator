@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.app.util.UserSession;
 
 @Controller
-@RequestMapping("/Game")
+@RequestMapping("/CampusLife")
 public class HomePageController {
     @Autowired
     private UserSession userSession;

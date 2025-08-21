@@ -4,13 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.app.dto.requestDTO.LoginDTORequest;
-import com.example.app.entity.User;
 import com.example.app.service.serviceInterface.UserService;
 import com.example.app.util.UserSession;
+
 
 @Controller
 public class LoginController {
@@ -28,22 +26,7 @@ public class LoginController {
         return "Login";
     }
 
-    @PostMapping("/login")
-    public String postMethodName(@ModelAttribute LoginDTORequest loginDTOrq) {
-        User user = userService.login(loginDTOrq.getUsername(), loginDTOrq.getPassword());
 
-        if (user == null) {
-            return "redirect:/login";
-        }
-        if (user.getRole() == User.Role.admin) {
-            return "redirect:/admin/HomePage";
-        }
-
-        userSession.setUsername(user.getUsername());
-        userSession.setRole(user.getRole().toString());
-        userSession.setUserId(user.getUser_id());
-
-        return "redirect:/Game/HomePage";
-    }
+    
 
 }

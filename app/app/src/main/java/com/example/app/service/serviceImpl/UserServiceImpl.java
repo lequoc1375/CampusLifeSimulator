@@ -1,21 +1,30 @@
 package com.example.app.service.serviceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.app.entity.User;
 import com.example.app.entity.User.Role;
 import com.example.app.repository.UserRepo;
 import com.example.app.service.serviceInterface.UserService;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserRepo userRepo; 
+    private UserRepo userRepo;
 
     @Autowired
     private PlayerProfileServiceImpl playerProfileServiceImpl;
+
 
     @Override
     public User login(String username, String password) {
@@ -32,8 +41,9 @@ public class UserServiceImpl implements UserService {
             return null;
         }
         User user = new User();
-        
-        user.setPassword(password);
+
+        String encodedPassword = passwordEncoder.encode(password);
+        user.setPassword(encodedPassword);
         user.setRole(Role.player);
         user.setUsername(username);
         userRepo.save(user);
@@ -47,7 +57,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserByUsername(String username) {
+        try {
+            return userRepo.findByUsernameIgnoreCase(username);
+        } catch (EmptyResultDataAccessException e) {
+            throw new EntityNotFoundException("User not found with username: " + username);
+        }
+    }
+
+    @Override
     public String getUsernameByUserId(int userId) {
         return userRepo.findUsernameByUserId(userId);
+    }
+
+    @Override
+    public User getUsername(String username) {
+        return userRepo.findByUsername(username);
     }
 }
