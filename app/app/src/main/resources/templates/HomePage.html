@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Student Game Navigation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
   <link rel="stylesheet" th:href="@{/css/HomePage.css}" />
   <link rel="stylesheet" th:href="@{/css/MenuBar.css}" />
 </head>
@@ -11,11 +12,61 @@
 
   <div class="container">
     <div class="left-panel">
-      <button class="money"></button>
-      <button class="energy"></button>
-      <button class="stress"></button>
-      <button class="gpa">Credits + GPA</button>
-      <button class="schedule">Schedule</button>
+      <div class="player-stats-wrapper">
+        <div class="player-stats-container">
+          <!-- Money -->
+          <div class="stat money">
+            <label>Money</label>
+            <span class="money-value">$0</span>
+          </div>
+
+          <!-- Energy -->
+          <div class="stat energy">
+            <label>Energy</label>
+            <div class="bar">
+              <div class="fill energy-fill">0/0</div>
+            </div>
+          </div>
+
+          <!-- Stress -->
+          <div class="stat stress">
+            <label>Stress</label>
+            <div class="bar">
+              <div class="fill stress-fill">0/0</div>
+            </div>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- GPA -->
+          <div class="stat gpa">
+            <p class="credits">Number of Credits: N/A</p>
+            <p class="gpa-value">Grade Point Average: N/A</p>
+          </div>
+
+          <button class="view-details">View Details</button>
+        </div>
+      </div>
+
+      <div class="calendar-wrapper">
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <button id="prev-month" class="nav-btn">‹</button>
+            <span id="month-name">Month</span>
+            <span id="year">Year</span>
+            <button id="next-month" class="nav-btn">›</button>
+          </div>
+          <div class="calendar-grid" id="calendar-grid">
+            <div class="day-label">Mon</div>
+            <div class="day-label">Tue</div>
+            <div class="day-label">Wed</div>
+            <div class="day-label">Thu</div>
+            <div class="day-label">Fri</div>
+            <div class="day-label">Sat</div>
+            <div class="day-label">Sun</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="avatar-section">
@@ -48,17 +99,11 @@
           <div class="add-friend-form">
             <h4>Find Friend</h4>
             <div class="input-group">
-              <input type="number" id="friendIdInput" placeholder="Enter friend's ID" />
+              <input id="friendIdInput" placeholder="Enter friend's username" />
               <button onclick="previewFriendName()">Search</button>
             </div>
             <div id="previewFriendInfo" style="margin-top: 10px;"></div>
             <p id="friendRequestStatus"></p>
-          </div>
-
-          <!-- Sent Requests -->
-          <div class="sent-request-list">
-            <h4>Sent Requests</h4>
-            <ul id="sentRequestsContainer"></ul>
           </div>
 
           <!-- Incoming Requests -->
@@ -90,31 +135,43 @@
     }
 
     function updateUI(stats) {
-      document.querySelector('.money').innerText = `Cash: $${stats.money}`;
-      document.querySelector('.energy').innerText = `Energy: ${stats.currentEnergy}/${stats.maxEnergy}`;
-      document.querySelector('.stress').innerText = `Stress: ${stats.currentStress}/${stats.maxStress}`;
+      // Money
+      document.querySelector('.money-value').innerText = `$${Number(stats.money).toLocaleString()}`;
+
+      // Energy
+      const energyPercent = (stats.currentEnergy / stats.maxEnergy) * 100;
+      const energyFill = document.querySelector('.energy-fill');
+      energyFill.style.width = `${energyPercent}%`;
+      energyFill.innerText = `${stats.currentEnergy}/${stats.maxEnergy}`;
+
+      // Stress
+      const stressPercent = (stats.currentStress / stats.maxStress) * 100;
+      const stressFill = document.querySelector('.stress-fill');
+      stressFill.style.width = `${stressPercent}%`;
+      stressFill.innerText = `${stats.currentStress}/${stats.maxStress}`;
     }
 
     async function previewFriendName() {
-      const id = document.getElementById("friendIdInput").value;
+      const inputUsername = document.getElementById("friendIdInput").value.trim().toLowerCase();
       const display = document.getElementById("previewFriendInfo");
       display.innerHTML = "";
 
-      if (!id || isNaN(id)) {
-        display.innerText = "Please enter a valid ID.";
+      if (!inputUsername) {
+        display.innerText = "Please enter a valid username.";
         return;
       }
 
+      display.innerText = "Loading...";
+
       try {
-        const response = await fetch(`/player/api/friend-request/user/${id}`);
+        const response = await fetch(`/player/api/friend-request/user/${inputUsername}`);
         if (!response.ok) {
           const msg = await response.text();
           display.innerText = msg;
           return;
         }
 
-        const data = await response.json();
-        const { userId, username, relation } = data;
+        const { userId, username, relation } = await response.json();
 
         if (relation === "friend") {
           display.innerHTML = `<b>${username}</b> - <span style="color: green;">Friend</span>`;
@@ -124,13 +181,14 @@
             <button onclick="acceptFriendRequestFromSearch(${userId})">Accept</button>
             <button onclick="declineFriendRequestFromSearch(${userId})">Decline</button>
           `;
+        } else if (relation === "outgoing_request") {
+          display.innerHTML = `<b>${username}</b> - <span style="color: gray;">Request Sent</span>`;
         } else {
           display.innerHTML = `
             <b>${username}</b> 
             <button onclick="sendFriendRequest(${userId})">Add</button>
           `;
         }
-
       } catch (err) {
         console.error(err);
         display.innerText = "Error fetching user info.";
@@ -156,7 +214,7 @@
           loadSentRequests();
         } else {
           const err = await response.text();
-          document.getElementById("friendRequestStatus").innerText = `Error: ${err}`;
+          document.getElementById("friendRequestStatus").innerText = `${err}`;
         }
       } catch (error) {
         console.error(error);
@@ -187,15 +245,42 @@
 
       const list = document.getElementById("friendList");
       list.innerHTML = friends.map(friend => `
-      <li>
-        ${friend.username || "User #" + friend.user_id}
-        <button onclick="openChatBox(${friend.user_id}, '${friend.username || "User #" + friend.user_id}')">Chat</button>
-        <button onclick="removeFriend(${friend.user_id})" style="margin-left: 10px; color: red;">
-          Unfriend
-        </button>
+      <li class="friend-item">
+        <div class="friend-avatar">
+          <img src="/images/DefaultAvatar.png" alt="avatar" />
+        </div>
+        <div class="friend-info">
+          <div class="friend-name">${friend.username || "User #" + friend.user_id}</div>
+          <div class="friend-status">online</div>
+        </div>
+        <div class="friend-options">
+          <button class="option-btn" onclick="toggleOptionsMenu(this)">⋯</button>
+          <div class="options-menu" style="display: none;">
+            <button onclick="openChatBox(${friend.user_id}, '${friend.username || "User #" + friend.user_id}')">Chat</button>
+            <button onclick="removeFriend(${friend.user_id})" style="color: red;">Unfriend</button>
+          </div>
+        </div>
       </li>
     `).join("");
     }
+
+    function toggleOptionsMenu(btn) {
+      const menu = btn.nextElementSibling;
+
+      document.querySelectorAll('.options-menu').forEach(m => {
+        if (m !== menu) m.style.display = 'none';
+      });
+
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest(".friend-options")) {
+        document.querySelectorAll(".options-menu").forEach(menu => {
+          menu.style.display = "none";
+        });
+      }
+    });
 
     async function loadPendingRequests() {
       const container = document.getElementById("pendingRequestsContainer");
@@ -224,32 +309,6 @@
         container.innerHTML = "<li>Error while loading requests.</li>";
       }
       document.getElementById("requestIndicator").style.display = "none";
-    }
-
-    async function loadSentRequests() {
-      const container = document.getElementById("sentRequestsContainer");
-      try {
-        const response = await fetch("/player/api/friend-request/sent");
-        if (!response.ok) {
-          container.innerHTML = "<li>Failed to load sent requests.</li>";
-          return;
-        }
-
-        const requests = await response.json();
-        if (requests.length === 0) {
-          container.innerHTML = "<li>No sent requests.</li>";
-          return;
-        }
-
-        container.innerHTML = requests.map(req => `
-          <li>
-            Sent to <b>${req.receiver.username || "User #" + req.receiver.userId}</b> at ${req.requestTime}
-          </li>
-        `).join("");
-      } catch (error) {
-        console.error(error);
-        container.innerHTML = "<li>Error loading sent requests.</li>";
-      }
     }
 
     async function acceptFriendRequest(requestId) {
@@ -512,6 +571,72 @@
     });
 
 
+  </script>
+
+  <script>
+    const monthNameEl = document.getElementById("month-name");
+    const yearEl = document.getElementById("year");
+    const calendarGrid = document.getElementById("calendar-grid");
+
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    let currentDate = new Date();
+
+    function renderCalendar(date) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+
+      // Set header
+      monthNameEl.textContent = monthNames[month];
+      yearEl.textContent = year;
+
+      // Xóa tất cả các ngày cũ (chừa lại 7 ô label đầu)
+      while (calendarGrid.children.length > 7) {
+        calendarGrid.removeChild(calendarGrid.lastChild);
+      }
+
+      const firstDay = new Date(year, month, 1).getDay(); // 0: Sunday
+      const startDay = (firstDay + 6) % 7; // chuyển về Monday = 0
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Render các ô trống trước ngày 1
+      for (let i = 0; i < startDay; i++) {
+        const emptyDiv = document.createElement("div");
+        calendarGrid.appendChild(emptyDiv);
+      }
+
+      // Render các ngày trong tháng
+      const today = new Date();
+      const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayDiv = document.createElement("div");
+        dayDiv.className = "day";
+        dayDiv.textContent = day;
+
+        if (isCurrentMonth && day === today.getDate()) {
+          dayDiv.classList.add("today");
+        }
+
+        calendarGrid.appendChild(dayDiv);
+      }
+    }
+
+    document.getElementById("prev-month").addEventListener("click", () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar(currentDate);
+    });
+
+    document.getElementById("next-month").addEventListener("click", () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar(currentDate);
+    });
+
+    // Lần đầu load
+    renderCalendar(currentDate);
   </script>
 </body>
 </html>

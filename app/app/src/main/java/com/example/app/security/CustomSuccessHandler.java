@@ -23,7 +23,7 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         if (roles.contains("ROLE_admin")) {
             response.sendRedirect("/admin/HomePage");
         } else {
-            response.sendRedirect("/Game/HomePage");
+            response.sendRedirect("/CampusLife/HomePage");
         }
 
     }

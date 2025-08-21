@@ -31,18 +31,19 @@ public class FriendRequestRestController {
     @Autowired
     private FriendRequestService friendRequestService;
 
-    @GetMapping("/user/{id}")
-    public ResponseEntity<?> getUserInfo(@PathVariable int id) {
+    @GetMapping("/user/{username}")
+    public ResponseEntity<?> getUserInfo(@PathVariable String username) {
         int currentUserId = userSession.getUserId();
-        if (id == currentUserId) {
+        String currentUsername = userSession.getUsername();
+        if (username.equalsIgnoreCase(currentUsername)) {
             return ResponseEntity.badRequest().body("You cannot add yourself.");
         }
 
         try {
-            User user = userService.getUserByUserId(id);
+            User user = userService.getUserByUsername(username);
 
-            boolean isFriend = friendRequestService.isFriend(currentUserId, id);
-            boolean hasReceivedRequest = friendRequestService.existsBySender_UserIdAndReceiver_UserId(id, currentUserId);
+            boolean isFriend = friendRequestService.isFriend(currentUserId, user.getUser_id());
+            boolean hasReceivedRequest = friendRequestService.existsBySender_UserIdAndReceiver_UserId(user.getUser_id(), currentUserId);
 
             String relation;
             if (isFriend) {
@@ -77,15 +78,17 @@ public class FriendRequestRestController {
             int senderId = userSession.getUserId();
 
             if (receiverId == senderId) {
-                return ResponseEntity.badRequest().body("This is your ID, please check again.");
+                return ResponseEntity.badRequest().body("This is you, please check again.");
             }
 
             User sender = userService.getUserByUserId(senderId);
             User receiver = userService.getUserByUserId(receiverId);
 
+            String receiverUsername = receiver.getUsername();
+
             boolean alreadyExists = friendRequestService.existsBySender_UserIdAndReceiver_UserId(senderId, receiverId);
             if (alreadyExists) {
-                return ResponseEntity.badRequest().body("Already send request to this ID");
+                return ResponseEntity.badRequest().body("Already send request to this username");
             }
 
             boolean alreadyReceive = friendRequestService.existsBySender_UserIdAndReceiver_UserId(receiverId, senderId);
@@ -95,15 +98,15 @@ public class FriendRequestRestController {
                     .orElseThrow(() -> new RuntimeException("Request not found"));
 
                 friendRequestService.acceptRequest(existingRequest.getRequestId());
-                return ResponseEntity.ok("Accepted pending request from user: " + receiverId);
+                return ResponseEntity.ok("Accepted pending request from " + receiverUsername);
             }
 
 
             friendRequestService.createRequest(sender, receiver);
-            return ResponseEntity.ok("Sent friend request to ID: " + receiverId);
+            return ResponseEntity.ok("Sent friend request to " + receiverUsername);
 
         } catch (NullPointerException | IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid user ID.");
+            return ResponseEntity.badRequest().body("Invalid username.");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Server error, please try again.");

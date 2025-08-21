@@ -2,45 +2,166 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #d3d3d3;
-  padding: 10px;
+  background: #ffffff;
+  padding: 10px 10px;
+  border-radius: 50px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  position: relative;
 }
 
-.header button {
-  margin: 0 5px;
-  padding: 10px 15px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.logo {
-  background-color: orange;
-}
-
-.pink-btn {
-  background-color: pink;
-}
-
-.circle-btn {
-  background-color: pink;
+.logo-img {
+  width: 110%;
+  height: 110%;
+  object-fit: contain;
   border-radius: 50%;
-  width: 70px;
-  height: 70px;
+}
+
+.logo-circle {
+  width: 65px;
+  height: 65px;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-  white-space: nowrap;
-  font-size: 12px;
+}
+
+.menu-group {
+  display: flex;
+  gap: 20px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.menu-btn {
+  position: relative;
+  background-color: #f1f1f1;
+  border-radius: 15px;
+  padding: 0 64px;
   text-decoration: none;
-  color: black;
-  border: none;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  transition: background-color 0.2s;
+}
+
+.menu-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-label {
+  position: absolute;
+  background-color: #333;
+  padding: 0.4rem;
+  bottom: -30px;
+  border-radius: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  color: #F0F0F0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.menu-btn:hover .btn-label {
+  opacity: 1;
 }
 
 .circle-group {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 15px;
+}
+
+.circle-icon {
+  position: relative;
+  background-color: #f1f1f1;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  padding: 0.3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.circle-icon .btn-label {
+  position: absolute;
+  background-color: #333;
+  padding: 0.4rem;
+  bottom: -30px;
+  border-radius: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  color: #F0F0F0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.circle-icon:hover .btn-label {
+  opacity: 1;
+}
+
+.circle-icon:hover {
+  background-color: #e0e0e0;
+}
+
+.username-text {
+  font-weight: 500;
+  font-size: 20px;
+  color: #333;
+}
+
+.menu-btn .material-symbols-outlined,
+.circle-icon .material-symbols-outlined {
+  font-size: 36px;
+  color: #333332;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+    border-radius: 20px;
+    padding: 15px;
+  }
+
+  .menu-group {
+    position: static;
+    transform: none;
+    margin-top: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .menu-btn {
+    width: 50px;
+    height: 50px;
+    padding: 10px;
+  }
+
+  .btn-label {
+    font-size: 12px;
+    bottom: -20px;
+  }
+
+  .circle-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+
+  .username-text {
+    font-size: 14px;
+  }
 }
