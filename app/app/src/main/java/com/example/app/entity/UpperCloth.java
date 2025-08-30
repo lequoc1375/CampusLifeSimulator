@@ -1,10 +1,14 @@
 package com.example.app.entity;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -27,6 +31,17 @@ public class UpperCloth {
 
     @Column(name = "categories", length = 50)
     private String categories;
+
+    @OneToMany(mappedBy = "upperCloth", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShopUpperCloth> shopUpperCloth;
+
+    public List<ShopUpperCloth> getShopUpperCloth() {
+        return shopUpperCloth;
+    }
+
+    public void setShopUpperCloth(List<ShopUpperCloth> shopUpperCloth) {
+        this.shopUpperCloth = shopUpperCloth;
+    }
 
     public Integer getUpperId() {
         return upperId;

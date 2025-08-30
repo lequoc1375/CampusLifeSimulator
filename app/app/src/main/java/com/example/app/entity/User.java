@@ -31,7 +31,7 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private UserCurriculum userCurriculum;
-
+    
     public enum Role {
         admin, player
     }
