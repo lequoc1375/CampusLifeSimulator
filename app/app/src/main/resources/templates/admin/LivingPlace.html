@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Manage LivingPlace</title>
+  </head>
+  <body>
+    <h2>Number of LivingPlaces to Add:</h2>
+    <input type="number" id="noOfPlaces" min="1" max="10" value="1" />
+    <button onclick="generateLivingPlaceForm()">
+      Generate LivingPlace Table
+    </button>
+
+    <form id="formLivingPlace">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Price / Month</th>
+            <th>Max Decor Item</th>
+            <th>Image</th>
+            <th>Size X</th>
+            <th>Size Y</th>
+            <th>Size Z</th>
+          </tr>
+        </thead>
+        <tbody id="livingPlaceTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add LivingPlace</button>
+    </form>
+
+    <h2>LivingPlace List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Price / Month</th>
+          <th>Max Decor Item</th>
+          <th>Image</th>
+          <th>Size X</th>
+          <th>Size Y</th>
+          <th>Size Z</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="livingPlaceListTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+      "
+    >
+      <h3>Update LivingPlace</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updatePlaceId" />
+        <label>Name:</label><br />
+        <input type="text" id="updateName" required /><br />
+        <label>Price / Month:</label><br />
+        <input
+          type="number"
+          step="0.01"
+          id="updatePricePerMonth"
+          required
+        /><br />
+        <label>Max Decor Item:</label><br />
+        <input type="number" id="updateMaxDecorItem" required /><br />
+        <label>Image:</label><br />
+        <input type="text" id="updateImage" /><br />
+        <label>Size X:</label><br />
+        <input type="number" id="updateSizeX" required /><br />
+        <label>Size Y:</label><br />
+        <input type="number" id="updateSizeY" required /><br />
+        <label>Size Z:</label><br />
+        <input type="number" id="updateSizeZ" required /><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      async function generateLivingPlaceForm() {
+        const count = parseInt(document.getElementById('noOfPlaces').value)
+        const table = document.getElementById('livingPlaceTable')
+        table.innerHTML = ''
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td><input type="text" name="name" required /></td>
+            <td><input type="number" step="0.01" name="pricePerMonth" required /></td>
+            <td><input type="number" name="maxDecorItem" required /></td>
+            <td><input type="text" name="image" /></td>
+            <td><input type="number" name="sizeX" required /></td>
+            <td><input type="number" name="sizeY" required /></td>
+            <td><input type="number" name="sizeZ" required /></td>
+          `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadLivingPlace() {
+        const res = await fetch('/admin/api/livingplace/list')
+        const places = await res.json()
+        const tableBody = document.getElementById('livingPlaceListTableBody')
+        tableBody.innerHTML = ''
+        places.forEach((p) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td>${p.placeId}</td>
+            <td>${p.name}</td>
+            <td>${p.pricePerMonth}</td>
+            <td>${p.maxDecorItem}</td>
+            <td>${p.image}</td>
+            <td>${p.sizeX}</td>
+            <td>${p.sizeY}</td>
+            <td>${p.sizeZ}</td>
+            <td><button class="btn-delete" data-id="${p.placeId}">🗑️</button></td>
+            <td><button class="btn-update" data-id="${p.placeId}">✏️</button></td>
+          `
+          tableBody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formLivingPlace')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#livingPlaceTable tr')
+          const places = Array.from(rows).map((row) => {
+            const inputs = row.querySelectorAll('input')
+            return {
+              name: inputs[0].value,
+              pricePerMonth: parseFloat(inputs[1].value),
+              maxDecorItem: parseInt(inputs[2].value),
+              image: inputs[3].value,
+              sizeX: parseInt(inputs[4].value),
+              sizeY: parseInt(inputs[5].value),
+              sizeZ: parseInt(inputs[6].value),
+            }
+          })
+
+          try {
+            for (const p of places) {
+              const res = await fetch('/admin/api/livingplace/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(p),
+              })
+              if (!res.ok) throw new Error('Add failed')
+            }
+            await loadLivingPlace()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const id = e.target.getAttribute('data-id')
+          if (!confirm('Delete this LivingPlace?')) return
+          try {
+            const res = await fetch(`/admin/api/livingplace/delete/${id}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadLivingPlace()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          openModal({
+            placeId: e.target.getAttribute('data-id'),
+            name: row.children[1].innerText,
+            pricePerMonth: row.children[2].innerText,
+            maxDecorItem: row.children[3].innerText,
+            image: row.children[4].innerText,
+            sizeX: row.children[5].innerText,
+            sizeY: row.children[6].innerText,
+            sizeZ: row.children[7].innerText,
+          })
+        }
+      })
+
+      function openModal(p) {
+        document.getElementById('updatePlaceId').value = p.placeId
+        document.getElementById('updateName').value = p.name
+        document.getElementById('updatePricePerMonth').value = p.pricePerMonth
+        document.getElementById('updateMaxDecorItem').value = p.maxDecorItem
+        document.getElementById('updateImage').value = p.image
+        document.getElementById('updateSizeX').value = p.sizeX
+        document.getElementById('updateSizeY').value = p.sizeY
+        document.getElementById('updateSizeZ').value = p.sizeZ
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const p = {
+            placeId: document.getElementById('updatePlaceId').value,
+            name: document.getElementById('updateName').value,
+            pricePerMonth: parseFloat(
+              document.getElementById('updatePricePerMonth').value
+            ),
+            maxDecorItem: parseInt(
+              document.getElementById('updateMaxDecorItem').value
+            ),
+            image: document.getElementById('updateImage').value,
+            sizeX: parseInt(document.getElementById('updateSizeX').value),
+            sizeY: parseInt(document.getElementById('updateSizeY').value),
+            sizeZ: parseInt(document.getElementById('updateSizeZ').value),
+          }
+
+          try {
+            const res = await fetch(
+              `/admin/api/livingplace/update/${p.placeId}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(p),
+              }
+            )
+            if (!res.ok) throw new Error('Update failed')
+            await loadLivingPlace()
+            closeModal()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', () => {
+        loadLivingPlace()
+      })
+    </script>
+  </body>
+</html>
