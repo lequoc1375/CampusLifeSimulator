@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manage Shop Upper Cloth</title>
+    <title>Manage Shop Foot Cloth</title>
   </head>
   <body>
-    <h2>Number of Shop Upper Cloth to Add:</h2>
+    <h2>Number of Shop Foot Cloth to Add:</h2>
     <input type="number" id="noOfCloths" min="1" max="10" value="1" />
     <button onclick="generateClothForm()">Generate Cloth Table</button>
 
@@ -15,23 +15,23 @@
         <thead>
           <tr>
             <th>Shop ID</th>
-            <th>Upper Cloth ID</th>
+            <th>Foot Cloth ID</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody id="clothTable"></tbody>
       </table>
       <br />
-      <button type="submit">Add Shop Upper Cloth</button>
+      <button type="submit">Add Shop Foot Cloth</button>
     </form>
 
-    <h2>Shop Upper Cloth List</h2>
+    <h2>Shop Foot Cloth List</h2>
     <table border="1">
       <thead>
         <tr>
           <th>ID</th>
           <th>Shop ID</th>
-          <th>Upper Cloth ID</th>
+          <th>Foot Cloth ID</th>
           <th>Status</th>
           <th>Delete</th>
           <th>Update</th>
@@ -54,14 +54,14 @@
         z-index: 999;
       "
     >
-      <h3>Update Shop Upper Cloth</h3>
+      <h3>Update Shop Foot Cloth</h3>
       <form id="updateForm">
         <input type="hidden" id="updateClothId" />
         <label>Shop ID:</label><br />
         <select id="updateShopId" required></select
         ><br />
-        <label>Upper Cloth ID:</label><br />
-        <select id="updateUpperId" required></select
+        <label>Foot Cloth ID:</label><br />
+        <select id="updateFootId" required></select
         ><br />
         <label>Status:</label><br />
         <select id="updateStatus" required>
@@ -76,16 +76,16 @@
 
     <script>
       let shopList = []
-      let upperList = []
+      let footList = []
 
       async function loadShops() {
         const response = await fetch('/admin/api/shops')
         shopList = await response.json()
       }
 
-      async function loadUppers() {
-        const response = await fetch('/admin/api/uppercloth/list')
-        upperList = await response.json()
+      async function loadFoots() {
+        const response = await fetch('/admin/api/footcloth/list')
+        footList = await response.json()
       }
 
       async function generateClothForm() {
@@ -107,12 +107,12 @@
               </select>
             </td>
             <td>
-              <select name="upperId" required>
-                <option value="">Select Upper Cloth ID</option>
-                ${upperList
+              <select name="footId" required>
+                <option value="">Select Foot Cloth ID</option>
+                ${footList
                   .map(
-                    (upper) =>
-                      `<option value="${upper.upperId}">${upper.upperId}</option>`
+                    (foot) =>
+                      `<option value="${foot.footId}">${foot.footId}</option>`
                   )
                   .join('')}
               </select>
@@ -130,19 +130,19 @@
       }
 
       async function loadClothes() {
-        const res = await fetch('/admin/api/shopUpperCloth/list')
+        const res = await fetch('/admin/api/shopFootCloth/list')
         const clothList = await res.json()
         const tableBody = document.getElementById('clothListTableBody')
         tableBody.innerHTML = ''
         clothList.forEach((cloth) => {
           const row = document.createElement('tr')
           row.innerHTML = `
-            <td>${cloth.shopUpperId}</td>
+            <td>${cloth.shopFootId}</td>
             <td>${cloth.shopId}</td>
-            <td>${cloth.upperId}</td>
+            <td>${cloth.footId}</td>
             <td>${cloth.status}</td>
-            <td><button class="btn-delete" data-id="${cloth.shopUpperId}">🗑️</button></td>
-            <td><button class="btn-update" data-id="${cloth.shopUpperId}">✏️</button></td>
+            <td><button class="btn-delete" data-id="${cloth.shopFootId}">🗑️</button></td>
+            <td><button class="btn-update" data-id="${cloth.shopFootId}">✏️</button></td>
           `
           tableBody.appendChild(row)
         })
@@ -157,14 +157,14 @@
             const inputs = row.querySelectorAll('select')
             return {
               shopId: parseInt(inputs[0].value),
-              upperId: parseInt(inputs[1].value),
+              footId: parseInt(inputs[1].value),
               status: inputs[2].value,
             }
           })
 
           try {
             for (const cloth of cloths) {
-              const res = await fetch('/admin/api/shopUpperCloth/add', {
+              const res = await fetch('/admin/api/shopFootCloth/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(cloth),
@@ -172,7 +172,7 @@
               if (!res.ok) throw new Error('Add failed')
             }
             await loadClothes()
-            alert('Items added successfully!')
+            alert('Items added successfooty!')
           } catch (err) {
             console.error(err)
             alert(err.message)
@@ -182,14 +182,14 @@
       document.addEventListener('click', async function (e) {
         if (e.target.classList.contains('btn-delete')) {
           const id = e.target.getAttribute('data-id')
-          if (!confirm('Delete this Shop Upper Cloth?')) return
+          if (!confirm('Delete this Shop Foot Cloth?')) return
           try {
-            const res = await fetch(`/admin/api/shopUpperCloth/delete/${id}`, {
+            const res = await fetch(`/admin/api/shopFootCloth/delete/${id}`, {
               method: 'DELETE',
             })
             if (!res.ok) throw new Error('Delete failed')
             await loadClothes()
-            alert('Item deleted successfully!')
+            alert('Item deleted successfooty!')
           } catch (err) {
             console.error(err)
             alert(err.message)
@@ -199,16 +199,16 @@
         if (e.target.classList.contains('btn-update')) {
           const row = e.target.closest('tr')
           openModal({
-            shopUpperId: e.target.getAttribute('data-id'),
+            shopFootId: e.target.getAttribute('data-id'),
             shopId: row.children[1].innerText,
-            upperId: row.children[2].innerText,
+            footId: row.children[2].innerText,
             status: row.children[3].innerText.trim(),
           })
         }
       })
 
       function openModal(cloth) {
-        document.getElementById('updateClothId').value = cloth.shopUpperId
+        document.getElementById('updateClothId').value = cloth.shopFootId
         const shopSelect = document.getElementById('updateShopId')
         shopSelect.innerHTML = `<option value="">Select Shop ID</option>`
         shopList.forEach((shop) => {
@@ -219,14 +219,14 @@
           shopSelect.appendChild(opt)
         })
 
-        const upperSelect = document.getElementById('updateUpperId')
-        upperSelect.innerHTML = `<option value="">Select Upper Cloth ID</option>`
-        upperList.forEach((upper) => {
+        const footSelect = document.getElementById('updateFootId')
+        footSelect.innerHTML = `<option value="">Select Foot Cloth ID</option>`
+        footList.forEach((foot) => {
           const opt = document.createElement('option')
-          opt.value = upper.upperId
-          opt.textContent = upper.upperId
-          if (upper.upperId == cloth.upperId) opt.selected = true
-          upperSelect.appendChild(opt)
+          opt.value = foot.footId
+          opt.textContent = foot.footId
+          if (foot.footId == cloth.footId) opt.selected = true
+          footSelect.appendChild(opt)
         })
 
         const statusSelect = document.getElementById('updateStatus')
@@ -249,15 +249,15 @@
         .addEventListener('submit', async function (e) {
           e.preventDefault()
           const cloth = {
-            shopUpperId: document.getElementById('updateClothId').value,
+            shopFootId: document.getElementById('updateClothId').value,
             shopId: parseInt(document.getElementById('updateShopId').value),
-            upperId: parseInt(document.getElementById('updateUpperId').value),
+            footId: parseInt(document.getElementById('updateFootId').value),
             status: document.getElementById('updateStatus').value,
           }
 
           try {
             const res = await fetch(
-              `/admin/api/shopUpperCloth/update/${cloth.shopUpperId}`,
+              `/admin/api/shopFootCloth/update/${cloth.shopFootId}`,
               {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -267,7 +267,7 @@
             if (!res.ok) throw new Error('Update failed')
             await loadClothes()
             closeModal()
-            alert('Item updated successfully!')
+            alert('Item updated successfooty!')
           } catch (err) {
             console.error(err)
             alert(err.message)
@@ -276,7 +276,7 @@
 
       window.addEventListener('DOMContentLoaded', async () => {
         await loadShops()
-        await loadUppers()
+        await loadFoots()
         await generateClothForm()
         await loadClothes()
       })

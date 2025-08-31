@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manage Shop Upper Cloth</title>
+    <title>Manage Shop Full Cloth</title>
   </head>
   <body>
-    <h2>Number of Shop Upper Cloth to Add:</h2>
+    <h2>Number of Shop Full Cloth to Add:</h2>
     <input type="number" id="noOfCloths" min="1" max="10" value="1" />
     <button onclick="generateClothForm()">Generate Cloth Table</button>
 
@@ -15,23 +15,23 @@
         <thead>
           <tr>
             <th>Shop ID</th>
-            <th>Upper Cloth ID</th>
+            <th>Full Cloth ID</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody id="clothTable"></tbody>
       </table>
       <br />
-      <button type="submit">Add Shop Upper Cloth</button>
+      <button type="submit">Add Shop Full Cloth</button>
     </form>
 
-    <h2>Shop Upper Cloth List</h2>
+    <h2>Shop Full Cloth List</h2>
     <table border="1">
       <thead>
         <tr>
           <th>ID</th>
           <th>Shop ID</th>
-          <th>Upper Cloth ID</th>
+          <th>Full Cloth ID</th>
           <th>Status</th>
           <th>Delete</th>
           <th>Update</th>
@@ -54,14 +54,14 @@
         z-index: 999;
       "
     >
-      <h3>Update Shop Upper Cloth</h3>
+      <h3>Update Shop Full Cloth</h3>
       <form id="updateForm">
         <input type="hidden" id="updateClothId" />
         <label>Shop ID:</label><br />
         <select id="updateShopId" required></select
         ><br />
-        <label>Upper Cloth ID:</label><br />
-        <select id="updateUpperId" required></select
+        <label>Full Cloth ID:</label><br />
+        <select id="updateFullId" required></select
         ><br />
         <label>Status:</label><br />
         <select id="updateStatus" required>
@@ -76,16 +76,16 @@
 
     <script>
       let shopList = []
-      let upperList = []
+      let fullList = []
 
       async function loadShops() {
         const response = await fetch('/admin/api/shops')
         shopList = await response.json()
       }
 
-      async function loadUppers() {
-        const response = await fetch('/admin/api/uppercloth/list')
-        upperList = await response.json()
+      async function loadFulls() {
+        const response = await fetch('/admin/api/fullcloth/list')
+        fullList = await response.json()
       }
 
       async function generateClothForm() {
@@ -107,12 +107,12 @@
               </select>
             </td>
             <td>
-              <select name="upperId" required>
-                <option value="">Select Upper Cloth ID</option>
-                ${upperList
+              <select name="fullId" required>
+                <option value="">Select Full Cloth ID</option>
+                ${fullList
                   .map(
-                    (upper) =>
-                      `<option value="${upper.upperId}">${upper.upperId}</option>`
+                    (full) =>
+                      `<option value="${full.fullId}">${full.fullId}</option>`
                   )
                   .join('')}
               </select>
@@ -130,19 +130,19 @@
       }
 
       async function loadClothes() {
-        const res = await fetch('/admin/api/shopUpperCloth/list')
+        const res = await fetch('/admin/api/shopFullCloth/list')
         const clothList = await res.json()
         const tableBody = document.getElementById('clothListTableBody')
         tableBody.innerHTML = ''
         clothList.forEach((cloth) => {
           const row = document.createElement('tr')
           row.innerHTML = `
-            <td>${cloth.shopUpperId}</td>
+            <td>${cloth.shopFullId}</td>
             <td>${cloth.shopId}</td>
-            <td>${cloth.upperId}</td>
+            <td>${cloth.fullId}</td>
             <td>${cloth.status}</td>
-            <td><button class="btn-delete" data-id="${cloth.shopUpperId}">🗑️</button></td>
-            <td><button class="btn-update" data-id="${cloth.shopUpperId}">✏️</button></td>
+            <td><button class="btn-delete" data-id="${cloth.shopFullId}">🗑️</button></td>
+            <td><button class="btn-update" data-id="${cloth.shopFullId}">✏️</button></td>
           `
           tableBody.appendChild(row)
         })
@@ -157,14 +157,14 @@
             const inputs = row.querySelectorAll('select')
             return {
               shopId: parseInt(inputs[0].value),
-              upperId: parseInt(inputs[1].value),
+              fullId: parseInt(inputs[1].value),
               status: inputs[2].value,
             }
           })
 
           try {
             for (const cloth of cloths) {
-              const res = await fetch('/admin/api/shopUpperCloth/add', {
+              const res = await fetch('/admin/api/shopFullCloth/add', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(cloth),
@@ -182,9 +182,9 @@
       document.addEventListener('click', async function (e) {
         if (e.target.classList.contains('btn-delete')) {
           const id = e.target.getAttribute('data-id')
-          if (!confirm('Delete this Shop Upper Cloth?')) return
+          if (!confirm('Delete this Shop Full Cloth?')) return
           try {
-            const res = await fetch(`/admin/api/shopUpperCloth/delete/${id}`, {
+            const res = await fetch(`/admin/api/shopFullCloth/delete/${id}`, {
               method: 'DELETE',
             })
             if (!res.ok) throw new Error('Delete failed')
@@ -199,16 +199,16 @@
         if (e.target.classList.contains('btn-update')) {
           const row = e.target.closest('tr')
           openModal({
-            shopUpperId: e.target.getAttribute('data-id'),
+            shopFullId: e.target.getAttribute('data-id'),
             shopId: row.children[1].innerText,
-            upperId: row.children[2].innerText,
+            fullId: row.children[2].innerText,
             status: row.children[3].innerText.trim(),
           })
         }
       })
 
       function openModal(cloth) {
-        document.getElementById('updateClothId').value = cloth.shopUpperId
+        document.getElementById('updateClothId').value = cloth.shopFullId
         const shopSelect = document.getElementById('updateShopId')
         shopSelect.innerHTML = `<option value="">Select Shop ID</option>`
         shopList.forEach((shop) => {
@@ -219,14 +219,14 @@
           shopSelect.appendChild(opt)
         })
 
-        const upperSelect = document.getElementById('updateUpperId')
-        upperSelect.innerHTML = `<option value="">Select Upper Cloth ID</option>`
-        upperList.forEach((upper) => {
+        const fullSelect = document.getElementById('updateFullId')
+        fullSelect.innerHTML = `<option value="">Select Full Cloth ID</option>`
+        fullList.forEach((full) => {
           const opt = document.createElement('option')
-          opt.value = upper.upperId
-          opt.textContent = upper.upperId
-          if (upper.upperId == cloth.upperId) opt.selected = true
-          upperSelect.appendChild(opt)
+          opt.value = full.fullId
+          opt.textContent = full.fullId
+          if (full.fullId == cloth.fullId) opt.selected = true
+          fullSelect.appendChild(opt)
         })
 
         const statusSelect = document.getElementById('updateStatus')
@@ -249,15 +249,15 @@
         .addEventListener('submit', async function (e) {
           e.preventDefault()
           const cloth = {
-            shopUpperId: document.getElementById('updateClothId').value,
+            shopFullId: document.getElementById('updateClothId').value,
             shopId: parseInt(document.getElementById('updateShopId').value),
-            upperId: parseInt(document.getElementById('updateUpperId').value),
+            fullId: parseInt(document.getElementById('updateFullId').value),
             status: document.getElementById('updateStatus').value,
           }
 
           try {
             const res = await fetch(
-              `/admin/api/shopUpperCloth/update/${cloth.shopUpperId}`,
+              `/admin/api/shopFullCloth/update/${cloth.shopFullId}`,
               {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -276,7 +276,7 @@
 
       window.addEventListener('DOMContentLoaded', async () => {
         await loadShops()
-        await loadUppers()
+        await loadFulls()
         await generateClothForm()
         await loadClothes()
       })

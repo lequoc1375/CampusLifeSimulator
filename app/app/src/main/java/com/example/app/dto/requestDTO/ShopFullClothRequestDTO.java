@@ -1,9 +1,9 @@
 package com.example.app.dto.requestDTO;
 
-public class ShopUpperClothRequestDTO {
+public class ShopFullClothRequestDTO {
     private int shopId;
     private String status;
-    private int upperId;
+    private int fullId;
 
     public int getShopId() {
         return shopId;
@@ -21,12 +21,12 @@ public class ShopUpperClothRequestDTO {
         this.status = status;
     }
 
-    public int getUpperId() {
-        return upperId;
+    public int getFullId() {
+        return fullId;
     }
 
-    public void setUpperId(int upperId) {
-        this.upperId = upperId;
+    public void setFullId(int fullId) {
+        this.fullId = fullId;
     }
 
 }

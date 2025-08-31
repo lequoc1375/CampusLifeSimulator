@@ -26,6 +26,14 @@ public class Shop {
     @JsonIgnore
     private List<ShopUpperCloth> shopUpperList;
 
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ShopLowerCloth> shopLowerList;
+    
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ShopFootCloth> shopFootList;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
@@ -52,6 +60,14 @@ public class Shop {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<ShopLowerCloth> getShopLowerList() {
+        return shopLowerList;
+    }
+
+    public void setShopLowerList(List<ShopLowerCloth> shopLowerList) {
+        this.shopLowerList = shopLowerList;
     }
 
 }
