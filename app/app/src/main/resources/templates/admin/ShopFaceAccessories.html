@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+  <face>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Shop Face Accessories</title>
+  </face>
+  <body>
+    <h2>Number of Shop Face Accessories to Add:</h2>
+    <input type="number" id="noOfAccessoriess" min="1" max="10" value="1" />
+    <button onclick="generateAccessoriesForm()">
+      Generate Accessories Table
+    </button>
+
+    <form id="formAccessories">
+      <table border="1">
+        <tface>
+          <tr>
+            <th>Shop ID</th>
+            <th>Face Accessories ID</th>
+            <th>Status</th>
+          </tr>
+        </tface>
+        <tbody id="accessoriesTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add Shop Face Accessories</button>
+    </form>
+
+    <h2>Shop Face Accessories List</h2>
+    <table border="1">
+      <tface>
+        <tr>
+          <th>ID</th>
+          <th>Shop ID</th>
+          <th>Face Accessories ID</th>
+          <th>Status</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </tface>
+      <tbody id="accessoriesListTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+      "
+    >
+      <h3>Update Shop Face Accessories</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateAccessoriesId" />
+        <label>Shop ID:</label><br />
+        <select id="updateShopId" required></select
+        ><br />
+        <label>Face Accessories ID:</label><br />
+        <select id="updateFaceId" required></select
+        ><br />
+        <label>Status:</label><br />
+        <select id="updateStatus" required>
+          <option value="">Select Status</option>
+          <option value="Owned">Owned</option>
+          <option value="Unowned">Unowned</option></select
+        ><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      let shopList = []
+      let faceList = []
+
+      async function loadShops() {
+        const response = await fetch('/admin/api/shops')
+        shopList = await response.json()
+      }
+
+      async function loadFaces() {
+        const response = await fetch('/admin/api/faceaccessories/list')
+        faceList = await response.json()
+      }
+
+      async function generateAccessoriesForm() {
+        const count = parseInt(
+          document.getElementById('noOfAccessoriess').value
+        )
+        const table = document.getElementById('accessoriesTable')
+        table.innerHTML = ''
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td>
+              <select name="shopId" required>
+                <option value="">Select Shop ID</option>
+                ${shopList
+                  .map(
+                    (shop) =>
+                      `<option value="${shop.shopId}">${shop.shopId}</option>`
+                  )
+                  .join('')}
+              </select>
+            </td>
+            <td>
+              <select name="faceId" required>
+                <option value="">Select Face Accessories ID</option>
+                ${faceList
+                  .map(
+                    (face) =>
+                      `<option value="${face.faceId}">${face.faceId}</option>`
+                  )
+                  .join('')}
+              </select>
+            </td>
+            <td>
+              <select name="status" required>
+                <option value="">Select Status</option>
+                <option value="Owned">Owned</option>
+                <option value="Unowned">Unowned</option>
+              </select>
+            </td>
+          `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadAccessories() {
+        const res = await fetch('/admin/api/shopFaceAccessories/list')
+        const accessoriesList = await res.json()
+        const tableBody = document.getElementById('accessoriesListTableBody')
+        tableBody.innerHTML = ''
+        accessoriesList.forEach((accessories) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td>${accessories.shopFaceId}</td>
+            <td>${accessories.shopId}</td>
+            <td>${accessories.faceId}</td>
+            <td>${accessories.status}</td>
+            <td><button class="btn-delete" data-id="${accessories.shopFaceId}">🗑️</button></td>
+            <td><button class="btn-update" data-id="${accessories.shopFaceId}">✏️</button></td>
+          `
+          tableBody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formAccessories')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#accessoriesTable tr')
+          const accessoriess = Array.from(rows).map((row) => {
+            const inputs = row.querySelectorAll('select')
+            return {
+              shopId: parseInt(inputs[0].value),
+              faceId: parseInt(inputs[1].value),
+              status: inputs[2].value,
+            }
+          })
+
+          try {
+            for (const accessories of accessoriess) {
+              const res = await fetch('/admin/api/shopFaceAccessories/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(accessories),
+              })
+              if (!res.ok) throw new Error('Add failed')
+            }
+            await loadAccessories()
+            alert('Items added successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const id = e.target.getAttribute('data-id')
+          if (!confirm('Delete this Shop Face Accessories?')) return
+          try {
+            const res = await fetch(
+              `/admin/api/shopFaceAccessories/delete/${id}`,
+              {
+                method: 'DELETE',
+              }
+            )
+            if (!res.ok) throw new Error('Delete failed')
+            await loadAccessories()
+            alert('Item deleted successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          openModal({
+            shopFaceId: e.target.getAttribute('data-id'),
+            shopId: row.children[1].innerText,
+            faceId: row.children[2].innerText,
+            status: row.children[3].innerText.trim(),
+          })
+        }
+      })
+
+      function openModal(accessories) {
+        document.getElementById('updateAccessoriesId').value =
+          accessories.shopFaceId
+        const shopSelect = document.getElementById('updateShopId')
+        shopSelect.innerHTML = `<option value="">Select Shop ID</option>`
+        shopList.forEach((shop) => {
+          const opt = document.createElement('option')
+          opt.value = shop.shopId
+          opt.textContent = shop.shopId
+          if (shop.shopId == accessories.shopId) opt.selected = true
+          shopSelect.appendChild(opt)
+        })
+
+        const faceSelect = document.getElementById('updateFaceId')
+        faceSelect.innerHTML = `<option value="">Select Face Accessories ID</option>`
+        faceList.forEach((face) => {
+          const opt = document.createElement('option')
+          opt.value = face.faceId
+          opt.textContent = face.faceId
+          if (face.faceId == accessories.faceId) opt.selected = true
+          faceSelect.appendChild(opt)
+        })
+
+        const statusSelect = document.getElementById('updateStatus')
+        const normalizedStatus =
+          accessories.status.charAt(0).toUpperCase() +
+          accessories.status.slice(1).toLowerCase()
+        statusSelect.value =
+          normalizedStatus === 'Owned' || normalizedStatus === 'Unowned'
+            ? normalizedStatus
+            : ''
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const accessories = {
+            shopFaceId: document.getElementById('updateAccessoriesId').value,
+            shopId: parseInt(document.getElementById('updateShopId').value),
+            faceId: parseInt(document.getElementById('updateFaceId').value),
+            status: document.getElementById('updateStatus').value,
+          }
+
+          try {
+            const res = await fetch(
+              `/admin/api/shopFaceAccessories/update/${accessories.shopFaceId}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(accessories),
+              }
+            )
+            if (!res.ok) throw new Error('Update failed')
+            await loadAccessories()
+            closeModal()
+            alert('Item updated successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', async () => {
+        await loadShops()
+        await loadFaces()
+        await generateAccessoriesForm()
+        await loadAccessories()
+      })
+    </script>
+  </body>
+</html>

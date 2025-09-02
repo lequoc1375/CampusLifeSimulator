@@ -29,10 +29,50 @@ public class Shop {
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ShopLowerCloth> shopLowerList;
-    
+
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<ShopFootCloth> shopFootList;
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ShopFullCloth> shopFullList;
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ShopHeadAccessories> shopHeadAccessoriesesList;
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ShopFaceAccessories> shopFaceAccessoriesesList;
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ShopBackAccessories> shopBackAccessoriesesList;
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ShopFrontAccessories> shopFrontAccessoriesesList;
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ShopGearAccessories> shopGearAccessoriesesList;
+
+    public List<ShopFrontAccessories> getShopFrontAccessoriesesList() {
+        return shopFrontAccessoriesesList;
+    }
+
+    public void setShopFrontAccessoriesesList(List<ShopFrontAccessories> shopFrontAccessoriesesList) {
+        this.shopFrontAccessoriesesList = shopFrontAccessoriesesList;
+    }
+
+    public List<ShopBackAccessories> getShopBackAccessoriesesList() {
+        return shopBackAccessoriesesList;
+    }
+
+    public void setShopBackAccessoriesesList(List<ShopBackAccessories> shopBackAccessoriesesList) {
+        this.shopBackAccessoriesesList = shopBackAccessoriesesList;
+    }
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
@@ -68,6 +108,46 @@ public class Shop {
 
     public void setShopLowerList(List<ShopLowerCloth> shopLowerList) {
         this.shopLowerList = shopLowerList;
+    }
+
+    public List<ShopFootCloth> getShopFootList() {
+        return shopFootList;
+    }
+
+    public void setShopFootList(List<ShopFootCloth> shopFootList) {
+        this.shopFootList = shopFootList;
+    }
+
+    public List<ShopFullCloth> getShopFullList() {
+        return shopFullList;
+    }
+
+    public void setShopFullList(List<ShopFullCloth> shopFullList) {
+        this.shopFullList = shopFullList;
+    }
+
+    public List<ShopHeadAccessories> getShopHeadAccessoriesesList() {
+        return shopHeadAccessoriesesList;
+    }
+
+    public void setShopHeadAccessoriesesList(List<ShopHeadAccessories> shopHeadAccessoriesesList) {
+        this.shopHeadAccessoriesesList = shopHeadAccessoriesesList;
+    }
+
+    public List<ShopFaceAccessories> getShopFaceAccessoriesesList() {
+        return shopFaceAccessoriesesList;
+    }
+
+    public void setShopFaceAccessoriesesList(List<ShopFaceAccessories> shopFaceAccessoriesesList) {
+        this.shopFaceAccessoriesesList = shopFaceAccessoriesesList;
+    }
+
+    public List<ShopGearAccessories> getShopGearAccessoriesesList() {
+        return shopGearAccessoriesesList;
+    }
+
+    public void setShopGearAccessoriesesList(List<ShopGearAccessories> shopGearAccessoriesesList) {
+        this.shopGearAccessoriesesList = shopGearAccessoriesesList;
     }
 
 }

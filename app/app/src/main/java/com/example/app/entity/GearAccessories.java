@@ -1,6 +1,17 @@
 package com.example.app.entity;
 
-import jakarta.persistence.*;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "gear_accessories")
@@ -22,6 +33,18 @@ public class GearAccessories {
 
     @Column(name = "categories", length = 50)
     private String categories;
+
+    @OneToMany(mappedBy = "gearAccessories", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<ShopGearAccessories> shopGearAccessories;
+
+    public List<ShopGearAccessories> getShopGearAccessories() {
+        return shopGearAccessories;
+    }
+
+    public void setShopGearAccessories(List<ShopGearAccessories> shopGearAccessories) {
+        this.shopGearAccessories = shopGearAccessories;
+    }
 
     public Integer getGearId() {
         return gearId;

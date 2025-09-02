@@ -1,14 +1,18 @@
 package com.example.app.entity;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="full_cloth")
+@Table(name = "full_cloth")
 public class FullCloth {
 
     @Id
@@ -27,6 +31,9 @@ public class FullCloth {
 
     @Column(name = "categories", length = 50)
     private String categories;
+
+    @OneToMany(mappedBy = "fullCloth", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShopFullCloth> shopFullCloth;
 
     public Integer getFullId() {
         return fullId;
@@ -54,6 +61,14 @@ public class FullCloth {
 
     public Double getPrice() {
         return price;
+    }
+
+    public List<ShopFullCloth> getShopFullCloth() {
+        return shopFullCloth;
+    }
+
+    public void setShopFullCloth(List<ShopFullCloth> shopFullCloth) {
+        this.shopFullCloth = shopFullCloth;
     }
 
     public void setPrice(Double price) {
