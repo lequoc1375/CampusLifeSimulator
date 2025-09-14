@@ -36,7 +36,7 @@ public class PlayerStatsRestController {
     public PlayerStats getStatsForCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUsername(username);
-        return playerStatsService.getByUserId(user.getUser_id());
+        return playerStatsService.getByUserId(user.getUserId());
     }
 
     @GetMapping("/getByUser/{id}")

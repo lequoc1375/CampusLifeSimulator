@@ -50,8 +50,8 @@ public class FriendRequestServiceImpl implements FriendRequestService {
         FriendRequest savedRequest = friendRequestRepo.save(friendRequest);
 
         messagingTemplate.convertAndSend(
-            "/topic/friend-request/" + receiver.getUser_id(),
-            new FriendRequestNotificationDTORequest(sender.getUser_id(), sender.getUsername())
+            "/topic/friend-request/" + receiver.getUserId(),
+            new FriendRequestNotificationDTORequest(sender.getUserId(), sender.getUsername())
         );
 
         return savedRequest;

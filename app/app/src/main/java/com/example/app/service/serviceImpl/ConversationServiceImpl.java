@@ -29,7 +29,7 @@ public class ConversationServiceImpl implements ConversationService {
             throw new RuntimeException("User not found");
         }
 
-        if (user1.getUser_id() > user2.getUser_id()) {
+        if (user1.getUserId() > user2.getUserId()) {
             User temp = user1;
             user1 = user2;
             user2 = temp;
@@ -45,7 +45,7 @@ public class ConversationServiceImpl implements ConversationService {
             throw new RuntimeException("User not found");
         }
         
-        if (user1.getUser_id() > user2.getUser_id()) {
+        if (user1.getUserId() > user2.getUserId()) {
             User temp = user1;
             user1 = user2;
             user2 = temp;
@@ -69,7 +69,7 @@ public class ConversationServiceImpl implements ConversationService {
 
         User first = rawUser1;
         User second = rawUser2;
-        if (first.getUser_id() > second.getUser_id()) {
+        if (first.getUserId() > second.getUserId()) {
             first = rawUser2;
             second = rawUser1;
         }
