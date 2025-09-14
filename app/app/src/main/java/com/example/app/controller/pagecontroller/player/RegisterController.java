@@ -9,10 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.app.dto.requestDTO.RegisterDTORequest;
 import com.example.app.entity.User;
-import com.example.app.entity.UserCurriculum;
 import com.example.app.service.serviceInterface.PlayerProfileService;
 import com.example.app.service.serviceInterface.PlayerStatsService;
-import com.example.app.service.serviceInterface.UserCurriculumService;
 import com.example.app.service.serviceInterface.UserService;
 
 @Controller
@@ -25,9 +23,6 @@ public class RegisterController {
 
     @Autowired
     private PlayerStatsService playerStatsService;
-
-    @Autowired
-    private UserCurriculumService userCurriculumService;
 
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
@@ -51,7 +46,6 @@ public class RegisterController {
         }
 
         playerStatsService.create(user, 18, 150.0, 100, 100, 100, 0);
-        userCurriculumService.create(user, 0, 0);
 
         return "redirect:/login";
     }

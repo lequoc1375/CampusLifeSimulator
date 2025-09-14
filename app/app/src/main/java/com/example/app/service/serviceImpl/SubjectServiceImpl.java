@@ -10,7 +10,6 @@ import com.example.app.dto.mapper.SubjectMapper;
 import com.example.app.dto.requestDTO.SubjectDTORequest;
 import com.example.app.dto.responseDTO.SubjectDTOResponse;
 import com.example.app.entity.Subject;
-import com.example.app.repository.SubjectRegisterRepo;
 import com.example.app.repository.SubjectRepo;
 import com.example.app.service.serviceInterface.SubjectService;
 
@@ -19,9 +18,6 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Autowired
     private SubjectRepo subjectRepo;
-
-    @Autowired
-    private SubjectRegisterRepo subjectRegisterRepo;
 
     @Autowired
     private SubjectMapper subjectMapper;
@@ -59,26 +55,6 @@ public class SubjectServiceImpl implements SubjectService {
     public void deleteSubject(int id) {
         Subject subject = subjectRepo.findById(id).orElseThrow(()-> new RuntimeException("Not find subject for delete"));
         subjectRepo.delete(subject);
-    }
-
-    @Override
-    public List<Subject> getUnregisteredSubjectsByUserId(int userId) {
-        return subjectRepo.findUnregisteredSubjectsByUserId(userId);
-    }
-
-    @Override
-    public List<Subject> getInProgressSubjectsByUserId(int userId) {
-        return subjectRepo.findInProgressSubjectsByUserId(userId);
-    }
-
-    @Override
-    public List<Subject> getCompletedSubjectsByUserId(int userId) {
-        return subjectRepo.findCompletedSubjectsByUserId(userId);
-    }
-
-    @Override
-    public void registerSubjectForUser(int userCurriculumId, int subjectId) {
-        subjectRegisterRepo.insertSubjectRegister(userCurriculumId, subjectId, java.time.LocalDateTime.now());
     }
 
 }
