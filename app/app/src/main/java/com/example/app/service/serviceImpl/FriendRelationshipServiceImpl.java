@@ -29,7 +29,7 @@ public class FriendRelationshipServiceImpl implements FriendRelationshipService 
     @Override
     public void createRelationship(User player1, User player2) {
         FriendRelationship friendRelationship = new FriendRelationship();
-        if(player1.getUser_id() < player2.getUser_id()) {
+        if(player1.getUserId() < player2.getUserId()) {
             friendRelationship.setFirstUser(player1);
             friendRelationship.setSecondUser(player2);
         } else {
@@ -48,7 +48,7 @@ public class FriendRelationshipServiceImpl implements FriendRelationshipService 
         List<FriendRelationship> relationships = friendRelationshipRepo.findByFirstUser_UserIdOrSecondUser_UserId(userId, userId);
         
         return relationships.stream()
-            .map(rel -> rel.getFirstUser().getUser_id() == userId ? rel.getSecondUser() : rel.getFirstUser())
+            .map(rel -> rel.getFirstUser().getUserId() == userId ? rel.getSecondUser() : rel.getFirstUser())
             .collect(Collectors.toList());
     }
 

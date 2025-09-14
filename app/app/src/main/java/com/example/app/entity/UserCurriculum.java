@@ -1,14 +1,7 @@
 package com.example.app.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "user_curriculum")
@@ -16,25 +9,27 @@ public class UserCurriculum {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="user_curriculum_id")
-    private int user_curriculum_id;
+    @Column(name = "user_curriculum_id")
+    private int userCurriculumId;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="user_id", referencedColumnName="user_id")
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @JsonIgnore
     private User user;
 
-    @Column(name="gpa")
-    private long gpa;
+    @Column(name = "gpa")
+    private double gpa;  // dùng double/BigDecimal thay vì long, vì MySQL là DECIMAL(3,2)
 
-    @Column(name="total_credits")
-    private int total_credits;
+    @Column(name = "total_credits")
+    private int totalCredits;
 
-    public int getUser_curriculum_id() {
-        return user_curriculum_id;
+    // Getters & Setters
+    public int getUserCurriculumId() {
+        return userCurriculumId;
     }
 
-    public void setUser_curriculum_id(int user_curriculum_id) {
-        this.user_curriculum_id = user_curriculum_id;
+    public void setUserCurriculumId(int userCurriculumId) {
+        this.userCurriculumId = userCurriculumId;
     }
 
     public User getUser() {
@@ -45,21 +40,19 @@ public class UserCurriculum {
         this.user = user;
     }
 
-    public long getGpa() {
+    public double getGpa() {
         return gpa;
     }
 
-    public void setGpa(long gpa) {
+    public void setGpa(double gpa) {
         this.gpa = gpa;
     }
 
-    public int getTotal_credits() {
-        return total_credits;
+    public int getTotalCredits() {
+        return totalCredits;
     }
 
-    public void setTotal_credits(int total_credits) {
-        this.total_credits = total_credits;
+    public void setTotalCredits(int totalCredits) {
+        this.totalCredits = totalCredits;
     }
-
-    
 }
