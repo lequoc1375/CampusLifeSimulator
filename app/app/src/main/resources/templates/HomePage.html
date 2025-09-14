@@ -5,7 +5,6 @@
   <title>Student Game Navigation</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
   <link rel="stylesheet" th:href="@{/css/HomePage.css}" />
-  <link rel="stylesheet" th:href="@{/css/StatsAndCalender.css}"/>
   <link rel="stylesheet" th:href="@{/css/MenuBar.css}" />
 </head>
 <body>
@@ -130,15 +129,9 @@
     const currentUserId = /*[[${user.userId}]]*/ 0;
 
     async function loadPlayerStats() {
-      try {
-        const response = await fetch("/player/api/stats/getByUser/[[${#authentication.principal.userId}]]");
-        if (!response.ok) throw new Error("API error");
-
-        const stats = await response.json();
-        updateUI(stats);
-      } catch (error) {
-        console.error("Error loading stats:", error);
-      }
+      const response = await fetch("/player/api/stats/me");
+      stats = await response.json();
+      updateUI(stats);
     }
 
     function updateUI(stats) {
@@ -247,7 +240,7 @@
     }
 
     async function loadFriends() {
-      const response = await fetch(`/player/api/friend-relationship/list/${currentUserId}`);
+      const response = await fetch(`/player/api/friend-relationship/list/[[${user.userId}]]`);
       const friends = await response.json();
 
       const list = document.getElementById("friendList");
@@ -396,7 +389,7 @@
       stompClient.connect({}, function (frame) {
         console.log('WebSocket connected:', frame);
 
-        stompClient.subscribe(`/topic/friend-request/${currentUserId}`, function (message) {
+        stompClient.subscribe(`/topic/friend-request/[[${user.userId}]]`, function (message) {
           const data = JSON.parse(message.body);
           const container = document.getElementById("pendingRequestsContainer");
           const html = `

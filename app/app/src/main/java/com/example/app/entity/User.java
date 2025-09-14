@@ -36,6 +36,14 @@ public class User {
         admin, player
     }
 
+    public int getUser_id() {
+        return userId;
+    }
+
+    public void setUser_id(int userId) {
+        this.userId = userId;
+    }
+
     public String getUsername() {
         return username;
     }

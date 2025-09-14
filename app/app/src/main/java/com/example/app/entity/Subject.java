@@ -13,7 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "subject")
+@Table(name = "Subject")
 public class Subject {
 
     @Id
@@ -24,8 +24,8 @@ public class Subject {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "credits")
-    private int credits;
+    @Column(name = "credit")
+    private int credit;
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
     private List<Lesson> lessons = new ArrayList<>();
@@ -69,11 +69,11 @@ public class Subject {
     }
 
     public int getCredit() {
-        return credits;
+        return credit;
     }
 
-    public void setCredit(int credits) {
-        this.credits = credits;
+    public void setCredit(int credit) {
+        this.credit = credit;
     }
 
     public List<Lesson> getLessons() {
