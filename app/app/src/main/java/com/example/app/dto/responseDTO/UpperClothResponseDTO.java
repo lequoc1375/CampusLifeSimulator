@@ -1,11 +1,14 @@
 package com.example.app.dto.responseDTO;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpperClothResponseDTO {
     private Integer upperId;
     private String name;
-    private String image;
+    private String imageUrl;
     private Double price;
     private String categories;
 
@@ -25,12 +28,12 @@ public class UpperClothResponseDTO {
         this.name = name;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Double getPrice() {

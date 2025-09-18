@@ -1,6 +1,9 @@
 package com.example.app.service.serviceInterface;
 
+import java.io.IOException;
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.app.dto.requestDTO.FoodDTORequest;
 import com.example.app.dto.responseDTO.FoodDTOResponse;
@@ -10,9 +13,9 @@ public interface FoodService {
 
     FoodDTOResponse getById(int id);
 
-    void create(FoodDTORequest request);
+    FoodDTOResponse create(FoodDTORequest request, MultipartFile image) throws IOException;
 
-    void update(int id, FoodDTORequest request);
+    FoodDTOResponse update(int id, FoodDTORequest request, MultipartFile image) throws IOException;
 
     void delete(int id);
 }

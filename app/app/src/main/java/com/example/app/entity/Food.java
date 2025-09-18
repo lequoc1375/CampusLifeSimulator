@@ -44,6 +44,12 @@ public class Food {
     @Column(name = "living_requirement")
     private LivingRequirement livingRequirement;
 
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
+    @Column(name = "public_id", length = 255)
+    private String publicId;
+
     public Integer getFoodId() {
         return foodId;
     }
@@ -102,5 +108,21 @@ public class Food {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
     }
 }

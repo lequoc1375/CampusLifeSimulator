@@ -18,6 +18,8 @@ public class FoodDTOResponse {
     private BigDecimal price;
     private String type;
     private LivingRequirement livingRequirement;
+    private String imageUrl;
+    
     public Integer getFoodId() {
         return foodId;
     }
@@ -60,6 +62,12 @@ public class FoodDTOResponse {
     }
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+    public String getImageUrl() {
+        return imageUrl;
+    }
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
     
 }

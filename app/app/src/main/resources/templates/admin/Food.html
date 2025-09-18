@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <title>Manage Food</title>
+    <link rel="stylesheet" th:href="@{/css/AdminFood.css}" />
   </head>
   <body>
     <h2>Number of Foods to Add:</h2>
     <input type="number" id="noOfFoods" min="1" max="10" value="1" />
     <button onclick="generateFoodForm()">Generate Food Table</button>
 
-    <form id="formFood">
+    <form id="formFood" enctype="multipart/form-data">
       <table border="1">
         <thead>
           <tr>
@@ -19,6 +20,7 @@
             <th>Price</th>
             <th>Type</th>
             <th>Living Requirement</th>
+            <th>Image</th>
           </tr>
         </thead>
         <tbody id="foodTable"></tbody>
@@ -28,36 +30,10 @@
     </form>
 
     <h2>Food List</h2>
-    <table border="1">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Energy</th>
-          <th>Stress</th>
-          <th>Price</th>
-          <th>Type</th>
-          <th>Living Requirement</th>
-          <th>Delete</th>
-          <th>Update</th>
-        </tr>
-      </thead>
-      <tbody id="foodListTableBody"></tbody>
-    </table>
+    <div id="foodList" class="food-container"></div>
 
-    <div
-      id="updateModal"
-      style="
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 20px;
-        border: 1px solid black;
-      "
-    >
+    <!-- Update modal -->
+    <div id="updateModal">
       <h3>Update Food</h3>
       <form id="updateForm">
         <input type="hidden" id="updateFoodId" />
@@ -74,8 +50,11 @@
         <label>Living Requirement:</label><br />
         <select id="updateLivingRequirement" required>
           <option value="yes">yes</option>
-          <option value="no">no</option></select
-        ><br /><br />
+          <option value="no">no</option>
+        </select>
+        <br /><br />
+        <label>Image:</label><br />
+        <input type="file" id="updateImage" accept="image/*" /><br />
         <button type="submit">Save</button>
         <button type="button" onclick="closeModal()">Cancel</button>
       </form>
@@ -100,6 +79,7 @@
                 <option value="no">no</option>
               </select>
             </td>
+            <td><input type="file" name="image" accept="image/*" required /></td>
           `
           table.appendChild(row)
         }
@@ -108,108 +88,103 @@
       async function loadFoods() {
         const res = await fetch('/admin/api/food')
         const foods = await res.json()
-        const tableBody = document.getElementById('foodListTableBody')
-        tableBody.innerHTML = ''
+        const list = document.getElementById('foodList')
+        list.innerHTML = ''
+
         foods.forEach((food) => {
-          const row = document.createElement('tr')
-          row.innerHTML = `
-            <td>${food.foodId}</td>
-            <td>${food.name}</td>
-            <td>${food.energyAffected}</td>
-            <td>${food.stressAffected}</td>
-            <td>${food.price}</td>
-            <td>${food.type}</td>
-            <td>${food.livingRequirement}</td>
-            <td><button class="btn-delete" data-id="${food.foodId}">🗑️</button></td>
-            <td><button class="btn-update" data-id="${food.foodId}">✏️</button></td>
+          const card = document.createElement('div')
+          card.className = 'food-card'
+          card.innerHTML = `
+            <button class="delete-btn" data-id="${food.foodId}">Delete</button>
+            <img src="${food.imageUrl || ''}" alt="${food.name}" />
+            <div class="info">
+              <p><strong>Name:</strong> ${food.name}</p>
+              <p><strong>Energy:</strong> ${food.energyAffected}</p>
+              <p><strong>Stress:</strong> ${food.stressAffected}</p>
+              <p><strong>Price:</strong> ${food.price}</p>
+              <p><strong>Type:</strong> ${food.type}</p>
+              <p><strong>Living Req:</strong> ${food.livingRequirement}</p>
+            </div>
+            <button class="edit-btn btn-update" data-id="${food.foodId}">Edit</button>
           `
-          tableBody.appendChild(row)
+          list.appendChild(card)
         })
       }
 
-      document
-        .getElementById('formFood')
-        .addEventListener('submit', async (e) => {
-          e.preventDefault()
-          const rows = document.querySelectorAll('#foodTable tr')
-          const foods = Array.from(rows).map((row) => {
-            const inputs = row.querySelectorAll('input, select')
-            return {
-              name: inputs[0].value,
-              energyAffected: parseInt(inputs[1].value),
-              stressAffected: parseInt(inputs[2].value),
-              price: parseFloat(inputs[3].value),
-              type: inputs[4].value,
-              livingRequirement: inputs[5].value,
-            }
-          })
+      document.getElementById('formFood').addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const rows = document.querySelectorAll('#foodTable tr')
 
-          for (const food of foods) {
-            await fetch('/admin/api/food', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(food),
-            })
+        for (const row of rows) {
+          const inputs = row.querySelectorAll('input, select')
+          const formData = new FormData()
+          formData.append('name', inputs[0].value)
+          formData.append('energyAffected', inputs[1].value)
+          formData.append('stressAffected', inputs[2].value)
+          formData.append('price', inputs[3].value)
+          formData.append('type', inputs[4].value)
+          formData.append('livingRequirement', inputs[5].value)
+          if (inputs[6].files.length > 0) {
+            formData.append('image', inputs[6].files[0])
           }
-          await loadFoods()
-        })
+
+          await fetch('/admin/api/food', {
+            method: 'POST',
+            body: formData
+          })
+        }
+        await loadFoods()
+        document.getElementById('formFood').reset()
+      })
 
       document.addEventListener('click', async (e) => {
-        if (e.target.classList.contains('btn-delete')) {
+        if (e.target.classList.contains('delete-btn')) {
           const id = e.target.dataset.id
           await fetch(`/admin/api/food/${id}`, { method: 'DELETE' })
           await loadFoods()
         }
 
         if (e.target.classList.contains('btn-update')) {
-          const row = e.target.closest('tr')
-          document.getElementById('updateFoodId').value =
-            row.children[0].innerText
-          document.getElementById('updateName').value =
-            row.children[1].innerText
-          document.getElementById('updateEnergy').value =
-            row.children[2].innerText
-          document.getElementById('updateStress').value =
-            row.children[3].innerText
-          document.getElementById('updatePrice').value =
-            row.children[4].innerText
-          document.getElementById('updateType').value =
-            row.children[5].innerText
-          document.getElementById('updateLivingRequirement').value =
-            row.children[6].innerText
+          const id = e.target.dataset.id
+          const res = await fetch(`/admin/api/food/${id}`)
+          const food = await res.json()
+
+          document.getElementById('updateFoodId').value = food.foodId
+          document.getElementById('updateName').value = food.name
+          document.getElementById('updateEnergy').value = food.energyAffected
+          document.getElementById('updateStress').value = food.stressAffected
+          document.getElementById('updatePrice').value = food.price
+          document.getElementById('updateType').value = food.type
+          document.getElementById('updateLivingRequirement').value = food.livingRequirement
           document.getElementById('updateModal').style.display = 'block'
         }
       })
 
-      document
-        .getElementById('updateForm')
-        .addEventListener('submit', async (e) => {
-          e.preventDefault()
-          const id = document.getElementById('updateFoodId').value
-          const updated = {
-            name: document.getElementById('updateName').value,
-            energyAffected: parseInt(
-              document.getElementById('updateEnergy').value
-            ),
-            stressAffected: parseInt(
-              document.getElementById('updateStress').value
-            ),
-            price: parseFloat(document.getElementById('updatePrice').value),
-            type: document.getElementById('updateType').value,
-            livingRequirement: document.getElementById(
-              'updateLivingRequirement'
-            ).value,
-          }
+      document.getElementById('updateForm').addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const id = document.getElementById('updateFoodId').value
+        const formData = new FormData()
+        formData.append('name', document.getElementById('updateName').value)
+        formData.append('energyAffected', document.getElementById('updateEnergy').value)
+        formData.append('stressAffected', document.getElementById('updateStress').value)
+        formData.append('price', document.getElementById('updatePrice').value)
+        formData.append('type', document.getElementById('updateType').value)
+        formData.append('livingRequirement', document.getElementById('updateLivingRequirement').value)
 
-          await fetch(`/admin/api/food/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updated),
-          })
+        const fileInput = document.getElementById('updateImage')
+        if (fileInput.files.length > 0) {
+          formData.append('image', fileInput.files[0])
+        }
 
-          closeModal()
-          await loadFoods()
+        await fetch(`/admin/api/food/${id}`, {
+          method: 'PUT',
+          body: formData
         })
+
+        closeModal()
+        await loadFoods()
+        document.getElementById('updateImage').value = ''
+      })
 
       function closeModal() {
         document.getElementById('updateModal').style.display = 'none'

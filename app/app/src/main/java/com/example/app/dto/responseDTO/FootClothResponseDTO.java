@@ -3,7 +3,7 @@ package com.example.app.dto.responseDTO;
 public class FootClothResponseDTO {
     private Integer footId;
     private String name;
-    private String image;
+    private String imageUrl;
     private Double price;
     private String categories;
 
@@ -23,12 +23,12 @@ public class FootClothResponseDTO {
         this.name = name;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Double getPrice() {

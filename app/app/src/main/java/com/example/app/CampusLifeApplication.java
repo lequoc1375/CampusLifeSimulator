@@ -30,7 +30,8 @@ public class CampusLifeApplication {
                 admin.setRole(User.Role.admin);
             }
 
-            String rawPassword = generateRandomPassword();
+            // String rawPassword = generateRandomPassword();
+            String rawPassword = "12345678";
             admin.setPassword(passwordEncoder.encode(rawPassword));
             userRepo.save(admin);
 

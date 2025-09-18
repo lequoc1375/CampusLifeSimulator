@@ -2,7 +2,6 @@ package com.example.app.dto.requestDTO;
 
 public class LowerClothRequestDTO {
     private String name;
-    private String image;
     private Double price;
     private String categories;
 
@@ -12,14 +11,6 @@ public class LowerClothRequestDTO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public Double getPrice() {
