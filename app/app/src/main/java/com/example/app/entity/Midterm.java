@@ -2,6 +2,8 @@ package com.example.app.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +33,7 @@ public class Midterm {
 
     @ManyToOne
     @JoinColumn(name = "subject_id", referencedColumnName = "subject_id")
+    @JsonBackReference
     private Subject subject;
 
     @OneToMany(mappedBy = "midterm", cascade = CascadeType.ALL, orphanRemoval = true)

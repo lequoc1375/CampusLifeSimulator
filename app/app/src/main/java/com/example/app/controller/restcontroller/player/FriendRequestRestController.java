@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.app.entity.FriendRequest;
 import com.example.app.entity.User;
+import com.example.app.security.CustomUserDetails;
 import com.example.app.service.serviceInterface.FriendRequestService;
 import com.example.app.service.serviceInterface.UserService;
 import com.example.app.util.UserSession;
@@ -32,9 +34,11 @@ public class FriendRequestRestController {
     private FriendRequestService friendRequestService;
 
     @GetMapping("/user/{username}")
-    public ResponseEntity<?> getUserInfo(@PathVariable String username) {
-        int currentUserId = userSession.getUserId();
-        String currentUsername = userSession.getUsername();
+    public ResponseEntity<?> getUserInfo(@PathVariable String username,
+                                        @AuthenticationPrincipal CustomUserDetails currentUser) {
+        int currentUserId = currentUser.getUserId();
+        String currentUsername = currentUser.getUsername();
+
         if (username.equalsIgnoreCase(currentUsername)) {
             return ResponseEntity.badRequest().body("You cannot add yourself.");
         }
@@ -42,8 +46,8 @@ public class FriendRequestRestController {
         try {
             User user = userService.getUserByUsername(username);
 
-            boolean isFriend = friendRequestService.isFriend(currentUserId, user.getUser_id());
-            boolean hasReceivedRequest = friendRequestService.existsBySender_UserIdAndReceiver_UserId(user.getUser_id(), currentUserId);
+            boolean isFriend = friendRequestService.isFriend(currentUserId, user.getUserId());
+            boolean hasReceivedRequest = friendRequestService.existsBySender_UserIdAndReceiver_UserId(user.getUserId(), currentUserId);
 
             String relation;
             if (isFriend) {
@@ -55,9 +59,9 @@ public class FriendRequestRestController {
             }
 
             return ResponseEntity.ok(Map.of(
-                "userId", user.getUser_id(),
-                "username", user.getUsername(),
-                "relation", relation
+                    "userId", user.getUserId(),
+                    "username", user.getUsername(),
+                    "relation", relation
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("User not found.");

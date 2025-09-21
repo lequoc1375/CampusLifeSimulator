@@ -3,6 +3,8 @@ package com.example.app.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "Subject")
+@Table(name = "subject")
 public class Subject {
 
     @Id
@@ -28,12 +30,15 @@ public class Subject {
     private int credit;
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Lesson> lessons = new ArrayList<>();
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Midterm> midterms = new ArrayList<>();
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<FinalExam> finalExams = new ArrayList<>();
 
     public List<Midterm> getMidterms() {

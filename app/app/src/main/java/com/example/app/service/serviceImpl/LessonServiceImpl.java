@@ -54,7 +54,7 @@ public class LessonServiceImpl implements LessonService {
         Lesson lesson = lessonRepo.findById(id).orElseThrow(() -> new RuntimeException("lesson 4.2 is not exist"));
 
         lesson.setName(request.getName());
-        lesson.setLength(request.getLength());
+        lesson.setLesson_order(request.getLesson_order());
         lesson.setLink_video(request.getLink_video());
 
         Subject subject = subjectRepo.findById(request.getSubject_id())
@@ -71,5 +71,7 @@ public class LessonServiceImpl implements LessonService {
                 .orElseThrow(() -> new RuntimeException("Lesson 4.3 is not valid"));
         lessonRepo.delete(lesson);
     }
+
+
 
 }

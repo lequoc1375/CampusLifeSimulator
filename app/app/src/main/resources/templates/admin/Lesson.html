@@ -121,13 +121,13 @@
         lessonList.forEach((lesson) => {
           const row = document.createElement('tr')
           row.innerHTML = `
-                <td>${lesson.lesson_id}</td>
+                <td>${lesson.lessonId}</td>
                 <td>${lesson.name}</td>
                 <td>${lesson.subject_name}</td>
                 <td>${lesson.length}</td>
                 <td>${lesson.link_video}</td>
-                <td><button class="btn-delete" data-id="${lesson.lesson_id}">🗑️ Delete</button></td>
-                <td><button class="btn-update" data-id="${lesson.lesson_id}">✏️ Update</button></td>
+                <td><button class="btn-delete" data-id="${lesson.lessonId}">🗑️ Delete</button></td>
+                <td><button class="btn-update" data-id="${lesson.lessonId}">✏️ Update</button></td>
               `
           tableBody.appendChild(row)
         })
@@ -187,7 +187,7 @@
           const lessonId = e.target.getAttribute('data-id')
           const row = e.target.closest('tr')
           const lesson = {
-            lesson_id: lessonId,
+            lessonId: lessonId,
             name: row.children[1].innerText,
             subject_name: row.children[2].innerText,
             length: row.children[3].innerText,
@@ -201,7 +201,7 @@
         if (!subjectList || subjectList.length === 0) {
           await loadSubjects()
         }
-        document.getElementById('updateLessonId').value = lesson.lesson_id
+        document.getElementById('updateLessonId').value = lesson.lessonId
         document.getElementById('updateName').value = lesson.name
         document.getElementById('updateLength').value = lesson.length
         document.getElementById('updateLink').value = lesson.link_video
@@ -231,7 +231,7 @@
         .addEventListener('submit', async function (e) {
           e.preventDefault()
           const lesson = {
-            lesson_id: document.getElementById('updateLessonId').value,
+            lessonId: document.getElementById('updateLessonId').value,
             name: document.getElementById('updateName').value,
             subject_id: parseInt(
               document.getElementById('updateSubjectId').value
@@ -241,7 +241,7 @@
           }
           try {
             const res = await fetch(
-              `/admin/api/lesson/update/${lesson.lesson_id}`,
+              `/admin/api/lesson/update/${lesson.lessonId}`,
               {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },

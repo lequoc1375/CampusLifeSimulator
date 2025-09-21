@@ -14,6 +14,7 @@ import com.example.app.entity.Problem;
 import com.example.app.repository.LessonRepo;
 import com.example.app.repository.ProblemRepo;
 import com.example.app.service.serviceInterface.ProblemService;
+
 @Service
 public class ProblemServiceImpl implements ProblemService {
     @Autowired
@@ -42,7 +43,7 @@ public class ProblemServiceImpl implements ProblemService {
         problem.setAnswer(request.getAnswer());
         problem.setAnswer_image(request.getAnswer_image());
         problem.setQuestion_image(request.getQuestion_image());
-        Lesson lesson = lessonRepo.findById(request.getLesson_id())
+        Lesson lesson = lessonRepo.findById(request.getLessonId())
                 .orElseThrow(() -> new RuntimeException("Lesson is not found in Problem"));
         problem.setLesson(lesson);
         problemRepo.save(problem);
@@ -52,7 +53,7 @@ public class ProblemServiceImpl implements ProblemService {
     public void createProblem(ProblemDTORequest request) {
         Problem problem = problemMapper.convertToProblem(request);
 
-        Lesson lesson = lessonRepo.findById(request.getLesson_id())
+        Lesson lesson = lessonRepo.findById(request.getLessonId())
                 .orElseThrow(() -> new RuntimeException("Lesson  is not valid"));
 
         problem.setLesson(lesson);
@@ -64,6 +65,12 @@ public class ProblemServiceImpl implements ProblemService {
         Problem problem = problemRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Problem  is not valid"));
         problemRepo.delete(problem);
+    }
+
+    @Override
+    public List<ProblemDTOResponse> getAllProblemByLesson(int lessonId) {
+        return problemRepo.findByLesson_LessonId(lessonId).stream().map(problemMapper::convertToProblemDTOResponse)
+                .collect(Collectors.toList());
     }
 
 }

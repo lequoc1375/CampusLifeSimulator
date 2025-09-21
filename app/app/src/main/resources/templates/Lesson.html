@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${lesson.name}">Lesson</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f9;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+      .main-container {
+        max-width: 2200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      h1 {
+        font-size: 2.5em;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #1a1a1a;
+      }
+      .content-container {
+        display: flex;
+        gap: 30px;
+        margin: 30px 0;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .video-container {
+        flex: 0 0 1050px;
+      }
+      .lessons-card {
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 1050px;
+        height: 600px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1;
+      }
+      .lessons-card::-webkit-scrollbar {
+        width: 8px;
+      }
+      .lessons-card::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .lessons-card::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+      }
+      .lesson {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f7f7f7;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 10px;
+        transition: background 0.2s;
+      }
+      .lesson:hover {
+        background: #e0e0e0;
+      }
+      .lesson.active {
+        font-weight: bold;
+        background: #e6f7ff;
+        color: #000;
+      }
+      .lesson.active:hover {
+        background: #d1efff;
+      }
+      .play-btn {
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        background: #fff;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+      }
+      .play-btn:hover {
+        background: #f0f0f0;
+        transform: scale(1.1);
+      }
+      .quiz-button-container {
+        text-align: center;
+        margin: 20px 0;
+      }
+      #quizBtn {
+        padding: 12px 30px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        background: #04901e;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      #quizBtn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      #quizBtn:enabled:hover {
+        background: #037818;
+      }
+      .problem-block {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 15px auto;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        max-width: 1050px;
+      }
+      .problem-block h3 {
+        margin-top: 0;
+        font-size: 1.2em;
+        color: #1a1a1a;
+      }
+      .problem-block p {
+        margin: 10px 0;
+      }
+      .answer-input {
+        margin-top: 10px;
+      }
+      .answer-input input {
+        padding: 8px;
+        font-size: 16px;
+        width: 50px;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      .feedback {
+        margin-top: 10px;
+        font-weight: bold;
+        color: #04901e;
+      }
+      .feedback.incorrect {
+        color: #d32f2f;
+      }
+      .finish-quiz {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .finish-quiz button {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin: 0 10px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .finish-quiz button.continue {
+        background: #04901e;
+        color: #fff;
+      }
+      .finish-quiz button.continue:hover {
+        background: #037818;
+      }
+      .finish-quiz button.next-lesson {
+        background: #1976d2;
+        color: #fff;
+      }
+      .finish-quiz button.next-lesson:hover {
+        background: #1565c0;
+      }
+      @media (max-width: 2200px) {
+        .content-container {
+          flex-direction: column;
+          align-items: center;
+        }
+        .video-container,
+        .lessons-card {
+          width: 100%;
+          max-width: 1050px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <h1 th:text="${lesson.name}"></h1>
+
+      <div class="content-container">
+        <div class="video-container">
+          <div id="player"></div>
+        </div>
+        <div id="lessons-card"></div>
+      </div>
+
+      <div class="quiz-button-container">
+        <button id="quizBtn" disabled onclick="loadQuiz()">Open Quiz</button>
+      </div>
+
+      <div id="quizContainer"></div>
+    </div>
+
+    <script th:inline="javascript">
+      let tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      document.body.appendChild(tag)
+
+      let player
+      let interval
+      let unlocked = false
+      let watchedTime = 0
+      const lessonId = /*[[${lesson.lessonId}]]*/ 0
+      const currentOrder = /*[[${lesson.lesson_order}]]*/ 0
+      const subjectId = /*[[${subjectId}]]*/ 0
+      const userId = /*[[${#authentication.principal.userId}]]*/ 0
+      let problems = []
+      let currentProblemIndex = 0
+      let score = 0
+      let continueAfterThreshold = false // New flag to track continuation
+
+      async function loadLessonsCard() {
+        try {
+          const res = await fetch(`/player/api/course/list/${userId}`)
+          const data = await res.json()
+          const course = data.inProgress.find((c) => c.subject_id === subjectId)
+          if (course && course.lessons) {
+            renderLessonsCard(course.lessons, course.subject_id)
+          }
+        } catch (err) {
+          console.error('Failed to load lessons for subject', err)
+        }
+      }
+
+      function renderLessonsCard(lessons, subjectId) {
+        const container = document.getElementById('lessons-card')
+        container.innerHTML = ''
+        const card = document.createElement('div')
+        card.classList.add('lessons-card')
+
+        lessons
+          .sort((a, b) => a.lesson_order - b.lesson_order)
+          .forEach((lesson) => {
+            const lessonDiv = document.createElement('div')
+            lessonDiv.classList.add('lesson')
+            const lessonText = document.createElement('span')
+            lessonText.textContent = lesson.name
+            const btn = document.createElement('div')
+            btn.classList.add('play-btn')
+            if (
+              lesson.lessonStudying &&
+              lesson.lessonStudying.avaiStatus === 'able'
+            ) {
+              lessonDiv.classList.add('active')
+              btn.textContent = '▶'
+              lessonDiv.addEventListener('click', () => {
+                window.location.href = `/lesson/${lesson.lessonId}/${subjectId}`
+              })
+            } else {
+              lessonDiv.classList.add('disabled')
+              btn.textContent = '🔒'
+              btn.style.opacity = '0.3'
+              btn.style.cursor = 'not-allowed'
+            }
+            lessonDiv.appendChild(lessonText)
+            lessonDiv.appendChild(btn)
+            card.appendChild(lessonDiv)
+          })
+
+        container.appendChild(card)
+      }
+
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '600',
+          width: '1050',
+          videoId: /*[[${videoId}]]*/ '',
+          playerVars: {
+            controls: 1,
+            modestbranding: 1,
+            rel: 0,
+          },
+          events: {
+            onStateChange: onPlayerStateChange,
+          },
+        })
+      }
+
+      function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.PLAYING && !interval) {
+          interval = setInterval(checkProgress, 1000)
+        } else if (
+          event.data === YT.PlayerState.ENDED ||
+          event.data === YT.PlayerState.PAUSE
+        ) {
+          clearInterval(interval)
+          interval = null
+        }
+      }
+
+      function checkProgress() {
+        watchedTime += 1
+        let duration = player.getDuration()
+        if (!unlocked && watchedTime >= duration / 2) {
+          unlocked = true
+          finishVideo(lessonId)
+          document.getElementById('quizBtn').disabled = false
+          alert('✅ Quiz unlocked!')
+        }
+      }
+
+      async function finishVideo(lessonId) {
+        try {
+          const res = await fetch(
+            `/player/api/lesson/finishedVideo/${lessonId}/${subjectId}`,
+            {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+            }
+          )
+          const data = await res.json()
+          console.log(data)
+        } catch (err) {
+          console.error('Error updating video status:', err)
+        }
+      }
+
+      async function loadQuiz() {
+        try {
+          const res = await fetch(
+            `/player/api/lesson/getProblems/${lessonId}`,
+            {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' },
+            }
+          )
+          const data = await res.json()
+          problems = data.sort((a, b) => a.question_order - b.question_order)
+          currentProblemIndex = 0
+          score = 0
+          continueAfterThreshold = false // Reset flag when starting quiz
+          if (problems.length > 0) {
+            renderProblem(currentProblemIndex)
+          } else {
+            document.getElementById('quizContainer').innerHTML =
+              '<p>No problems available.</p>'
+          }
+        } catch (error) {
+          console.error('Error fetching problems:', error)
+          document.getElementById('quizContainer').innerHTML =
+            '<p>Error loading quiz.</p>'
+        }
+      }
+
+      function renderProblem(index) {
+        const container = document.getElementById('quizContainer')
+        container.innerHTML = ''
+        const problem = problems[index]
+        const div = document.createElement('div')
+        div.classList.add('problem-block')
+        div.innerHTML = `
+          <h3>Question ${problem.problem_order}</h3>
+          <p><strong>Question:</strong> ${problem.question || ''}</p>
+          ${
+            problem.question_image
+              ? `<img src="/images/${problem.question_image}" width="200" style="pointer-events: none;">`
+              : ''
+          }
+          ${
+            problem.answer_image
+              ? `<img src="/images/${problem.answer_image}" width="200" style="pointer-events: none;">`
+              : ''
+          }
+          <p><strong>Answer:</strong> ${problem.answer || ''}</p>
+          <div class="answer-input">
+            <label>Your answer: </label>
+            <input type="text" name="answer_${index}" maxlength="1" placeholder="_" oninput="this.value = this.value.toUpperCase()">
+          </div>
+          <div id="feedback_${index}" class="feedback"></div>
+        `
+        const submitBtn = document.createElement('button')
+        submitBtn.id = `submit_problem_${index}`
+        submitBtn.textContent = 'Submit Answer'
+        submitBtn.style.padding = '10px 20px'
+        submitBtn.style.fontSize = '16px'
+        submitBtn.style.background = '#04901e'
+        submitBtn.style.color = '#fff'
+        submitBtn.style.border = 'none'
+        submitBtn.style.borderRadius = '8px'
+        submitBtn.style.cursor = 'pointer'
+        submitBtn.style.marginTop = '15px'
+        submitBtn.style.transition = 'background 0.2s'
+        submitBtn.onmouseover = () => {
+          submitBtn.style.background = '#037818'
+        }
+        submitBtn.onmouseout = () => {
+          submitBtn.style.background = '#04901e'
+        }
+        submitBtn.onclick = () => submitSingleProblem(index)
+        div.appendChild(submitBtn)
+        container.appendChild(div)
+      }
+
+      async function submitSingleProblem(index) {
+        try {
+          const problem = problems[index]
+          const answerInput = document.querySelector(
+            `input[name="answer_${index}"]`
+          )
+          const answerValue = answerInput.value.trim().toUpperCase()
+          const validOptions = ['A', 'B', 'C', 'D']
+          if (!answerValue || !validOptions.includes(answerValue)) {
+            alert('Please enter A, B, C, or D.')
+            return
+          }
+          const res = await fetch(
+            `/player/api/lesson/submitProblem/${lessonId}/${problem.problem_order}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ answer: answerValue }),
+            }
+          )
+          const result = await res.json()
+          const feedbackDiv = document.getElementById(`feedback_${index}`)
+          const submitBtn = document.getElementById(`submit_problem_${index}`)
+          if (result.isCorrect) {
+            score += 1
+            feedbackDiv.textContent = 'Correct!'
+          } else {
+            score -= 1
+            feedbackDiv.textContent = 'Incorrect!'
+            feedbackDiv.classList.add('incorrect')
+          }
+          answerInput.disabled = true
+          submitBtn.disabled = true
+          currentProblemIndex += 1
+
+          if (currentProblemIndex >= problems.length) {
+            finishQuiz()
+          } else if (score >= 6 && !continueAfterThreshold) {
+            finishQuiz()
+          } else {
+            setTimeout(() => renderProblem(currentProblemIndex), 1000)
+          }
+        } catch (error) {
+          console.error('Error submitting problem:', error)
+          alert('Error submitting answer. Please try again.')
+        }
+      }
+
+      async function finishQuiz() {
+        const container = document.getElementById('quizContainer')
+        container.innerHTML = `
+          <div class="finish-quiz">
+            <p>Quiz Finished! Your score: ${score}</p>
+            ${
+              currentProblemIndex < problems.length
+                ? '<button class="continue">Continue with remaining problems</button>'
+                : ''
+            }
+          </div>
+        `
+        if (score >= 6 && !continueAfterThreshold) {
+          await updateQuizStatus(lessonId)
+        }
+        if (currentProblemIndex < problems.length) {
+          const continueBtn = document.querySelector('.continue')
+          continueBtn.onclick = () => {
+            continueAfterThreshold = true // Set flag to continue
+            renderProblem(currentProblemIndex)
+          }
+        }
+        const nextLessonBtn = document.querySelector('.next-lesson')
+        nextLessonBtn.onclick = () => enableNextLesson(subjectId, currentOrder)
+      }
+
+      async function updateQuizStatus(lessonId) {
+        try {
+          const res = await fetch(
+            `/player/api/lesson/finishedProblem/${lessonId}`,
+            {
+              method: 'PUT',
+            }
+          )
+          alert('✅ Quiz status updated successfully!')
+        } catch (error) {
+          console.error('Error updating quiz status:', error)
+          alert('Error updating quiz status.')
+        }
+      }
+
+      async function enableNextLesson(subjectId, currentOrder) {
+        try {
+          if (!subjectId || !currentOrder) {
+            throw new Error('subjectId and currentOrder are required')
+          }
+          const res = await fetch(
+            `/player/api/lesson/finishedLesson/${subjectId}/${currentOrder}`,
+            {
+              method: 'PUT',
+            }
+          )
+          if (!res.ok) {
+            throw new Error(`HTTP error! Status: ${res.status}`)
+          }
+          alert('✅ Next Lesson unlocked successfully!')
+        } catch (error) {
+          console.error('Error unlocking next lesson:', error)
+          alert('Error unlocking next lesson: ' + error.message)
+        }
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        loadLessonsCard()
+      })
+    </script>
+  </body>
+</html>

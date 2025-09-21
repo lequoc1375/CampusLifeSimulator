@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>University Page</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" th:href="@{/css/RegisterSubjects.css}" />
+    <link rel="stylesheet" th:href="@{/css/StatsAndCalender.css}" />
+    <link rel="stylesheet" th:href="@{/css/MenuBar.css}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f2f2f2;
+        padding: 20px;
+      }
+
+      #subjects-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .course-card {
+        display: flex;
+        flex-direction: row;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        width: 650px;
+      }
+
+      .card-left {
+        width: 220px;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid #eee;
+      }
+
+      .card-left-top {
+        padding: 16px;
+        background: #04901e;
+        color: #fff;
+      }
+
+      .card-left-top h2 {
+        font-size: 20px;
+        margin: 0 0 8px 0;
+      }
+
+      .card-left-top .subtitle {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .card-left-bottom {
+        padding: 12px 10px;
+        background: #fff;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        font-size: 14px;
+      }
+
+      .card-left-bottom .progress-text {
+        font-weight: bold;
+        color: #000;
+        font-size: 14px;
+        margin: 0 0 25px 0;
+      }
+
+      .card-left-bottom .card-footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        opacity: 0.9;
+      }
+
+      .card-right {
+        flex: 1;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .lesson {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f7f7f7;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 14px;
+        color: #555;
+      }
+
+      .lesson.active {
+        font-weight: bold;
+        background: #e6f7ff;
+        color: #000;
+      }
+
+      .play-btn {
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .card-left-bottom h3 {
+        font-size: 35px;
+        margin: 0 0 -24px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div th:replace="fragments/MenuBar :: header"></div>
+
+    <div class="main-container">
+      <div class="left-panel">
+        <div class="player-stats-wrapper">
+          <div class="player-stats-container">
+            <div class="stat money">
+              <label>Money</label>
+              <span class="money-value">$0</span>
+            </div>
+            <div class="stat energy">
+              <label>Energy</label>
+              <div class="bar">
+                <div class="fill energy-fill">0/0</div>
+              </div>
+            </div>
+            <div class="stat stress">
+              <label>Stress</label>
+              <div class="bar">
+                <div class="fill stress-fill">0/0</div>
+              </div>
+            </div>
+            <hr class="divider" />
+            <div class="stat gpa">
+              <p class="credits">Number of Credits: N/A</p>
+              <p class="gpa-value">Grade Point Average: N/A</p>
+            </div>
+            <button class="view-details">View Details</button>
+          </div>
+        </div>
+
+        <div class="calendar-wrapper">
+          <div class="calendar-container">
+            <div class="calendar-header">
+              <button id="prev-month" class="nav-btn">‹</button>
+              <span id="month-name">Month</span>
+              <span id="year">Year</span>
+              <button id="next-month" class="nav-btn">›</button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid">
+              <div class="day-label">Mon</div>
+              <div class="day-label">Tue</div>
+              <div class="day-label">Wed</div>
+              <div class="day-label">Thu</div>
+              <div class="day-label">Fri</div>
+              <div class="day-label">Sat</div>
+              <div class="day-label">Sun</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <h2 class="page-title">Courses In Progress</h2>
+
+        <div
+          class="subjects-section"
+          id="subjects-section"
+          th:data-userid="${#authentication.principal.userId}"
+        ></div>
+      </div>
+    </div>
+  </body>
+
+  <script th:inline="javascript">
+    async function loadPlayerStats() {
+      try {
+        const response = await fetch(
+          '/player/api/stats/getByUser/[[${#authentication.principal.userId}]]'
+        )
+        if (!response.ok) throw new Error('API error')
+        const stats = await response.json()
+        updateUI(stats)
+      } catch (error) {
+        console.error('Error loading stats:', error)
+      }
+    }
+
+    function updateUI(stats) {
+      document.querySelector('.money-value').innerText = `$${Number(
+        stats.money
+      ).toLocaleString()}`
+      const energyPercent = (stats.currentEnergy / stats.maxEnergy) * 100
+      const energyFill = document.querySelector('.energy-fill')
+      energyFill.style.width = `${energyPercent}%`
+      energyFill.innerText = `${stats.currentEnergy}/${stats.maxEnergy}`
+      const stressPercent = (stats.currentStress / stats.maxStress) * 100
+      const stressFill = document.querySelector('.stress-fill')
+      stressFill.style.width = `${stressPercent}%`
+      stressFill.innerText = `${stats.currentStress}/${stats.maxStress}`
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadPlayerStats()
+    })
+
+    const monthNameEl = document.getElementById('month-name')
+    const yearEl = document.getElementById('year')
+    const calendarGrid = document.getElementById('calendar-grid')
+
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ]
+
+    let currentDate = new Date()
+
+    function renderCalendar(date) {
+      const year = date.getFullYear()
+      const month = date.getMonth()
+      monthNameEl.textContent = monthNames[month]
+      yearEl.textContent = year
+      while (calendarGrid.children.length > 7) {
+        calendarGrid.removeChild(calendarGrid.lastChild)
+      }
+      const firstDay = new Date(year, month, 1).getDay()
+      const startDay = (firstDay + 6) % 7
+      const daysInMonth = new Date(year, month + 1, 0).getDate()
+      for (let i = 0; i < startDay; i++) {
+        calendarGrid.appendChild(document.createElement('div'))
+      }
+      const today = new Date()
+      const isCurrentMonth =
+        today.getFullYear() === year && today.getMonth() === month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayDiv = document.createElement('div')
+        dayDiv.className = 'day'
+        dayDiv.textContent = day
+        if (isCurrentMonth && day === today.getDate()) {
+          dayDiv.classList.add('today')
+        }
+        calendarGrid.appendChild(dayDiv)
+      }
+    }
+
+    document.getElementById('prev-month').addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() - 1)
+      renderCalendar(currentDate)
+    })
+    document.getElementById('next-month').addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() + 1)
+      renderCalendar(currentDate)
+    })
+
+    renderCalendar(currentDate)
+
+    async function loadCourses() {
+      try {
+        const res = await fetch(
+          '/player/api/course/list/[[${#authentication.principal.userId}]]'
+        )
+        const data = await res.json()
+        renderInProgress(data.inProgress)
+      } catch (err) {
+        console.error('Failed to load courses', err)
+      }
+    }
+
+    function renderInProgress(courses) {
+      const container = document.getElementById('subjects-section')
+      container.innerHTML = ''
+      courses.forEach((course) => {
+        const card = document.createElement('div')
+        card.classList.add('course-card')
+
+        const left = document.createElement('div')
+        left.classList.add('card-left')
+
+        const top = document.createElement('div')
+        top.classList.add('card-left-top')
+
+        const title = document.createElement('h2')
+        title.textContent = course.name
+
+        const subtitle = document.createElement('p')
+        subtitle.classList.add('subtitle')
+        subtitle.textContent = 'Only for IU students'
+
+        top.appendChild(title)
+        top.appendChild(subtitle)
+
+        const bottom = document.createElement('div')
+        bottom.classList.add('card-left-bottom')
+
+        const bottomTitle = document.createElement('h3')
+        bottomTitle.textContent = course.name
+        bottom.appendChild(bottomTitle)
+
+        const progress = document.createElement('p')
+        progress.classList.add('progress-text')
+        progress.textContent = `${course.progress || 0}% Completed`
+
+        const footer = document.createElement('div')
+        footer.classList.add('card-footer')
+        footer.innerHTML = `<span>${course.credit} Credits</span><span>${course.lessons.length} Lectures</span>`
+
+        bottom.appendChild(progress)
+        bottom.appendChild(footer)
+
+        left.appendChild(top)
+        left.appendChild(bottom)
+
+        const right = document.createElement('div')
+        right.classList.add('card-right')
+        ;(course.lessons || [])
+          .sort((a, b) => a.lesson_order - b.lesson_order)
+          .forEach((lesson) => {
+            const lessonDiv = document.createElement('div')
+            lessonDiv.classList.add('lesson')
+            const lessonText = document.createElement('span')
+            lessonText.textContent = lesson.name
+            const btn = document.createElement('div')
+            btn.classList.add('play-btn')
+            btn.textContent = '▶'
+            if (
+              lesson.lessonStudying &&
+              lesson.lessonStudying.avaiStatus === 'able'
+            ) {
+              lessonDiv.classList.add('active')
+              btn.classList.add('play-btn')
+              btn.textContent = '▶'
+              lessonDiv.addEventListener('click', () => {
+                window.location.href = `/lesson/${lesson.lessonId}/${course.subject_id}`
+              })
+            } else {
+              lessonDiv.classList.add('disabled')
+              btn.classList.add('play-btn')
+              btn.textContent = '🔒'
+              btn.style.opacity = '0.3'
+              btn.style.cursor = 'not-allowed'
+            }
+            lessonDiv.appendChild(lessonText)
+            lessonDiv.appendChild(btn)
+            right.appendChild(lessonDiv)
+          })
+
+        card.appendChild(left)
+        card.appendChild(right)
+        container.appendChild(card)
+      })
+    }
+
+    loadCourses()
+  </script>
+</html>

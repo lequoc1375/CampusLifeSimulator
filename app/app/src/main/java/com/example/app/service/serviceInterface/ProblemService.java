@@ -12,5 +12,6 @@ public interface ProblemService {
     void updateProblem(int id, ProblemDTORequest request);
     void createProblem(ProblemDTORequest request);
     void deleteProblem(int id);
+    List<ProblemDTOResponse> getAllProblemByLesson(int lessonId);
 
 }

@@ -115,7 +115,7 @@ public class ChatRestController {
 
         return messages.stream().map(msg -> {
             ChatMessageDTOResponse dto = new ChatMessageDTOResponse();
-            dto.setSenderId(msg.getSender().getUser_id());
+            dto.setSenderId(msg.getSender().getUserId());
             dto.setSenderUsername(msg.getSender().getUsername());
             dto.setReceiverId(receiverId);
             dto.setContent(msg.getContent());

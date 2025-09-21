@@ -31,8 +31,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/register","/actuator/**").permitAll()
-                        .requestMatchers("/player/api/stats/me").hasRole("player")
+                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/register", "/actuator/**").permitAll()
+                        .requestMatchers("/player/api/**").hasRole("player")
                         .requestMatchers("/admin/**").hasRole("admin")
                         .requestMatchers("/Game/**").hasRole("player")
                         .anyRequest().authenticated())

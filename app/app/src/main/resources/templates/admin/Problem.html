@@ -104,13 +104,13 @@
 
         let options = `<option value=""></option>`
         lessonList.forEach((lesson) => {
-          options += `<option value="${lesson.lesson_id}">${lesson.name}</option>`
+          options += `<option value="${lesson.lessonId}">${lesson.name}</option>`
         })
 
         for (let i = 0; i < noOfProblems; i++) {
           const row = document.createElement('tr')
           row.innerHTML = `
-          <td><select name="lesson_id" required>${options}</select></td>
+          <td><select name="lessonId" required>${options}</select></td>
           <td><input type="number" name="problem_order" min="1" required></td>
           <td><input type="text" name="question_image" required></td>
           <td><input type="text" name="answer_image" required></td>
@@ -151,7 +151,7 @@
           rows.forEach((row) => {
             const inputs = row.querySelectorAll('input, select')
             const problem = {
-              lesson_id: parseInt(inputs[0].value),
+              lessonId: parseInt(inputs[0].value),
               problem_order: parseInt(inputs[1].value),
               question_image: inputs[2].value,
               answer_image: inputs[3].value,
@@ -222,7 +222,7 @@
         select.innerHTML = ''
         lessonList.forEach((lesson) => {
           const opt = document.createElement('option')
-          opt.value = lesson.lesson_id
+          opt.value = lesson.lessonId
           opt.textContent = lesson.name
           if (lesson.name === problem.lesson_name) opt.selected = true
           select.appendChild(opt)
@@ -242,9 +242,7 @@
             problem_id: parseInt(
               document.getElementById('updateProblemId').value
             ),
-            lesson_id: parseInt(
-              document.getElementById('updateLessonId').value
-            ),
+            lessonId: parseInt(document.getElementById('updateLessonId').value),
             problem_order: parseInt(
               document.getElementById('updateOrder').value
             ),

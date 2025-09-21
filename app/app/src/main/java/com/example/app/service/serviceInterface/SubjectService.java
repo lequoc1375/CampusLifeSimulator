@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.app.dto.requestDTO.SubjectDTORequest;
 import com.example.app.dto.responseDTO.SubjectDTOResponse;
+import com.example.app.entity.Subject;
 
 public interface SubjectService {
     List<SubjectDTOResponse> getAllSubjects();
@@ -15,4 +16,13 @@ public interface SubjectService {
     void updateSubject(int id, SubjectDTORequest request);
 
     void deleteSubject(int id);
+
+    List<Subject> getUnregisteredSubjectsByUserId(int userId);
+
+    List<Subject> getInProgressSubjectsByUserId(int userId);
+
+    List<Subject> getCompletedSubjectsByUserId(int userId);
+    
+    Integer registerSubjectForUser(int userId, int subjectId);
+    
 }
