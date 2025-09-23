@@ -75,8 +75,15 @@ public class LessonStudyingServiceImpl implements LessonStudyingService {
 
     @Override
     public void updateNewScore(int score, int lessonId) {
-        LessonStudying ls = lessonStudyingRepo.findByLessonId(lessonId).orElseThrow(() -> new RuntimeException("LessonStudying not found"));
-        ls.setScore(ls.getScore()+score);
+        LessonStudying ls = lessonStudyingRepo.findByLessonId(lessonId)
+            .orElseThrow(() -> new RuntimeException("LessonStudying not found"));
+        int newScore = ls.getScore() + score;
+        if (newScore < 0) {
+            newScore = 0; 
+        } else if (newScore > 6) {
+            newScore = 6; 
+        }
+        ls.setScore(newScore);
         lessonStudyingRepo.save(ls); 
     }
 }

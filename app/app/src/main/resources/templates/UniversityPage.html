@@ -31,11 +31,11 @@
         background: #fff;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         overflow: hidden;
-        width: 650px;
+        width: 800px; /* Increased width for longer cards */
       }
 
       .card-left {
-        width: 220px;
+        width: 260px; /* Increased to maintain proportion */
         display: flex;
         flex-direction: column;
         border-right: 1px solid #eee;
@@ -87,6 +87,28 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1;
+      }
+
+      .card-right::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .card-right::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+
+      .card-right::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+      }
+
+      .card-right::-webkit-scrollbar-thumb:hover {
+        background: #555;
       }
 
       .lesson {
@@ -122,6 +144,16 @@
       .card-left-bottom h3 {
         font-size: 35px;
         margin: 0 0 -24px 0;
+      }
+
+      @media (max-width: 850px) {
+        .course-card {
+          width: 100%;
+          max-width: 600px;
+        }
+        .card-left {
+          width: 200px;
+        }
       }
     </style>
   </head>
@@ -188,196 +220,216 @@
         ></div>
       </div>
     </div>
-  </body>
 
-  <script th:inline="javascript">
-    async function loadPlayerStats() {
-      try {
-        const response = await fetch(
-          '/player/api/stats/getByUser/[[${#authentication.principal.userId}]]'
-        )
-        if (!response.ok) throw new Error('API error')
-        const stats = await response.json()
-        updateUI(stats)
-      } catch (error) {
-        console.error('Error loading stats:', error)
-      }
-    }
-
-    function updateUI(stats) {
-      document.querySelector('.money-value').innerText = `$${Number(
-        stats.money
-      ).toLocaleString()}`
-      const energyPercent = (stats.currentEnergy / stats.maxEnergy) * 100
-      const energyFill = document.querySelector('.energy-fill')
-      energyFill.style.width = `${energyPercent}%`
-      energyFill.innerText = `${stats.currentEnergy}/${stats.maxEnergy}`
-      const stressPercent = (stats.currentStress / stats.maxStress) * 100
-      const stressFill = document.querySelector('.stress-fill')
-      stressFill.style.width = `${stressPercent}%`
-      stressFill.innerText = `${stats.currentStress}/${stats.maxStress}`
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      loadPlayerStats()
-    })
-
-    const monthNameEl = document.getElementById('month-name')
-    const yearEl = document.getElementById('year')
-    const calendarGrid = document.getElementById('calendar-grid')
-
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ]
-
-    let currentDate = new Date()
-
-    function renderCalendar(date) {
-      const year = date.getFullYear()
-      const month = date.getMonth()
-      monthNameEl.textContent = monthNames[month]
-      yearEl.textContent = year
-      while (calendarGrid.children.length > 7) {
-        calendarGrid.removeChild(calendarGrid.lastChild)
-      }
-      const firstDay = new Date(year, month, 1).getDay()
-      const startDay = (firstDay + 6) % 7
-      const daysInMonth = new Date(year, month + 1, 0).getDate()
-      for (let i = 0; i < startDay; i++) {
-        calendarGrid.appendChild(document.createElement('div'))
-      }
-      const today = new Date()
-      const isCurrentMonth =
-        today.getFullYear() === year && today.getMonth() === month
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dayDiv = document.createElement('div')
-        dayDiv.className = 'day'
-        dayDiv.textContent = day
-        if (isCurrentMonth && day === today.getDate()) {
-          dayDiv.classList.add('today')
+    <script th:inline="javascript">
+      async function loadPlayerStats() {
+        try {
+          const response = await fetch(
+            '/player/api/stats/getByUser/[[${#authentication.principal.userId}]]'
+          )
+          if (!response.ok)
+            throw new Error(`HTTP error! Status: ${response.status}`)
+          const stats = await response.json()
+          updateUI(stats)
+        } catch (error) {
+          console.error('Error loading stats:', error)
+          document.querySelector('.player-stats-container').innerHTML =
+            '<p>Error loading stats.</p>'
         }
-        calendarGrid.appendChild(dayDiv)
       }
-    }
 
-    document.getElementById('prev-month').addEventListener('click', () => {
-      currentDate.setMonth(currentDate.getMonth() - 1)
-      renderCalendar(currentDate)
-    })
-    document.getElementById('next-month').addEventListener('click', () => {
-      currentDate.setMonth(currentDate.getMonth() + 1)
-      renderCalendar(currentDate)
-    })
-
-    renderCalendar(currentDate)
-
-    async function loadCourses() {
-      try {
-        const res = await fetch(
-          '/player/api/course/list/[[${#authentication.principal.userId}]]'
-        )
-        const data = await res.json()
-        renderInProgress(data.inProgress)
-      } catch (err) {
-        console.error('Failed to load courses', err)
+      function updateUI(stats) {
+        document.querySelector('.money-value').innerText = `$${Number(
+          stats.money
+        ).toLocaleString()}`
+        const energyPercent = (stats.currentEnergy / stats.maxEnergy) * 100
+        const energyFill = document.querySelector('.energy-fill')
+        energyFill.style.width = `${energyPercent}%`
+        energyFill.innerText = `${stats.currentEnergy}/${stats.maxEnergy}`
+        const stressPercent = (stats.currentStress / stats.maxStress) * 100
+        const stressFill = document.querySelector('.stress-fill')
+        stressFill.style.width = `${stressPercent}%`
+        stressFill.innerText = `${stats.currentStress}/${stats.maxStress}`
       }
-    }
 
-    function renderInProgress(courses) {
-      const container = document.getElementById('subjects-section')
-      container.innerHTML = ''
-      courses.forEach((course) => {
-        const card = document.createElement('div')
-        card.classList.add('course-card')
+      window.addEventListener('DOMContentLoaded', () => {
+        loadPlayerStats()
+      })
 
-        const left = document.createElement('div')
-        left.classList.add('card-left')
+      const monthNameEl = document.getElementById('month-name')
+      const yearEl = document.getElementById('year')
+      const calendarGrid = document.getElementById('calendar-grid')
 
-        const top = document.createElement('div')
-        top.classList.add('card-left-top')
+      const monthNames = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ]
 
-        const title = document.createElement('h2')
-        title.textContent = course.name
+      let currentDate = new Date()
 
-        const subtitle = document.createElement('p')
-        subtitle.classList.add('subtitle')
-        subtitle.textContent = 'Only for IU students'
+      function renderCalendar(date) {
+        const year = date.getFullYear()
+        const month = date.getMonth()
+        monthNameEl.textContent = monthNames[month]
+        yearEl.textContent = year
+        while (calendarGrid.children.length > 7) {
+          calendarGrid.removeChild(calendarGrid.lastChild)
+        }
+        const firstDay = new Date(year, month, 1).getDay()
+        const startDay = (firstDay + 6) % 7
+        const daysInMonth = new Date(year, month + 1, 0).getDate()
+        for (let i = 0; i < startDay; i++) {
+          calendarGrid.appendChild(document.createElement('div'))
+        }
+        const today = new Date()
+        const isCurrentMonth =
+          today.getFullYear() === year && today.getMonth() === month
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dayDiv = document.createElement('div')
+          dayDiv.className = 'day'
+          dayDiv.textContent = day
+          if (isCurrentMonth && day === today.getDate()) {
+            dayDiv.classList.add('today')
+          }
+          calendarGrid.appendChild(dayDiv)
+        }
+      }
 
-        top.appendChild(title)
-        top.appendChild(subtitle)
+      document.getElementById('prev-month').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1)
+        renderCalendar(currentDate)
+      })
+      document.getElementById('next-month').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1)
+        renderCalendar(currentDate)
+      })
 
-        const bottom = document.createElement('div')
-        bottom.classList.add('card-left-bottom')
+      renderCalendar(currentDate)
 
-        const bottomTitle = document.createElement('h3')
-        bottomTitle.textContent = course.name
-        bottom.appendChild(bottomTitle)
+      async function loadCourses() {
+        try {
+          const res = await fetch(
+            '/player/api/course/list/[[${#authentication.principal.userId}]]'
+          )
+          if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`)
+          const data = await res.json()
+          renderInProgress(data.inProgress)
+        } catch (err) {
+          console.error('Failed to load courses:', err)
+          document.getElementById('subjects-section').innerHTML =
+            '<p>Error loading courses.</p>'
+        }
+      }
 
-        const progress = document.createElement('p')
-        progress.classList.add('progress-text')
-        progress.textContent = `${course.progress || 0}% Completed`
+      function renderInProgress(courses) {
+        const container = document.getElementById('subjects-section')
+        container.innerHTML = ''
+        courses.forEach((course) => {
+          let countCompletedLesson = 0
+          const card = document.createElement('div')
+          card.classList.add('course-card')
 
-        const footer = document.createElement('div')
-        footer.classList.add('card-footer')
-        footer.innerHTML = `<span>${course.credit} Credits</span><span>${course.lessons.length} Lectures</span>`
+          const left = document.createElement('div')
+          left.classList.add('card-left')
 
-        bottom.appendChild(progress)
-        bottom.appendChild(footer)
+          const top = document.createElement('div')
+          top.classList.add('card-left-top')
 
-        left.appendChild(top)
-        left.appendChild(bottom)
+          const title = document.createElement('h2')
+          title.textContent = course.name
 
-        const right = document.createElement('div')
-        right.classList.add('card-right')
-        ;(course.lessons || [])
-          .sort((a, b) => a.lesson_order - b.lesson_order)
-          .forEach((lesson) => {
-            const lessonDiv = document.createElement('div')
-            lessonDiv.classList.add('lesson')
-            const lessonText = document.createElement('span')
-            lessonText.textContent = lesson.name
-            const btn = document.createElement('div')
-            btn.classList.add('play-btn')
-            btn.textContent = '▶'
+          const subtitle = document.createElement('p')
+          subtitle.classList.add('subtitle')
+          subtitle.textContent = 'Only for IU students'
+
+          top.appendChild(title)
+          top.appendChild(subtitle)
+
+          const bottom = document.createElement('div')
+          bottom.classList.add('card-left-bottom')
+
+          const bottomTitle = document.createElement('h3')
+          bottomTitle.textContent = course.name
+          bottom.appendChild(bottomTitle)
+          ;(course.lessons || []).forEach((lesson) => {
             if (
               lesson.lessonStudying &&
               lesson.lessonStudying.avaiStatus === 'able'
             ) {
-              lessonDiv.classList.add('active')
-              btn.classList.add('play-btn')
-              btn.textContent = '▶'
-              lessonDiv.addEventListener('click', () => {
-                window.location.href = `/lesson/${lesson.lessonId}/${course.subject_id}`
-              })
-            } else {
-              lessonDiv.classList.add('disabled')
-              btn.classList.add('play-btn')
-              btn.textContent = '🔒'
-              btn.style.opacity = '0.3'
-              btn.style.cursor = 'not-allowed'
+              countCompletedLesson += 1
             }
-            lessonDiv.appendChild(lessonText)
-            lessonDiv.appendChild(btn)
-            right.appendChild(lessonDiv)
           })
 
-        card.appendChild(left)
-        card.appendChild(right)
-        container.appendChild(card)
-      })
-    }
+          const percent =
+            course.lessons.length > 0
+              ? Math.round((countCompletedLesson / course.lessons.length) * 100)
+              : 0
 
-    loadCourses()
-  </script>
+          const progress = document.createElement('p')
+          progress.classList.add('progress-text')
+          progress.textContent = `${percent}% Completed`
+
+          const footer = document.createElement('div')
+          footer.classList.add('card-footer')
+          footer.innerHTML = `<span>${course.credit} Credits</span><span>${course.lessons.length} Lectures</span>`
+
+          bottom.appendChild(progress)
+          bottom.appendChild(footer)
+
+          left.appendChild(top)
+          left.appendChild(bottom)
+
+          const right = document.createElement('div')
+          right.classList.add('card-right')
+          ;(course.lessons || [])
+            .sort((a, b) => a.lesson_order - b.lesson_order)
+            .forEach((lesson) => {
+              const lessonDiv = document.createElement('div')
+              lessonDiv.classList.add('lesson')
+              const lessonText = document.createElement('span')
+              lessonText.textContent = lesson.name
+              const btn = document.createElement('div')
+              btn.classList.add('play-btn')
+              if (
+                lesson.lessonStudying &&
+                lesson.lessonStudying.avaiStatus === 'able'
+              ) {
+                lessonDiv.classList.add('active')
+                btn.textContent = '▶'
+                lessonDiv.addEventListener('click', (e) => {
+                  e.preventDefault()
+                  window.location.href = `/lesson/${lesson.lessonId}/${course.subject_id}`
+                })
+              } else {
+                lessonDiv.classList.add('disabled')
+                btn.textContent = '🔒'
+                btn.style.opacity = '0.3'
+                btn.style.cursor = 'not-allowed'
+              }
+              lessonDiv.appendChild(lessonText)
+              lessonDiv.appendChild(btn)
+              right.appendChild(lessonDiv)
+            })
+
+          card.appendChild(left)
+          card.appendChild(right)
+          container.appendChild(card)
+        })
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        loadCourses()
+      })
+    </script>
+  </body>
 </html>

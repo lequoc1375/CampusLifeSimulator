@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.example.app.dto.responseDTO.LessonDTOResponse;
+import com.example.app.entity.LessonStudying;
+import com.example.app.repository.LessonStudyingRepo;
 import com.example.app.service.serviceInterface.LessonService;
 
 
@@ -16,11 +18,14 @@ public class LessonController {
     @Autowired
     private LessonService lessonService;
 
+    @Autowired
+    private LessonStudyingRepo lessonStudyingRepo;
+
     @GetMapping("/lesson/{id}/{subjectId}")
     public String getLesson(@PathVariable int id, @PathVariable int subjectId,  Model model) {
         
         LessonDTOResponse lesson = lessonService.getLessonById(id);
-
+        LessonStudying lessonStudying = lessonStudyingRepo.findByLessonId(id).get();
 
         String link = lesson.getLink_video();
         String videoId = "";
@@ -34,6 +39,7 @@ public class LessonController {
         model.addAttribute("lesson", lesson);
         model.addAttribute("videoId", videoId);
         model.addAttribute("subjectId", subjectId);
+        model.addAttribute("lessonStudying", lessonStudying);
         return "lesson"; 
     }
 
