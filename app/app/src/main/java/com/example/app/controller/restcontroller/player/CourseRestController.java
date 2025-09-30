@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.app.entity.Subject;
+import com.example.app.entity.SubjectSelectedMidterm;
+import com.example.app.repository.SubjectSelectedMidtermRepo;
 import com.example.app.service.serviceInterface.LessonStudyingService;
+import com.example.app.service.serviceInterface.SubjectSelectedMidtermService;
 import com.example.app.service.serviceInterface.SubjectService;
 import com.example.app.service.serviceInterface.UserCurriculumService;
 
@@ -29,6 +32,9 @@ public class CourseRestController {
 
     @Autowired
     private LessonStudyingService lessonStudyingService;
+
+    @Autowired
+    private SubjectSelectedMidtermService subjectSelectedMidtermService;
     @GetMapping("/list/{userId}")
     public Map<String, Object> getCourses(@PathVariable int userId) {
         Map<String, Object> result = new HashMap<>();
@@ -49,7 +55,9 @@ public class CourseRestController {
         Integer subjectRegisterId = subjectService.registerSubjectForUser(userCurriculumService.getCurriculumIdByUserId(userId), subjectId);
         List<Integer> lessonIds = payload.getOrDefault("lessons", List.of()); 
         lessonStudyingService.insert(userId, lessonIds, subjectRegisterId);
+        subjectSelectedMidtermService.insert(subjectRegisterId);
         return "Registered subject " + subjectId + " for curriculum " + userCurriculumService.getCurriculumIdByUserId(userId);
     }
+
 
 }

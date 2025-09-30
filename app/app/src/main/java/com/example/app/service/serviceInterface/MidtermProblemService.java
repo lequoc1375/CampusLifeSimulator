@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.app.dto.requestDTO.MidtermProblemDTORequest;
 import com.example.app.dto.responseDTO.MidtermProblemDTOResponse;
+import com.example.app.entity.MidtermProblem;
 
 public interface MidtermProblemService {
 
@@ -16,4 +17,6 @@ public interface MidtermProblemService {
     void updateMidtermProblem(int id, MidtermProblemDTORequest request);
 
     void deleteMidtermProblem(int id);
+
+    List<MidtermProblem> getAllMidtermProblemsByMidtermId(int midtermId);
 }

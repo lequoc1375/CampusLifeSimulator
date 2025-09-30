@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -49,6 +50,11 @@ public class SubjectRegister {
     @OneToMany(mappedBy = "subjectRegister")
     @JsonManagedReference
     private List<LessonStudying> lessonStudying;
+
+    @OneToOne(mappedBy = "subjectRegister")
+    @JsonManagedReference
+    private SubjectSelectedMidterm subjectSelectedMidterm;
+
 
     public enum Status {
         pass, fail, studying
@@ -108,6 +114,14 @@ public class SubjectRegister {
 
     public void setLessonStudying(List<LessonStudying> lessonStudying) {
         this.lessonStudying = lessonStudying;
+    }
+
+    public SubjectSelectedMidterm getSubjectSelectedMidterm() {
+        return subjectSelectedMidterm;
+    }
+
+    public void setSubjectSelectedMidterm(SubjectSelectedMidterm subjectSelectedMidterm) {
+        this.subjectSelectedMidterm = subjectSelectedMidterm;
     }
 
 }

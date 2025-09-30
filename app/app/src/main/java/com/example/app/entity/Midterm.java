@@ -3,6 +3,7 @@ package com.example.app.entity;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -37,7 +38,20 @@ public class Midterm {
     private Subject subject;
 
     @OneToMany(mappedBy = "midterm", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<MidtermProblem> problems;
+
+    @OneToMany(mappedBy = "midterm")
+    @JsonManagedReference
+    private List<SubjectSelectedMidterm> subjectSelectedMidterms;
+
+    public List<SubjectSelectedMidterm> getSubjectSelectedMidterms() {
+        return subjectSelectedMidterms;
+    }
+
+    public void setSubjectSelectedMidterms(List<SubjectSelectedMidterm> subjectSelectedMidterms) {
+        this.subjectSelectedMidterms = subjectSelectedMidterms;
+    }
 
     public Integer getMidtermId() {
         return midtermId;

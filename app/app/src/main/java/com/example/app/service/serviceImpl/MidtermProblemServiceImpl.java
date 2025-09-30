@@ -8,12 +8,14 @@ import org.springframework.stereotype.Service;
 
 import com.example.app.dto.mapper.MidtermProblemMapper;
 import com.example.app.dto.requestDTO.MidtermProblemDTORequest;
+import com.example.app.dto.responseDTO.MidtermDTOResponse;
 import com.example.app.dto.responseDTO.MidtermProblemDTOResponse;
 import com.example.app.entity.Midterm;
 import com.example.app.entity.MidtermProblem;
 import com.example.app.repository.MidtermProblemRepo;
 import com.example.app.repository.MidtermRepo;
 import com.example.app.service.serviceInterface.MidtermProblemService;
+import com.example.app.service.serviceInterface.MidtermService;
 
 @Service
 public class MidtermProblemServiceImpl implements MidtermProblemService {
@@ -23,6 +25,9 @@ public class MidtermProblemServiceImpl implements MidtermProblemService {
 
     @Autowired
     private MidtermRepo midtermRepo;
+
+    @Autowired
+    private MidtermService midtermService;
 
     @Autowired
     private MidtermProblemMapper midtermProblemMapper;
@@ -74,5 +79,11 @@ public class MidtermProblemServiceImpl implements MidtermProblemService {
         MidtermProblem entity = midtermProblemRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Midterm Problem 4.3 not found"));
         midtermProblemRepo.delete(entity);
+    }
+
+    @Override
+    public List<MidtermProblem> getAllMidtermProblemsByMidtermId(int midtermId) {
+        MidtermDTOResponse midterm  = midtermService.getMidterm(midtermId);
+        return  midterm.getProblems();
     }
 }

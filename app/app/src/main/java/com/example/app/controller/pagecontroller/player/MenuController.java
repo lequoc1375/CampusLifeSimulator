@@ -36,5 +36,11 @@ public class MenuController {
         return "UniversityPage";  
     }
 
+    @GetMapping("/Midterm")
+    public String moveMidterm(@AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
+        model.addAttribute("user", currentUser);
+        return "Midterm";  
+    }
+
 }
 
