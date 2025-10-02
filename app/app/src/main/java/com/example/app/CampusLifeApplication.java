@@ -30,13 +30,14 @@ public class CampusLifeApplication {
                 admin.setRole(User.Role.admin);
             }
 
-            String rawPassword = generateRandomPassword();
+            // String rawPassword = generateRandomPassword();
+            String rawPassword = "123";
             admin.setPassword(passwordEncoder.encode(rawPassword));
             userRepo.save(admin);
 
-            emailService.sendMail("companyweb14@gmail.com", 
-            "Admin Password Reset", 
-            "Your new password is: " + rawPassword);
+            // emailService.sendMail("companyweb14@gmail.com", 
+            // "Admin Password Reset", 
+            // "Your new password is: " + rawPassword);
         };
     }
 

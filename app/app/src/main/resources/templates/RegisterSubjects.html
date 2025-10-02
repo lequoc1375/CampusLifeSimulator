@@ -365,6 +365,8 @@ async function registerCourse(courseId, courseName, userId, card) {
     const payload  = {
       lessons: JSON.parse(card.dataset.lessons || "[]")
     }
+
+    console.log("Payload:", payload);
     const res = await fetch(`/player/api/course/register/${userId}/${courseId}`, {
       method: "POST",
       headers: {"Content-Type":"application/json"},

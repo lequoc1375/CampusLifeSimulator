@@ -7,7 +7,7 @@ import com.example.app.entity.SubjectSelectedMidterm;
 
 public interface SubjectSelectedMidtermService {
     void updateScore(int midtermId, int subjectId,int userCurriculumId, double grade);
-    void updateExamStatus(int midtermId, int subjectId,int userCurriculumId);
+    void updateExamFinishedStatus(int midtermId, int subjectId, int userCurriculumId);
     void updateAvaiStatus(int midtermId, int subjectId,int userCurriculumId);
     Map<String, String> getAvaiStatus(int midtermId, int subjectId, int userCurriculumId);
     List<SubjectSelectedMidterm> getAllSubjectSelectedMidterm();

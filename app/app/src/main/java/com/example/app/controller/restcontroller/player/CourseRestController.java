@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.app.entity.Subject;
-import com.example.app.entity.SubjectSelectedMidterm;
-import com.example.app.repository.SubjectSelectedMidtermRepo;
 import com.example.app.service.serviceInterface.LessonStudyingService;
+import com.example.app.service.serviceInterface.PlayerStatsService;
 import com.example.app.service.serviceInterface.SubjectSelectedMidtermService;
 import com.example.app.service.serviceInterface.SubjectService;
 import com.example.app.service.serviceInterface.UserCurriculumService;
@@ -23,6 +22,9 @@ import com.example.app.service.serviceInterface.UserCurriculumService;
 @RestController
 @RequestMapping("/player/api/course")
 public class CourseRestController {
+
+    @Autowired
+    private PlayerStatsService playerStatsService;
     
     @Autowired
     private SubjectService subjectService;
@@ -56,6 +58,7 @@ public class CourseRestController {
         List<Integer> lessonIds = payload.getOrDefault("lessons", List.of()); 
         lessonStudyingService.insert(userId, lessonIds, subjectRegisterId);
         subjectSelectedMidtermService.insert(subjectRegisterId);
+        playerStatsService.updateEnergy(userId, -5);
         return "Registered subject " + subjectId + " for curriculum " + userCurriculumService.getCurriculumIdByUserId(userId);
     }
 

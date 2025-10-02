@@ -429,17 +429,17 @@
       }
 
       async function finishVideo(lessonId) {
+
         try {
           const res = await fetch(
-            `/player/api/lesson/finishedVideo/${lessonId}/${subjectId}`,
+            `/player/api/lesson/finishedVideo/${lessonId}`,
             {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({userId: userId})
             }
           )
           if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`)
-          const data = await res.json()
-          console.log(data)
         } catch (err) {
           console.error('Error updating video status:', err)
         }
@@ -488,12 +488,12 @@
           <p><strong>Question:</strong> ${problem.question || ''}</p>
           ${
             problem.question_image
-              ? `<img src="/images/${problem.question_image}" width="200" style="pointer-events: none; border-radius: 8px;">`
+              ? `<img src="${problem.question_image}" width="200" style="pointer-events: none; border-radius: 8px;">`
               : ''
           }
           ${
             problem.answer_image
-              ? `<img src="/images/${problem.answer_image}" width="200" style="pointer-events: none; border-radius: 8px;">`
+              ? `<img src="${problem.answer_image}" width="200" style="pointer-events: none; border-radius: 8px;">`
               : ''
           }
           <p><strong>Answer:</strong> ${problem.answer || ''}</p>

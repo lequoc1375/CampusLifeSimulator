@@ -12,4 +12,7 @@ public interface PlayerStatsService {
     PlayerStats update(int id, PlayerStats stats);
     PlayerStats updateMoney(int id, double newMoney);
     void delete(int id);
+    void updateEnergy(int id, int energy);
+    void updateStress(int id, int stressfull);
+    void save(PlayerStats ps);
 }

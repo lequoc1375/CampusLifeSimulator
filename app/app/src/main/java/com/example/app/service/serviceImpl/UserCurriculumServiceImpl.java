@@ -33,5 +33,10 @@ public class UserCurriculumServiceImpl implements UserCurriculumService  {
         }
         return curriculumId;
     }
+
+    @Override
+    public Integer getUserIdByCurriculumId(int userCurriculumId) {
+       return userCurriculumRepo.getUserIdByCurriculumId(userCurriculumId);
+    }
     
 }

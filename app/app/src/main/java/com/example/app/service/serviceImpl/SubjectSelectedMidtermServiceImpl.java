@@ -41,7 +41,7 @@ public class SubjectSelectedMidtermServiceImpl implements SubjectSelectedMidterm
 
 
     @Override
-    public void updateExamStatus(int midtermId, int subjectId, int userCurriculumId) {
+    public void updateExamFinishedStatus(int midtermId, int subjectId, int userCurriculumId) {
         Integer subjectRegisterId = subjectRegisterRepo.findIdBySubjectIdAndUserCurriculumId(subjectId, userCurriculumId);
         SubjectSelectedMidterm sb = subjectSelectedMidtermRepo.findBySubjectRegisterIdAndMidtermId(subjectRegisterId, midtermId);
         sb.setExamStatus(SubjectSelectedMidterm.ExamStatus.finished);

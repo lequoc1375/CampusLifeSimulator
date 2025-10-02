@@ -71,10 +71,10 @@
         <input type="number" id="updateOrder" required /><br /><br />
 
         <label>Question image link:</label><br />
-        <input type="text" id="updateQuestionImage" required /><br /><br />
+        <input type="file" id="updateQuestionImage" required /><br /><br />
 
         <label>Answer image link:</label><br />
-        <input type="text" id="updateAnswerImage" required /><br /><br />
+        <input type="file" id="updateAnswerImage" required /><br /><br />
 
         <label>Answer:</label><br />
         <input type="text" id="updateAnswer" required /><br /><br />
@@ -112,8 +112,8 @@
           row.innerHTML = `
           <td><select name="lessonId" required>${options}</select></td>
           <td><input type="number" name="problem_order" min="1" required></td>
-          <td><input type="text" name="question_image" required></td>
-          <td><input type="text" name="answer_image" required></td>
+          <td><input type="file" name="question_image" accept="image/*" required></td>
+          <td><input type="file" name="answer_image" accept="image/*" required></td>
           <td><input type="text" name="answer" required></td>
           `
           table.appendChild(row)
@@ -147,27 +147,25 @@
         .addEventListener('submit', async function (e) {
           e.preventDefault()
           const rows = document.querySelectorAll('#problemsTable tr')
-          const problems = []
-          rows.forEach((row) => {
-            const inputs = row.querySelectorAll('input, select')
-            const problem = {
-              lessonId: parseInt(inputs[0].value),
-              problem_order: parseInt(inputs[1].value),
-              question_image: inputs[2].value,
-              answer_image: inputs[3].value,
-              answer: inputs[4].value,
-            }
-            problems.push(problem)
-          })
+
           try {
-            for (const problem of problems) {
+            for (const row of rows) {
+              const inputs = row.querySelectorAll('input, select')
+              const formData = new FormData()
+
+              formData.append('lessonId', inputs[0].value)
+              formData.append('problem_order', inputs[1].value)
+              formData.append('question_image', inputs[2].files[0])
+              formData.append('answer_image', inputs[3].files[0])
+              formData.append('answer', inputs[4].value)
+
               const res = await fetch('/admin/api/problem/add', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(problem),
+                body: formData,
               })
               if (!res.ok) throw new Error('Error adding problem')
             }
+
             await loadProblem()
             alert('Problems added successfully!')
           } catch (err) {
@@ -210,13 +208,13 @@
 
       async function openModal(problem) {
         if (lessonList.length === 0) await loadLesson()
+
         document.getElementById('updateProblemId').value = problem.problem_id
         document.getElementById('updateOrder').value = problem.problem_order
-        document.getElementById('updateQuestionImage').value =
-          problem.question_image
-        document.getElementById('updateAnswerImage').value =
-          problem.answer_image
         document.getElementById('updateAnswer').value = problem.answer
+
+        document.getElementById('updateQuestionImage').value = ''
+        document.getElementById('updateAnswerImage').value = ''
 
         const select = document.getElementById('updateLessonId')
         select.innerHTML = ''
@@ -227,6 +225,7 @@
           if (lesson.name === problem.lesson_name) opt.selected = true
           select.appendChild(opt)
         })
+
         document.getElementById('updateModal').style.display = 'block'
       }
 
@@ -238,28 +237,44 @@
         .getElementById('updateForm')
         .addEventListener('submit', async function (e) {
           e.preventDefault()
-          const problem = {
-            problem_id: parseInt(
-              document.getElementById('updateProblemId').value
-            ),
-            lessonId: parseInt(document.getElementById('updateLessonId').value),
-            problem_order: parseInt(
-              document.getElementById('updateOrder').value
-            ),
-            question_image: document.getElementById('updateQuestionImage')
-              .value,
-            answer_image: document.getElementById('updateAnswerImage').value,
-            answer: document.getElementById('updateAnswer').value,
+
+          const formData = new FormData()
+          formData.append(
+            'lessonId',
+            document.getElementById('updateLessonId').value
+          )
+          formData.append(
+            'problem_order',
+            document.getElementById('updateOrder').value
+          )
+          formData.append(
+            'answer',
+            document.getElementById('updateAnswer').value
+          )
+
+          const questionFile = document.getElementById('updateQuestionImage')
+            .files[0]
+          const answerFile =
+            document.getElementById('updateAnswerImage').files[0]
+
+          if (questionFile) {
+            formData.append('question_image', questionFile)
           }
+          if (answerFile) {
+            formData.append('answer_image', answerFile)
+          }
+
           try {
             const res = await fetch(
-              `/admin/api/problem/update/${problem.problem_id}`,
+              `/admin/api/problem/update/${
+                document.getElementById('updateProblemId').value
+              }`,
               {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(problem),
+                body: formData,
               }
             )
+
             if (!res.ok) throw new Error('Update failed')
             await loadProblem()
             closeModal()

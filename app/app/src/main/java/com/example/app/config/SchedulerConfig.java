@@ -1,6 +1,5 @@
 package com.example.app.config;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,9 +8,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.example.app.entity.LessonStudying;
+import com.example.app.entity.PlayerStats;
 import com.example.app.entity.SubjectRegister;
 import com.example.app.entity.SubjectSelectedMidterm;
 import com.example.app.repository.SubjectSelectedMidtermRepo;
+import com.example.app.service.serviceInterface.LessonStudyingService;
+import com.example.app.service.serviceInterface.PlayerStatsService;
 import com.example.app.service.serviceInterface.SubjectSelectedMidtermService;
 
 @EnableScheduling
@@ -24,60 +27,68 @@ public class SchedulerConfig {
     @Autowired
     private SubjectSelectedMidtermRepo subjectSelectedMidtermRepo;
 
-    @Scheduled(cron = "0 0 0 * * *")
-    public void autoUpdateMidtermTest() {
-        List<SubjectSelectedMidterm> list = subjectSelectedMidtermService.getAllSubjectSelectedMidterm();
-        LocalDate now = LocalDate.now();
+    @Autowired
+    private LessonStudyingService lessonStudyingService;
 
-        for (SubjectSelectedMidterm sb : list) {
-            SubjectRegister subRegister = sb.getSubjectRegister();
-            if (subRegister != null) {
-                LocalDateTime timeRegister = subRegister.getRegistrationTime();
-                LocalDate time = timeRegister.toLocalDate();
-                SubjectSelectedMidterm.AvailabilityStatus status = sb.getAvailabilityStatus();
-                if (status == SubjectSelectedMidterm.AvailabilityStatus.unable) {
-                    if (!now.isBefore(time.plusDays(21))) {
-                        sb.setAvailabilityStatus(SubjectSelectedMidterm.AvailabilityStatus.able);
-                        subjectSelectedMidtermRepo.save(sb);
-                    }
-                } else if (status == SubjectSelectedMidterm.AvailabilityStatus.able) {
-                    if (now.isAfter(time.plusDays(28))) {
-                        sb.setAvailabilityStatus(SubjectSelectedMidterm.AvailabilityStatus.unable);
-                        subjectSelectedMidtermRepo.save(sb);
-                    }
-                }
-            }
-        }
+    @Autowired
+    private PlayerStatsService playerStatsService;
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void autoResetVisitedLesson() {
+       List<LessonStudying> list = lessonStudyingService.getAll();
+       for(LessonStudying ls : list) {
+        ls.setVisited(false);
+        lessonStudyingService.save(ls);
+       }
+       List<PlayerStats> listPlayerStats = playerStatsService.getAll();
+       for(PlayerStats ps : listPlayerStats) {
+        ps.setCurrentStress(0);
+        ps.setCurrentEnergy(ps.getMaxEnergy());
+        playerStatsService.save(ps);
+       }
+
     }
 
     // Test
-    // @Scheduled(fixedRate = 30000) // 30 giây check 1 lần
-    // public void autoUpdateMidtermTest() {
-    // List<SubjectSelectedMidterm> list =
-    // subjectSelectedMidtermService.getAllSubjectSelectedMidterm();
-    // LocalDateTime now = LocalDateTime.now();
+    @Scheduled(fixedRate = 5000)
+    public void autoUpdateMidtermTest() {
+        boolean TEST_MODE = true;
+        long OPEN_AFTER_MIN = 4, DURATION_MIN = 4;
+        long OPEN_AFTER_DAYS = 21, DURATION_DAYS = 7;
 
-    // for (SubjectSelectedMidterm sb : list) {
-    // SubjectRegister subRegister = sb.getSubjectRegister();
-    // if (subRegister != null) {
-    // LocalDateTime timeRegister = subRegister.getRegistrationTime();
-    // SubjectSelectedMidterm.AvailabilityStatus status =
-    // sb.getAvailabilityStatus();
-    // SubjectSelectedMidterm.ExamStatus statusExam = sb.getExamStatus();
-    // if (status == SubjectSelectedMidterm.AvailabilityStatus.unable && statusExam
-    // == SubjectSelectedMidterm.ExamStatus.unfinished) {
-    // if (!now.isBefore(timeRegister.plusMinutes(2))) {
-    // sb.setAvailabilityStatus(SubjectSelectedMidterm.AvailabilityStatus.able);
-    // subjectSelectedMidtermRepo.save(sb);
-    // }
-    // } else if (status == SubjectSelectedMidterm.AvailabilityStatus.able) {
-    // if (now.isAfter(timeRegister.plusMinutes(5))) {
-    // sb.setAvailabilityStatus(SubjectSelectedMidterm.AvailabilityStatus.unable);
-    // subjectSelectedMidtermRepo.save(sb);
-    // }
-    // }
-    // }
-    // }
-    // }
+        List<SubjectSelectedMidterm> list = subjectSelectedMidtermService.getAllSubjectSelectedMidterm();
+        LocalDateTime now = LocalDateTime.now();
+
+        for (SubjectSelectedMidterm sb : list) {
+            SubjectRegister reg = sb.getSubjectRegister();
+            if (reg == null)
+                continue;
+            if (sb.getExamStatus() != SubjectSelectedMidterm.ExamStatus.unfinished)
+                continue;
+
+            LocalDateTime regAt = reg.getRegistrationTime();
+            if (regAt == null)
+                continue;
+
+            LocalDateTime open = TEST_MODE ? regAt.plusMinutes(OPEN_AFTER_MIN) : regAt.plusDays(OPEN_AFTER_DAYS);
+            LocalDateTime close = TEST_MODE ? open.plusMinutes(DURATION_MIN) : open.plusDays(DURATION_DAYS);
+
+            SubjectSelectedMidterm.AvailabilityStatus desired;
+
+            if (now.isBefore(open)) {
+                desired = SubjectSelectedMidterm.AvailabilityStatus.unable;
+            } else if (now.isBefore(close)) {
+                desired = SubjectSelectedMidterm.AvailabilityStatus.able;
+            } else {
+                desired = SubjectSelectedMidterm.AvailabilityStatus.unable;
+                sb.setExamStatus(SubjectSelectedMidterm.ExamStatus.finished);
+            }
+
+            if (sb.getAvailabilityStatus() != desired) {
+                sb.setAvailabilityStatus(desired);
+                subjectSelectedMidtermRepo.save(sb);
+            }
+        }
+    }
 
 }

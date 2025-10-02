@@ -86,4 +86,29 @@ public class LessonStudyingServiceImpl implements LessonStudyingService {
         ls.setScore(newScore);
         lessonStudyingRepo.save(ls); 
     }
+
+    @Override
+    public boolean visitedOrNot(int lesssonId) {
+        LessonStudying ls = lessonStudyingRepo.findByLessonId(lesssonId).orElseThrow(() -> new RuntimeException("LessonStudying not found"));
+        
+        if(ls.isVisited()) return true;
+        return false;
+    }
+
+    @Override
+    public void setVisited(int lessonId, boolean visited) {
+        LessonStudying ls = lessonStudyingRepo.findByLessonId(lessonId).orElseThrow(() -> new RuntimeException("LessonStudying not found"));
+        ls.setVisited(visited);
+        lessonStudyingRepo.save(ls);
+    }
+
+    @Override
+    public List<LessonStudying> getAll() {
+        return lessonStudyingRepo.findAll();
+    }
+
+    @Override
+    public void save(LessonStudying ls) {
+        lessonStudyingRepo.save(ls);
+    }
 }

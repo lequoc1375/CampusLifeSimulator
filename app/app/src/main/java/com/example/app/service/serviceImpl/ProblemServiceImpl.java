@@ -1,13 +1,14 @@
 package com.example.app.service.serviceImpl;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.app.dto.mapper.ProblemMapper;
-import com.example.app.dto.requestDTO.ProblemDTORequest;
 import com.example.app.dto.responseDTO.ProblemDTOResponse;
 import com.example.app.entity.Lesson;
 import com.example.app.entity.Problem;
@@ -24,6 +25,8 @@ public class ProblemServiceImpl implements ProblemService {
     private ProblemMapper problemMapper;
     @Autowired
     private LessonRepo lessonRepo;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @Override
     public List<ProblemDTOResponse> getAllProblems() {
@@ -38,24 +41,21 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public void updateProblem(int id, ProblemDTORequest request) {
-        Problem problem = problemRepo.findById(id).orElseThrow(() -> new RuntimeException("Problem is not found"));
-        problem.setAnswer(request.getAnswer());
-        problem.setAnswer_image(request.getAnswer_image());
-        problem.setQuestion_image(request.getQuestion_image());
-        Lesson lesson = lessonRepo.findById(request.getLessonId())
-                .orElseThrow(() -> new RuntimeException("Lesson is not found in Problem"));
-        problem.setLesson(lesson);
-        problemRepo.save(problem);
-    }
+    public void createProblem(Integer lessonId,
+            Integer problemOrder,
+            String questionImageUrl,
+            String answerImageUrl,
+            String answer) {
 
-    @Override
-    public void createProblem(ProblemDTORequest request) {
-        Problem problem = problemMapper.convertToProblem(request);
-
-        Lesson lesson = lessonRepo.findById(request.getLessonId())
+        Lesson lesson = lessonRepo.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Lesson  is not valid"));
 
+        Problem problem = new Problem();
+
+        problem.setProblem_order(problemOrder);
+        problem.setQuestion_image(questionImageUrl);
+        problem.setAnswer_image(answerImageUrl);
+        problem.setAnswer(answer);
         problem.setLesson(lesson);
         problemRepo.save(problem);
     }
@@ -72,5 +72,42 @@ public class ProblemServiceImpl implements ProblemService {
         return problemRepo.findByLesson_LessonId(lessonId).stream().map(problemMapper::convertToProblemDTOResponse)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void updateProblem(Integer id, Integer lessonId, Integer problemOrder,
+                              MultipartFile questionImage, MultipartFile answerImage,
+                              String answer) {
+        Problem problem = problemRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Problem not found"));
+    
+        Lesson lesson = lessonRepo.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Lesson is not valid"));
+    
+        problem.setLesson(lesson);
+        problem.setProblem_order(problemOrder);
+        problem.setAnswer(answer);
+    
+        if (questionImage != null && !questionImage.isEmpty()) {
+            try {
+                String url = cloudinaryService.uploadFile(questionImage);
+                problem.setQuestion_image(url);
+            } catch (IOException ex) {
+                throw new RuntimeException("Upload question image failed", ex);
+            }
+        }
+    
+        if (answerImage != null && !answerImage.isEmpty()) {
+            try {
+                String url = cloudinaryService.uploadFile(answerImage);
+                problem.setAnswer_image(url);
+            } catch (IOException ex) {
+                throw new RuntimeException("Upload answer image failed", ex);
+            }
+        }
+    
+    
+        problemRepo.save(problem);
+    }
+    
 
 }

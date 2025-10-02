@@ -15,6 +15,7 @@ import com.example.app.dto.requestDTO.ProblemSubmissionDTO;
 import com.example.app.entity.Problem;
 import com.example.app.repository.ProblemRepo;
 import com.example.app.service.serviceInterface.LessonStudyingService;
+import com.example.app.service.serviceInterface.PlayerStatsService;
 
 @RestController
 @RequestMapping("/player/api/lesson")
@@ -25,9 +26,21 @@ public class LessonPageRestController {
     @Autowired
     private ProblemRepo problemRepo;
 
+
+    @Autowired
+    private PlayerStatsService playerStatsService;
+
     @PutMapping("/finishedVideo/{lessonId}")
-    public void finishedVideo(@PathVariable int lessonId) {
+    public void finishedVideo(@PathVariable int lessonId ,  @RequestBody Map<String, Integer> requestBody) {
         lessonStudyingService.updateFinishedVideo(lessonId);
+        if (!lessonStudyingService.visitedOrNot(lessonId)) {
+            Integer userId = requestBody.get("userId");
+            System.out.println(userId);
+            playerStatsService.updateStress(userId, 5);
+            lessonStudyingService.setVisited(lessonId, true);
+            
+        }
+        
     }
 
     @PostMapping("/submitProblem/{lessonId}/{problemId}")
@@ -46,10 +59,10 @@ public class LessonPageRestController {
         boolean isCorrect = question.getAnswer() != null &&
                 question.getAnswer().equalsIgnoreCase(submission.getAnswer());
 
-        if(isCorrect == true) {
-            lessonStudyingService.updateNewScore(1,lessonId);
+        if (isCorrect == true) {
+            lessonStudyingService.updateNewScore(1, lessonId);
         } else {
-            lessonStudyingService.updateNewScore((-1),lessonId);
+            lessonStudyingService.updateNewScore((-1), lessonId);
         }
         System.out.println("Question order: " + problemId + ", Submitted answer: " + submission.getAnswer() +
                 ", Correct answer: " + (question.getAnswer() != null ? question.getAnswer() : "null") +

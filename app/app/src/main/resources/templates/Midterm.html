@@ -303,18 +303,6 @@
           bottomTitle.textContent = course.name
           bottom.appendChild(bottomTitle)
 
-          const percent = course.progress || 0
-          const progress = document.createElement('p')
-          progress.classList.add('progress-text')
-          progress.textContent = `${percent}% Completed`
-
-          const footer = document.createElement('div')
-          footer.classList.add('card-footer')
-          footer.innerHTML = `<span>${course.credit} Credits</span><span>${course.lessons.length} Lectures</span>`
-
-          bottom.appendChild(progress)
-          bottom.appendChild(footer)
-
           left.appendChild(top)
           left.appendChild(bottom)
 
@@ -328,37 +316,44 @@
             noMidterm.textContent = 'No midterms available.'
             right.appendChild(noMidterm)
           } else {
-            const midterm = await fetchRandomMidterm(course.subject_id, userCurriculumId)
+            const midterm = await fetchRandomMidterm(
+              course.subject_id,
+              userCurriculumId
+            )
 
             const midtermDiv = document.createElement('div')
             midtermDiv.classList.add('midterm', 'active')
+            midtermDiv.dataset.midtermId = midterm.midtermId
+            midtermDiv.dataset.subjectId = course.subject_id
 
             const midtermText = document.createElement('span')
             midtermText.textContent = `Midterm ${midterm.midtermId}, ${midterm.time} minutes, ${midterm.problems.length} problem(s)`
 
             const btn = document.createElement('a')
             btn.classList.add('play-btn')
-            try {
-              const result = await fetch(
-                `/player/api/midterm/check/${midterm.midtermId}/${userCurriculumId}/${course.subject_id}`
-              )
 
-              if (!result.ok)
-                throw new error(
-                  'Error in fetching player/api/midterm/check/${midterm.midtermId}/${userCurriculumId}'
-                )
-              const response = await result.json()
-              if (response.status === 'able') {
-                btn.href = `/midterm/${midterm.midtermId}/${userCurriculumId}/${course.subject_id}`
-                btn.textContent = '▶'
-                btn.title = 'Start Midterm'
-              } else if (response.status === 'unable') {
-                midtermDiv.classList.add('disabled')
-                btn.textContent = '🔒'
-                btn.style.opacity = '0.3'
-                btn.style.cursor = 'not-allowed'
-              }
-            } catch (error) {}
+            await updateMidtermButton(midtermDiv, btn)
+            // try {
+            //   const result = await fetch(
+            //     `/player/api/midterm/check/${midterm.midtermId}/${userCurriculumId}/${course.subject_id}`
+            //   )
+
+            //   if (!result.ok)
+            //     throw new error(
+            //       'Error in fetching player/api/midterm/check/${midterm.midtermId}/${userCurriculumId}'
+            //     )
+            //   const response = await result.json()
+            //   if (response.status === 'able') {
+            //     btn.href = `/midterm/${midterm.midtermId}/${userCurriculumId}/${course.subject_id}`
+            //     btn.textContent = '▶'
+            //     btn.title = 'Start Midterm'
+            //   } else if (response.status === 'unable') {
+            //     midtermDiv.classList.add('disabled')
+            //     btn.textContent = '🔒'
+            //     btn.style.opacity = '0.3'
+            //     btn.style.cursor = 'not-allowed'
+            //   }
+            // } catch (error) {}
 
             midtermDiv.appendChild(midtermText)
             midtermDiv.appendChild(btn)
@@ -372,6 +367,43 @@
 
         categoryEl.appendChild(listEl)
         container.appendChild(categoryEl)
+      }
+
+      async function updateMidtermButton(midtermDiv, btn) {
+        const midtermId = midtermDiv.dataset.midtermId
+        const subjectId = midtermDiv.dataset.subjectId
+        try {
+          const result = await fetch(
+            `/player/api/midterm/check/${midtermId}/${userCurriculumId}/${subjectId}`
+          )
+          if (!result.ok) throw new Error('API error')
+          const response = await result.json()
+
+          if (response.status === 'able') {
+            btn.href = `/midterm/${midtermId}/${userCurriculumId}/${subjectId}`
+            btn.textContent = '▶'
+            btn.title = 'Start Midterm'
+            midtermDiv.classList.remove('disabled')
+            btn.style.opacity = '1'
+            btn.style.cursor = 'pointer'
+          } else {
+            midtermDiv.classList.add('disabled')
+            btn.textContent = '🔒'
+            btn.style.opacity = '0.3'
+            btn.style.cursor = 'not-allowed'
+            btn.removeAttribute('href')
+          }
+        } catch (error) {
+          console.error('Error updating midterm button', error)
+        }
+      }
+
+      async function updateAllMidtermButtons() {
+        const cards = document.querySelectorAll('.midterm')
+        for (const card of cards) {
+          const btn = card.querySelector('.play-btn')
+          await updateMidtermButton(card, btn)
+        }
       }
 
       function filterCourses(query) {
@@ -388,6 +420,9 @@
         loadPlayerStats()
         loadMidtermQuiz()
         renderCalendar(new Date())
+        setInterval(() => {
+          updateAllMidtermButtons()
+        }, 5000)
       })
 
       const monthNameEl = document.getElementById('month-name')

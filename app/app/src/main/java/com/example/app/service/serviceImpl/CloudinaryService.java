@@ -1,13 +1,13 @@
 package com.example.app.service.serviceImpl;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
+import java.io.IOException;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Map;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 
 @Service
 public class CloudinaryService {
@@ -18,7 +18,9 @@ public class CloudinaryService {
         this.cloudinary = cloudinary;
     }
 
-    public Map upload(MultipartFile file) throws IOException {
-        return this.cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+    public String uploadFile(MultipartFile file) throws IOException {
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                ObjectUtils.asMap("resource_type", "auto"));
+        return uploadResult.get("secure_url").toString();
     }
 }

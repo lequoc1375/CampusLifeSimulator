@@ -53,7 +53,10 @@ public class LessonStudying {
 
     @Column(name = "score")
     private int score;
-    
+
+    @Column(name = "visited")
+    private boolean visited;
+
     public enum VideoStatus {
         finished, unfinished
     }
@@ -112,6 +115,14 @@ public class LessonStudying {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
     }
 
 }

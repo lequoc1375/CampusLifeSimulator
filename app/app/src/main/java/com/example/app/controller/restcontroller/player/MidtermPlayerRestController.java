@@ -18,13 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.app.entity.Midterm;
 import com.example.app.entity.MidtermProblem;
 import com.example.app.entity.Subject;
-import com.example.app.entity.SubjectRegister;
 import com.example.app.entity.SubjectSelectedMidterm;
 import com.example.app.repository.MidtermRepo;
 import com.example.app.repository.SubjectRegisterRepo;
 import com.example.app.repository.SubjectSelectedMidtermRepo;
 import com.example.app.service.serviceInterface.MidtermProblemService;
+import com.example.app.service.serviceInterface.PlayerStatsService;
 import com.example.app.service.serviceInterface.SubjectSelectedMidtermService;
+import com.example.app.service.serviceInterface.UserCurriculumService;
 
 @RestController
 @RequestMapping("/player/api/midterm")
@@ -44,6 +45,13 @@ public class MidtermPlayerRestController {
 
     @Autowired
     private SubjectSelectedMidtermRepo subjectSelectedMidtermRepo;
+
+    @Autowired
+    private UserCurriculumService userCurriculumService;
+
+
+    @Autowired
+    private PlayerStatsService playerStatsService;
 
     @PostMapping("/submitMidtermQuiz/{userCurriculumId}/{subjectId}")
     public ResponseEntity<?> submitQuiz(@RequestBody Map<String, String> answers,
@@ -71,7 +79,8 @@ public class MidtermPlayerRestController {
         }
         System.out.println("Score" + countScore);
         subjectSelectedMidtermService.updateScore(midtermId, subjectId, userCurriculumId, countScore);
-        subjectSelectedMidtermService.updateExamStatus(midtermId, subjectId, userCurriculumId);
+        subjectSelectedMidtermService.updateExamFinishedStatus(midtermId, subjectId, userCurriculumId);
+        playerStatsService.updateStress(userCurriculumService.getUserIdByCurriculumId(userCurriculumId),5);
         return ResponseEntity.ok(results);
     }
 

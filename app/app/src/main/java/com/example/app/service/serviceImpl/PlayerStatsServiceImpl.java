@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.app.entity.PlayerStats;
 import com.example.app.entity.User;
 import com.example.app.repository.PlayerStatsRepo;
+import com.example.app.repository.UserRepo;
 import com.example.app.service.serviceInterface.PlayerStatsService;
 
 @Service
@@ -15,6 +16,9 @@ public class PlayerStatsServiceImpl implements PlayerStatsService {
 
     @Autowired
     private PlayerStatsRepo playerStatsRepo;
+
+    @Autowired
+    private UserRepo userRepo;
 
     @Override
     public List<PlayerStats> getAll() {
@@ -70,5 +74,26 @@ public class PlayerStatsServiceImpl implements PlayerStatsService {
     public void delete(int id) {
         playerStatsRepo.deleteById(id);
     }
+
+    @Override
+    public void updateEnergy(int id, int energy) {
+       PlayerStats playerStats = playerStatsRepo.findByUserUserId(id);
+       playerStats.setCurrentEnergy(playerStats.getCurrentEnergy() + energy);
+       playerStatsRepo.save(playerStats);
+    }
+
+    @Override
+    public void updateStress(int id, int stressfull) {
+        PlayerStats playerStats = playerStatsRepo.findByUserUserId(id);
+        playerStats.setCurrentStress(playerStats.getCurrentStress() + stressfull);
+       playerStatsRepo.save(playerStats);
+    }
+
+    @Override
+    public void save(PlayerStats ps) {
+       playerStatsRepo.save(ps);
+    }
+
+    
     
 }
