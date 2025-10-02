@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Manage UpperCloth</title>
+  </head>
+  <body>
+    <h2>Number of UpperCloth to Add:</h2>
+    <input type="number" id="noOfCloths" min="1" max="10" value="1" />
+    <button onclick="generateClothForm()">Generate Cloth Table</button>
+
+    <form id="formCloth">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Image</th>
+            <th>Price</th>
+            <th>Categories</th>
+          </tr>
+        </thead>
+        <tbody id="clothTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add UpperCloth</button>
+    </form>
+
+    <h2>UpperCloth List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Image</th>
+          <th>Price</th>
+          <th>Categories</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="clothListTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+      "
+    >
+      <h3>Update UpperCloth</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateClothId" />
+        <label>Name:</label><br />
+        <input type="text" id="updateName" required /><br />
+        <label>Image:</label><br />
+        <input type="text" id="updateImage" required /><br />
+        <label>Price:</label><br />
+        <input type="number" step="0.01" id="updatePrice" required /><br />
+        <label>Categories:</label><br />
+        <input type="text" id="updateCategories" required /><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      async function generateClothForm() {
+        const count = parseInt(document.getElementById('noOfCloths').value)
+        const table = document.getElementById('clothTable')
+        table.innerHTML = ''
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td><input type="text" name="name" required /></td>
+            <td><input type="text" name="image" required /></td>
+            <td><input type="number" step="0.01" name="price" required /></td>
+            <td><input type="text" name="categories" required /></td>
+          `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadCloths() {
+        const res = await fetch('/admin/api/uppercloth/list')
+        const cloths = await res.json()
+        const tableBody = document.getElementById('clothListTableBody')
+        tableBody.innerHTML = ''
+        cloths.forEach((cloth) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td>${cloth.upperId}</td>
+            <td>${cloth.name}</td>
+            <td>${cloth.image}</td>
+            <td>${cloth.price}</td>
+            <td>${cloth.categories}</td>
+            <td><button class="btn-delete" data-id="${cloth.upperId}">🗑️</button></td>
+            <td><button class="btn-update" data-id="${cloth.upperId}">✏️</button></td>
+          `
+          tableBody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formCloth')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#clothTable tr')
+          const cloths = Array.from(rows).map((row) => {
+            const inputs = row.querySelectorAll('input')
+            return {
+              name: inputs[0].value,
+              image: inputs[1].value,
+              price: parseFloat(inputs[2].value),
+              categories: inputs[3].value,
+            }
+          })
+
+          try {
+            for (const cloth of cloths) {
+              const res = await fetch('/admin/api/uppercloth/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cloth),
+              })
+              if (!res.ok) throw new Error('Add failed')
+            }
+            await loadCloths()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const id = e.target.getAttribute('data-id')
+          if (!confirm('Delete this UpperCloth?')) return
+          try {
+            const res = await fetch(`/admin/api/uppercloth/delete/${id}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadCloths()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          openModal({
+            upperId: e.target.getAttribute('data-id'),
+            name: row.children[1].innerText,
+            image: row.children[2].innerText,
+            price: row.children[3].innerText,
+            categories: row.children[4].innerText,
+          })
+        }
+      })
+
+      function openModal(cloth) {
+        document.getElementById('updateClothId').value = cloth.upperId
+        document.getElementById('updateName').value = cloth.name
+        document.getElementById('updateImage').value = cloth.image
+        document.getElementById('updatePrice').value = cloth.price
+        document.getElementById('updateCategories').value = cloth.categories
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const cloth = {
+            upperId: document.getElementById('updateClothId').value,
+            name: document.getElementById('updateName').value,
+            image: document.getElementById('updateImage').value,
+            price: parseFloat(document.getElementById('updatePrice').value),
+            categories: document.getElementById('updateCategories').value,
+          }
+
+          try {
+            const res = await fetch(
+              `/admin/api/uppercloth/update/${cloth.upperId}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cloth),
+              }
+            )
+            if (!res.ok) throw new Error('Update failed')
+            await loadCloths()
+            closeModal()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', () => {
+        loadCloths()
+      })
+    </script>
+  </body>
+</html>

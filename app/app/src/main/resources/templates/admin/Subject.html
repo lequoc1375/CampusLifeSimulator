@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Subjects</title>
+  </head>
+  <body>
+    <h2>Add New Subject</h2>
+    <form id="formSubject">
+      <label>Name:</label>
+      <input type="text" id="subjectName" required />
+      <label>Credits:</label>
+      <input type="number" id="subjectCredits" min="1" required />
+      <button type="submit">Add Subject</button>
+    </form>
+
+    <h2>Subject List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Credits</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="subjectTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      "
+    >
+      <h3>Update Subject</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateSubjectId" />
+        <label>Name:</label>
+        <input type="text" id="updateSubjectName" required /><br /><br />
+        <label>Credits:</label>
+        <input
+          type="number"
+          id="updateSubjectCredits"
+          min="1"
+          required
+        /><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      async function loadSubjects() {
+        const res = await fetch('/admin/api/subjects/get')
+        const subjects = await res.json()
+        const table = document.getElementById('subjectTableBody')
+        table.innerHTML = ''
+
+        subjects.forEach((subject) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+                <td>${subject.subject_id}</td>
+                <td>${subject.name}</td>
+                <td>${subject.credit}</td>
+                <td><button class="btn-delete" data-id="${subject.subject_id}">🗑️ Delete</button></td>
+                <td><button class="btn-update" data-id="${subject.subject_id}">✏️ Update</button></td>
+            `
+          table.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formSubject')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault()
+          const name = document.getElementById('subjectName').value
+          const credit = parseInt(
+            document.getElementById('subjectCredits').value
+          )
+
+          try {
+            const res = await fetch('/admin/api/subject/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, credit }),
+            })
+            if (!res.ok) throw new Error('Failed to add subject')
+            await loadSubjects()
+            e.target.reset()
+          } catch (err) {
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('btn-delete')) {
+          const id = e.target.getAttribute('data-id')
+          if (!confirm('Confirm delete?')) return
+          try {
+            const res = await fetch(`/admin/api/subject/delete/${id}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadSubjects()
+          } catch (err) {
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const id = e.target.getAttribute('data-id')
+          const row = e.target.closest('tr')
+          document.getElementById('updateSubjectId').value = id
+          document.getElementById('updateSubjectName').value =
+            row.children[1].innerText
+          document.getElementById('updateSubjectCredits').value =
+            row.children[2].innerText
+          document.getElementById('updateModal').style.display = 'block'
+        }
+      })
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault()
+          const id = document.getElementById('updateSubjectId').value
+          const name = document.getElementById('updateSubjectName').value
+          const credit = parseInt(
+            document.getElementById('updateSubjectCredits').value
+          )
+
+          try {
+            const res = await fetch(`/admin/api/subject/update/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, credit }),
+            })
+            if (!res.ok) throw new Error('Update failed')
+            await loadSubjects()
+            closeModal()
+          } catch (err) {
+            alert(err.message)
+          }
+        })
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      window.addEventListener('DOMContentLoaded', loadSubjects)
+    </script>
+  </body>
+</html>

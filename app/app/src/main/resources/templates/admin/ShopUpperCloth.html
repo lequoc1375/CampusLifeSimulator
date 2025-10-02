@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Shop Upper Cloth</title>
+  </head>
+  <body>
+    <h2>Number of Shop Upper Cloth to Add:</h2>
+    <input type="number" id="noOfCloths" min="1" max="10" value="1" />
+    <button onclick="generateClothForm()">Generate Cloth Table</button>
+
+    <form id="formCloth">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Shop ID</th>
+            <th>Upper Cloth ID</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="clothTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add Shop Upper Cloth</button>
+    </form>
+
+    <h2>Shop Upper Cloth List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Shop ID</th>
+          <th>Upper Cloth ID</th>
+          <th>Status</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="clothListTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+      "
+    >
+      <h3>Update Shop Upper Cloth</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateClothId" />
+        <label>Shop ID:</label><br />
+        <select id="updateShopId" required></select
+        ><br />
+        <label>Upper Cloth ID:</label><br />
+        <select id="updateUpperId" required></select
+        ><br />
+        <label>Status:</label><br />
+        <select id="updateStatus" required>
+          <option value="">Select Status</option>
+          <option value="Owned">Owned</option>
+          <option value="Unowned">Unowned</option></select
+        ><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      let shopList = []
+      let upperList = []
+
+      async function loadShops() {
+        const response = await fetch('/admin/api/shops')
+        shopList = await response.json()
+      }
+
+      async function loadUppers() {
+        const response = await fetch('/admin/api/uppercloth/list')
+        upperList = await response.json()
+      }
+
+      async function generateClothForm() {
+        const count = parseInt(document.getElementById('noOfCloths').value)
+        const table = document.getElementById('clothTable')
+        table.innerHTML = ''
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td>
+              <select name="shopId" required>
+                <option value="">Select Shop ID</option>
+                ${shopList
+                  .map(
+                    (shop) =>
+                      `<option value="${shop.shopId}">${shop.shopId}</option>`
+                  )
+                  .join('')}
+              </select>
+            </td>
+            <td>
+              <select name="upperId" required>
+                <option value="">Select Upper Cloth ID</option>
+                ${upperList
+                  .map(
+                    (upper) =>
+                      `<option value="${upper.upperId}">${upper.upperId}</option>`
+                  )
+                  .join('')}
+              </select>
+            </td>
+            <td>
+              <select name="status" required>
+                <option value="">Select Status</option>
+                <option value="Owned">Owned</option>
+                <option value="Unowned">Unowned</option>
+              </select>
+            </td>
+          `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadClothes() {
+        const res = await fetch('/admin/api/shopUpperCloth/list')
+        const clothList = await res.json()
+        const tableBody = document.getElementById('clothListTableBody')
+        tableBody.innerHTML = ''
+        clothList.forEach((cloth) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td>${cloth.shopUpperId}</td>
+            <td>${cloth.shopId}</td>
+            <td>${cloth.upperId}</td>
+            <td>${cloth.status}</td>
+            <td><button class="btn-delete" data-id="${cloth.shopUpperId}">🗑️</button></td>
+            <td><button class="btn-update" data-id="${cloth.shopUpperId}">✏️</button></td>
+          `
+          tableBody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formCloth')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#clothTable tr')
+          const cloths = Array.from(rows).map((row) => {
+            const inputs = row.querySelectorAll('select')
+            return {
+              shopId: parseInt(inputs[0].value),
+              upperId: parseInt(inputs[1].value),
+              status: inputs[2].value,
+            }
+          })
+
+          try {
+            for (const cloth of cloths) {
+              const res = await fetch('/admin/api/shopUpperCloth/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cloth),
+              })
+              if (!res.ok) throw new Error('Add failed')
+            }
+            await loadClothes()
+            alert('Items added successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const id = e.target.getAttribute('data-id')
+          if (!confirm('Delete this Shop Upper Cloth?')) return
+          try {
+            const res = await fetch(`/admin/api/shopUpperCloth/delete/${id}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadClothes()
+            alert('Item deleted successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          openModal({
+            shopUpperId: e.target.getAttribute('data-id'),
+            shopId: row.children[1].innerText,
+            upperId: row.children[2].innerText,
+            status: row.children[3].innerText.trim(),
+          })
+        }
+      })
+
+      function openModal(cloth) {
+        document.getElementById('updateClothId').value = cloth.shopUpperId
+        const shopSelect = document.getElementById('updateShopId')
+        shopSelect.innerHTML = `<option value="">Select Shop ID</option>`
+        shopList.forEach((shop) => {
+          const opt = document.createElement('option')
+          opt.value = shop.shopId
+          opt.textContent = shop.shopId
+          if (shop.shopId == cloth.shopId) opt.selected = true
+          shopSelect.appendChild(opt)
+        })
+
+        const upperSelect = document.getElementById('updateUpperId')
+        upperSelect.innerHTML = `<option value="">Select Upper Cloth ID</option>`
+        upperList.forEach((upper) => {
+          const opt = document.createElement('option')
+          opt.value = upper.upperId
+          opt.textContent = upper.upperId
+          if (upper.upperId == cloth.upperId) opt.selected = true
+          upperSelect.appendChild(opt)
+        })
+
+        const statusSelect = document.getElementById('updateStatus')
+        const normalizedStatus =
+          cloth.status.charAt(0).toUpperCase() +
+          cloth.status.slice(1).toLowerCase()
+        statusSelect.value =
+          normalizedStatus === 'Owned' || normalizedStatus === 'Unowned'
+            ? normalizedStatus
+            : ''
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const cloth = {
+            shopUpperId: document.getElementById('updateClothId').value,
+            shopId: parseInt(document.getElementById('updateShopId').value),
+            upperId: parseInt(document.getElementById('updateUpperId').value),
+            status: document.getElementById('updateStatus').value,
+          }
+
+          try {
+            const res = await fetch(
+              `/admin/api/shopUpperCloth/update/${cloth.shopUpperId}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cloth),
+              }
+            )
+            if (!res.ok) throw new Error('Update failed')
+            await loadClothes()
+            closeModal()
+            alert('Item updated successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', async () => {
+        await loadShops()
+        await loadUppers()
+        await generateClothForm()
+        await loadClothes()
+      })
+    </script>
+  </body>
+</html>

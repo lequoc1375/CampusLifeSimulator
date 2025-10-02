@@ -1,21 +1,161 @@
-.grid-panel {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  width: 60%;
-  margin: 0 auto;
-  margin-top: 50px;
+/* --- GLOBAL BOX SIZING --- */
+* {
+  box-sizing: border-box;
 }
 
-.grid-panel button {
-  background-color: salmon;
-  color: white;
-  font-weight: bold;
-  padding: 50px;
-  border: none;
+body {
+  background-color: #add8e6;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+/* --- MAIN CONTAINER --- */
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 20px 5%;
+}
+
+/* --- MAP --- */
+.map-wrapper {
+  width: 40%;
+  text-align: center;
+  padding: 12px;
+  background-color: #f0f0f0;
+  border-radius: 20px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  background-image: url('../images/UniversityTownMap1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
   border-radius: 10px;
-  cursor: pointer;
-  font-size: 16px;
 }
 
+.map-button {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0);
+  border: none;
+  cursor: pointer;
+}
 
+.map-button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  outline: none;
+}
+
+.map-button::after {
+  content: '▼';
+  color: white;
+  font-size: 24px;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  pointer-events: none;
+  text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
+}
+
+.map-button:hover::after {
+  opacity: 1;
+}
+
+/* --- MAP AREA BUTTONS --- */
+.btn-university {
+  top: 39%;
+  left: 39%;
+  width: 36%;
+  height: 24%;
+}
+
+.btn-gym {
+  top: 40%;
+  left: 1%;
+  width: 34%;
+  height: 23%;
+}
+
+.btn-dorm {
+  top: 11%;
+  left: 2%;
+  width: 33%;
+  height: 24%;
+}
+
+.btn-mall {
+  top: 67%;
+  left: 39%;
+  width: 36%;
+  height: 23%;
+}
+
+.btn-fair {
+  top: 10%;
+  left: 79%;
+  width: 21%;
+  height: 26%;
+}
+
+.btn-internet {
+  top: 67%;
+  left: 1%;
+  width: 34%;
+  height: 23%;
+}
+
+.btn-restaurant {
+  top: 12%;
+  left: 39%;
+  width: 36%;
+  height: 23%;
+}
+
+.btn-work {
+  top: 39%;
+  left: 79%;
+  width: 21%;
+  height: 24%;
+}
+
+/* --- RIGHT PANEL: AREA DESCRIPTION --- */
+.right-panel {
+  width: 320px;
+  flex-shrink: 0;
+  height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.area-description {
+  padding: 20px;
+  background-color: #fdfdfd;
+  border-radius: 16px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1024px) {
+  .main-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .left-panel,
+  .map-wrapper,
+  .right-panel {
+    width: 90%;
+    max-width: none;
+  }
+}

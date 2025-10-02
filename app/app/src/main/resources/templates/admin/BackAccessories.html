@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Manage BackAccessories</title>
+  </head>
+  <body>
+    <h2>Number of BackAccessories to Add:</h2>
+    <input type="number" id="noOfAccessories" min="1" max="10" value="1" />
+    <button onclick="generateAccessoriesForm()">
+      Generate Accessories Table
+    </button>
+
+    <form id="formAccessories">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Image</th>
+            <th>Price</th>
+            <th>Categories</th>
+          </tr>
+        </thead>
+        <tbody id="accessoriesTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add BackAccessories</button>
+    </form>
+
+    <h2>BackAccessories List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Image</th>
+          <th>Price</th>
+          <th>Categories</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="accessoriesListTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+      "
+    >
+      <h3>Update BackAccessories</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateAccessoriesId" />
+        <label>Name:</label><br />
+        <input type="text" id="updateName" required /><br />
+        <label>Image:</label><br />
+        <input type="text" id="updateImage" required /><br />
+        <label>Price:</label><br />
+        <input type="number" step="0.01" id="updatePrice" required /><br />
+        <label>Categories:</label><br />
+        <input type="text" id="updateCategories" required /><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      async function generateAccessoriesForm() {
+        const count = parseInt(document.getElementById('noOfAccessories').value)
+        const table = document.getElementById('accessoriesTable')
+        table.innerHTML = ''
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td><input type="text" name="name" required /></td>
+            <td><input type="text" name="image" required /></td>
+            <td><input type="number" step="0.01" name="price" required /></td>
+            <td><input type="text" name="categories" required /></td>
+          `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadAccessories() {
+        const res = await fetch('/admin/api/backaccessories/list')
+        const accessories = await res.json()
+        const tableBody = document.getElementById('accessoriesListTableBody')
+        tableBody.innerHTML = ''
+        accessories.forEach((acc) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td>${acc.backId}</td>
+            <td>${acc.name}</td>
+            <td>${acc.image}</td>
+            <td>${acc.price}</td>
+            <td>${acc.categories}</td>
+            <td><button class="btn-delete" data-id="${acc.backId}">🗑️</button></td>
+            <td><button class="btn-update" data-id="${acc.backId}">✏️</button></td>
+          `
+          tableBody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formAccessories')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#accessoriesTable tr')
+          const accessories = Array.from(rows).map((row) => {
+            const inputs = row.querySelectorAll('input')
+            return {
+              name: inputs[0].value,
+              image: inputs[1].value,
+              price: parseFloat(inputs[2].value),
+              categories: inputs[3].value,
+            }
+          })
+
+          try {
+            for (const acc of accessories) {
+              const res = await fetch('/admin/api/backaccessories/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(acc),
+              })
+              if (!res.ok) throw new Error('Add failed')
+            }
+            await loadAccessories()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const id = e.target.getAttribute('data-id')
+          if (!confirm('Delete this BackAccessories?')) return
+          try {
+            const res = await fetch(`/admin/api/backaccessories/delete/${id}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadAccessories()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          openModal({
+            backId: e.target.getAttribute('data-id'),
+            name: row.children[1].innerText,
+            image: row.children[2].innerText,
+            price: row.children[3].innerText,
+            categories: row.children[4].innerText,
+          })
+        }
+      })
+
+      function openModal(acc) {
+        document.getElementById('updateAccessoriesId').value = acc.backId
+        document.getElementById('updateName').value = acc.name
+        document.getElementById('updateImage').value = acc.image
+        document.getElementById('updatePrice').value = acc.price
+        document.getElementById('updateCategories').value = acc.categories
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const acc = {
+            backId: document.getElementById('updateAccessoriesId').value,
+            name: document.getElementById('updateName').value,
+            image: document.getElementById('updateImage').value,
+            price: parseFloat(document.getElementById('updatePrice').value),
+            categories: document.getElementById('updateCategories').value,
+          }
+
+          try {
+            const res = await fetch(
+              `/admin/api/backaccessories/update/${acc.backId}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(acc),
+              }
+            )
+            if (!res.ok) throw new Error('Update failed')
+            await loadAccessories()
+            closeModal()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', () => {
+        loadAccessories()
+      })
+    </script>
+  </body>
+</html>

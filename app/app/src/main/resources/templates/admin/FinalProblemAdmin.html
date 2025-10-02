@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Final Problem Management</title>
+  </head>
+  <body>
+    <h2>Number of Final Problems to Add:</h2>
+    <input type="number" id="noOfProblems" min="1" max="20" value="1" />
+    <button onclick="generateProblemForm()">Generate Problem Table</button>
+
+    <form id="formProblem">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Final</th>
+            <th>Order</th>
+            <th>Question Image</th>
+            <th>Answer Image</th>
+            <th>Answer</th>
+          </tr>
+        </thead>
+        <tbody id="problemTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add Problems</button>
+    </form>
+
+    <h2>Final Problem List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Final</th>
+          <th>Order</th>
+          <th>Question Image</th>
+          <th>Answer Image</th>
+          <th>Answer</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="problemListTableBody"></tbody>
+    </table>
+
+    <!-- Update Modal -->
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      "
+    >
+      <h3>Update Final Problem</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateProblemId" />
+        <label>Final:</label><br />
+        <select id="updateFinalId" required></select
+        ><br /><br />
+        <label>Order:</label><br />
+        <input type="number" id="updateOrder" required /><br /><br />
+        <label>Question Image:</label><br />
+        <input type="text" id="updateQuestionImage" required /><br /><br />
+        <label>Answer Image:</label><br />
+        <input type="text" id="updateAnswerImage" required /><br /><br />
+        <label>Answer:</label><br />
+        <input type="text" id="updateAnswer" required /><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      let finalList = []
+
+      async function loadFinals() {
+        const response = await fetch('/admin/api/final/list')
+        finalList = await response.json()
+      }
+
+      async function generateProblemForm() {
+        const no = parseInt(document.getElementById('noOfProblems').value)
+        if (no <= 0) return
+
+        await loadFinals()
+        if (!finalList) return alert('Cannot load finals')
+
+        const table = document.getElementById('problemTable')
+        table.innerHTML = ''
+
+        for (let i = 0; i < no; i++) {
+          const row = document.createElement('tr')
+          let options = '<option value=""></option>'
+          finalList.forEach((f) => {
+            options += `<option value="${f.finalId}">${f.finalId}</option>`
+          })
+          row.innerHTML = `
+            <td><select name="final_id" required>${options}</select></td>
+            <td><input type="number" name="problem_order" required /></td>
+            <td><input type="text" name="question_image" required /></td>
+            <td><input type="text" name="answer_image" required /></td>
+            <td><input type="text" name="answer" required /></td>
+          `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadProblems() {
+        const res = await fetch('/admin/api/final-problem/list')
+        const problems = await res.json()
+
+        const tableBody = document.getElementById('problemListTableBody')
+        tableBody.innerHTML = ''
+
+        problems.forEach((problem) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+            <td>${problem.finalProblemId}</td>
+            <td>${problem.finalId}</td>
+            <td>${problem.problemOrder}</td>
+            <td>${problem.questionImage}</td>
+            <td>${problem.answerImage}</td>
+            <td>${problem.answer}</td>
+            <td><button class="btn-delete" data-id="${problem.finalProblemId}">🗑️</button></td>
+            <td><button class="btn-update" data-id="${problem.finalProblemId}">✏️</button></td>
+          `
+          tableBody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formProblem')
+        .addEventListener('submit', async (e) => {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#problemTable tr')
+          const problems = []
+
+          rows.forEach((row) => {
+            const inputs = row.querySelectorAll('input, select')
+            const problem = {
+              finalId: parseInt(inputs[0].value),
+              problemOrder: parseInt(inputs[1].value),
+              questionImage: inputs[2].value,
+              answerImage: inputs[3].value,
+              answer: inputs[4].value,
+            }
+            problems.push(problem)
+          })
+
+          try {
+            for (const p of problems) {
+              const res = await fetch('/admin/api/final-problem/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(p),
+              })
+              if (!res.ok) throw new Error('Add failed')
+            }
+            await loadProblems()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('btn-delete')) {
+          const id = e.target.getAttribute('data-id')
+          if (!confirm('Confirm delete?')) return
+          try {
+            const res = await fetch(`/admin/api/final-problem/delete/${id}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadProblems()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          const problem = {
+            finalProblemId: e.target.getAttribute('data-id'),
+            finalId: row.children[1].innerText,
+            problemOrder: row.children[2].innerText,
+            questionImage: row.children[3].innerText,
+            answerImage: row.children[4].innerText,
+            answer: row.children[5].innerText,
+          }
+          openModal(problem)
+        }
+      })
+
+      async function openModal(problem) {
+        if (!finalList || finalList.length === 0) {
+          await loadFinals()
+        }
+
+        document.getElementById('updateProblemId').value =
+          problem.finalProblemId
+        document.getElementById('updateOrder').value = problem.problemOrder
+        document.getElementById('updateQuestionImage').value =
+          problem.questionImage
+        document.getElementById('updateAnswerImage').value = problem.answerImage
+        document.getElementById('updateAnswer').value = problem.answer
+
+        const select = document.getElementById('updateFinalId')
+        select.innerHTML = ''
+        finalList.forEach((f) => {
+          const opt = document.createElement('option')
+          opt.value = f.finalId
+          opt.textContent = `${f.subjectName} - ${f.finalId}`
+          if (f.finalId == problem.finalId) opt.selected = true
+          select.appendChild(opt)
+        })
+
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const updated = {
+            finalProblemId: document.getElementById('updateProblemId').value,
+            finalId: parseInt(document.getElementById('updateFinalId').value),
+            problemOrder: parseInt(
+              document.getElementById('updateOrder').value
+            ),
+            questionImage: document.getElementById('updateQuestionImage').value,
+            answerImage: document.getElementById('updateAnswerImage').value,
+            answer: document.getElementById('updateAnswer').value,
+          }
+
+          try {
+            const res = await fetch(
+              `/admin/api/final-problem/update/${updated.finalProblemId}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updated),
+              }
+            )
+            if (!res.ok) throw new Error('Update failed')
+            await loadProblems()
+            closeModal()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', () => {
+        loadFinals()
+        loadProblems()
+      })
+    </script>
+  </body>
+</html>

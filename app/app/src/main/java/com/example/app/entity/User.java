@@ -7,36 +7,33 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "User")
-public class User { 
+@Table(name = "user")
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_id;
+    @Column(name = "user_id")
+    private int userId;
 
-    @Column(name="username")
+    @Column(name = "username")
     private String username;
 
-    @Column(name="password")
+    @Column(name = "password")
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="role")
+    @Column(name = "role")
     private Role role;
-    
+
+    @OneToOne(mappedBy = "user")
+    private UserCurriculum userCurriculum;
+
     public enum Role {
         admin, player
-    }
-
-    public int getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
     }
 
     public String getUsername() {
@@ -63,5 +60,20 @@ public class User {
         this.role = role;
     }
 
-    
+    public UserCurriculum getUserCurriculum() {
+        return userCurriculum;
+    }
+
+    public void setUserCurriculum(UserCurriculum userCurriculum) {
+        this.userCurriculum = userCurriculum;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
 }

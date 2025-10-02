@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Final</title>
+  </head>
+  <body>
+    <h2>Number of Final to add:</h2>
+    <input type="number" id="noOfFinals" min="1" max="10" value="1" />
+    <button onclick="generateFinalForm()">Generate Final Table</button>
+
+    <form id="formFinal">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Time (minutes)</th>
+          </tr>
+        </thead>
+        <tbody id="finalTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add Final</button>
+    </form>
+
+    <h2>Final List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Subject</th>
+          <th>Time</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="finalListTableBody"></tbody>
+    </table>
+
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 999;
+      "
+    >
+      <h3>Update Final</h3>
+      <form id="updateForm">
+        <input type="hidden" id="updateFinalId" />
+        <label>Subject:</label><br />
+        <select id="updateSubjectId" required></select
+        ><br /><br />
+        <label>Time (minutes):</label><br />
+        <input type="number" id="updateTime" required /><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      let subjectList = []
+
+      async function loadSubjects() {
+        const res = await fetch('/admin/api/subjects/get')
+        subjectList = await res.json()
+      }
+
+      async function generateFinalForm() {
+        const count = parseInt(document.getElementById('noOfFinals').value)
+        await loadSubjects()
+        const table = document.getElementById('finalTable')
+        table.innerHTML = ''
+
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('tr')
+          let options = '<option value=""></option>'
+          subjectList.forEach((sub) => {
+            options += `<option value="${sub.subject_id}">${sub.name}</option>`
+          })
+          row.innerHTML = `
+          <td><select name="subject_id" required>${options}</select></td>
+          <td><input type="number" name="time" min="1" required></td>
+        `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadFinals() {
+        const res = await fetch('/admin/api/final/list')
+        const finalList = await res.json()
+        const tableBody = document.getElementById('finalListTableBody')
+        tableBody.innerHTML = ''
+        finalList.forEach((final) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+          <td>${final.finalId}</td>
+          <td>${final.subject_name}</td>
+          <td>${final.time}</td>
+          <td><button class="btn-delete" data-id="${final.finalId}">🗑️ Delete</button></td>
+          <td><button class="btn-update" data-id="${final.finalId}">✏️ Update</button></td>
+        `
+          tableBody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formFinal')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#finalTable tr')
+          const finals = Array.from(rows).map((row) => {
+            const inputs = row.querySelectorAll('input, select')
+            return {
+              subjectId: parseInt(inputs[0].value),
+              time: parseInt(inputs[1].value),
+            }
+          })
+
+          try {
+            for (const final of finals) {
+              const res = await fetch('/admin/api/final/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(final),
+              })
+              if (!res.ok) throw new Error('Error adding final')
+            }
+            await loadFinals()
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const id = e.target.getAttribute('data-id')
+          if (!confirm('Confirm delete?')) return
+          try {
+            const res = await fetch(`/admin/api/final/delete/${id}`, {
+              method: 'DELETE',
+            })
+            if (!res.ok) throw new Error('Delete failed')
+            await loadFinals()
+            alert('Final deleted successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const row = e.target.closest('tr')
+          openModal({
+            finalId: e.target.getAttribute('data-id'),
+            subjectName: row.children[1].innerText,
+            time: row.children[2].innerText,
+          })
+        }
+      })
+
+      async function openModal(final) {
+        if (subjectList.length === 0) await loadSubjects()
+        document.getElementById('updateFinalId').value = final.finalId
+        document.getElementById('updateTime').value = final.time
+
+        const select = document.getElementById('updateSubjectId')
+        select.innerHTML = ''
+        subjectList.forEach((sub) => {
+          const opt = document.createElement('option')
+          opt.value = sub.subject_id
+          opt.textContent = sub.name
+          if (sub.name === final.subjectName) opt.selected = true
+          select.appendChild(opt)
+        })
+
+        document.getElementById('updateModal').style.display = 'block'
+      }
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const final = {
+            finalId: document.getElementById('updateFinalId').value,
+            subjectId: parseInt(
+              document.getElementById('updateSubjectId').value
+            ),
+            time: parseInt(document.getElementById('updateTime').value),
+          }
+
+          try {
+            const res = await fetch(
+              `/admin/api/final/update/${final.finalId}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(final),
+              }
+            )
+            if (!res.ok) throw new Error('Update failed')
+            await loadFinals()
+            closeModal()
+            alert('Final updated successfully!')
+          } catch (err) {
+            console.error(err)
+            alert(err.message)
+          }
+        })
+
+      window.addEventListener('DOMContentLoaded', () => {
+        loadSubjects()
+        loadFinals()
+      })
+    </script>
+  </body>
+</html>

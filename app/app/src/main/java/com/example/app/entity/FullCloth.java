@@ -1,0 +1,86 @@
+package com.example.app.entity;
+
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "full_cloth")
+public class FullCloth {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "full_id")
+    private Integer fullId;
+
+    @Column(name = "name", length = 100, nullable = false)
+    private String name;
+
+    @Column(name = "image", length = 255)
+    private String image;
+
+    @Column(name = "price", precision = 10)
+    private Double price;
+
+    @Column(name = "categories", length = 50)
+    private String categories;
+
+    @OneToMany(mappedBy = "fullCloth", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShopFullCloth> shopFullCloth;
+
+    public Integer getFullId() {
+        return fullId;
+    }
+
+    public void setFullId(Integer fullId) {
+        this.fullId = fullId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public List<ShopFullCloth> getShopFullCloth() {
+        return shopFullCloth;
+    }
+
+    public void setShopFullCloth(List<ShopFullCloth> shopFullCloth) {
+        this.shopFullCloth = shopFullCloth;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public String getCategories() {
+        return categories;
+    }
+
+    public void setCategories(String categories) {
+        this.categories = categories;
+    }
+
+}

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Job-Requirement Management</title>
+  </head>
+  <body>
+    <h2>Number of JobRequirements to Add:</h2>
+    <input type="number" id="noOfJobReqs" min="1" max="10" value="1" />
+    <button onclick="generateForm()">Generate Table</button>
+
+    <form id="formJobRequirement">
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Job</th>
+            <th>Requirement</th>
+          </tr>
+        </thead>
+        <tbody id="jobReqTable"></tbody>
+      </table>
+      <br />
+      <button type="submit">Add JobRequirements</button>
+    </form>
+
+    <h2>JobRequirement List</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Job ID</th>
+          <th>Job Name</th>
+          <th>Requirement ID</th>
+          <th>Requirement Name</th>
+          <th>Delete</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="jobReqList"></tbody>
+    </table>
+
+    <!-- Update Modal -->
+    <div
+      id="updateModal"
+      style="
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border: 1px solid black;
+        z-index: 1000;
+      "
+    >
+      <h3>Update JobRequirement</h3>
+      <form id="updateForm">
+        <input type="hidden" id="oldJobId" />
+        <input type="hidden" id="oldRequirementId" />
+        <label>Job:</label><br />
+        <select id="updateJobId" required></select
+        ><br /><br />
+        <label>Requirement:</label><br />
+        <select id="updateRequirementId" required></select
+        ><br /><br />
+        <button type="submit">Save</button>
+        <button type="button" onclick="closeModal()">Cancel</button>
+      </form>
+    </div>
+
+    <script>
+      let jobList = []
+      let requirementList = []
+
+      async function loadData() {
+        const [jobRes, reqRes] = await Promise.all([
+          fetch('/admin/api/job/list'),
+          fetch('/admin/api/requirement/list'),
+        ])
+        jobList = await jobRes.json()
+        requirementList = await reqRes.json()
+      }
+
+      async function generateForm() {
+        await loadData()
+        const count = parseInt(document.getElementById('noOfJobReqs').value)
+        const table = document.getElementById('jobReqTable')
+        table.innerHTML = ''
+
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('tr')
+          let jobOptions = '<option value=""></option>'
+          let reqOptions = '<option value=""></option>'
+
+          jobList.forEach(
+            (j) =>
+              (jobOptions += `<option value="${j.jobId}">${j.name}</option>`)
+          )
+          requirementList.forEach(
+            (r) =>
+              (reqOptions += `<option value="${r.requirementId}">${r.name}</option>`)
+          )
+
+          row.innerHTML = `
+          <td><select name="jobId" required>${jobOptions}</select></td>
+          <td><select name="requirementId" required>${reqOptions}</select></td>
+        `
+          table.appendChild(row)
+        }
+      }
+
+      async function loadJobRequirements() {
+        const res = await fetch('/admin/api/job-requirement/list')
+        const list = await res.json()
+        const tbody = document.getElementById('jobReqList')
+        tbody.innerHTML = ''
+        list.forEach((item) => {
+          const row = document.createElement('tr')
+          row.innerHTML = `
+          <td>${item.jobId}</td>
+          <td>${item.jobName}</td>
+          <td>${item.requirementId}</td>
+          <td>${item.requirementName}</td>
+          <td><button class="btn-delete" data-job="${item.jobId}" data-req="${item.requirementId}">🗑️</button></td>
+          <td><button class="btn-update" data-job="${item.jobId}" data-req="${item.requirementId}">✏️</button></td>
+        `
+          tbody.appendChild(row)
+        })
+      }
+
+      document
+        .getElementById('formJobRequirement')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const rows = document.querySelectorAll('#jobReqTable tr')
+          const data = []
+          rows.forEach((row) => {
+            const inputs = row.querySelectorAll('select')
+            data.push({
+              jobId: parseInt(inputs[0].value),
+              requirementId: parseInt(inputs[1].value),
+            })
+          })
+
+          for (const d of data) {
+            await fetch('/admin/api/job-requirement/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(d),
+            })
+          }
+          await loadJobRequirements()
+        })
+
+      document.addEventListener('click', async function (e) {
+        if (e.target.classList.contains('btn-delete')) {
+          const jobId = e.target.getAttribute('data-job')
+          const reqId = e.target.getAttribute('data-req')
+          if (!confirm('Delete this item?')) return
+
+          await fetch(`/admin/api/job-requirement/delete/${jobId}/${reqId}`, {
+            method: 'DELETE',
+          })
+          await loadJobRequirements()
+        }
+
+        if (e.target.classList.contains('btn-update')) {
+          const jobId = e.target.getAttribute('data-job')
+          const reqId = e.target.getAttribute('data-req')
+
+          await loadData()
+          document.getElementById('oldJobId').value = jobId
+          document.getElementById('oldRequirementId').value = reqId
+
+          const jobSelect = document.getElementById('updateJobId')
+          jobSelect.innerHTML = ''
+          jobList.forEach((j) => {
+            jobSelect.innerHTML += `<option value="${j.jobId}" ${
+              j.jobId == jobId ? 'selected' : ''
+            }>${j.name}</option>`
+          })
+
+          const reqSelect = document.getElementById('updateRequirementId')
+          reqSelect.innerHTML = ''
+          requirementList.forEach((r) => {
+            reqSelect.innerHTML += `<option value="${r.requirementId}" ${
+              r.requirementId == reqId ? 'selected' : ''
+            }>${r.name}</option>`
+          })
+
+          document.getElementById('updateModal').style.display = 'block'
+        }
+      })
+
+      document
+        .getElementById('updateForm')
+        .addEventListener('submit', async function (e) {
+          e.preventDefault()
+          const oldJobId = document.getElementById('oldJobId').value
+          const oldRequirementId =
+            document.getElementById('oldRequirementId').value
+          const newJobId = document.getElementById('updateJobId').value
+          const newRequirementId = document.getElementById(
+            'updateRequirementId'
+          ).value
+
+          await fetch(
+            `/admin/api/job-requirement/update/${oldJobId}/${oldRequirementId}`,
+            {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                jobId: parseInt(newJobId),
+                requirementId: parseInt(newRequirementId),
+              }),
+            }
+          )
+
+          closeModal()
+          await loadJobRequirements()
+        })
+
+      function closeModal() {
+        document.getElementById('updateModal').style.display = 'none'
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        loadData()
+        loadJobRequirements()
+      })
+    </script>
+  </body>
+</html>
