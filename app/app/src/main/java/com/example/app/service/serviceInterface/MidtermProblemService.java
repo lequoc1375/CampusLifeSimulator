@@ -2,7 +2,8 @@ package com.example.app.service.serviceInterface;
 
 import java.util.List;
 
-import com.example.app.dto.requestDTO.MidtermProblemDTORequest;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.example.app.dto.responseDTO.MidtermProblemDTOResponse;
 import com.example.app.entity.MidtermProblem;
 
@@ -12,9 +13,9 @@ public interface MidtermProblemService {
 
     MidtermProblemDTOResponse getMidtermProblemById(int id);
 
-    void createMidtermProblem(MidtermProblemDTORequest request);
+    void createMidtermProblem(int midtermId, int problemOrder, String answer, MultipartFile questionImage, MultipartFile answerImage);
 
-    void updateMidtermProblem(int id, MidtermProblemDTORequest request);
+    void updateMidtermProblem(int id, int midtermId, int problemOrder, String answer, MultipartFile questionImage, MultipartFile answerImage);
 
     void deleteMidtermProblem(int id);
 

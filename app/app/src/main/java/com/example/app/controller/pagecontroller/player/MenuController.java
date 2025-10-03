@@ -42,5 +42,11 @@ public class MenuController {
         return "Midterm";  
     }
 
+    @GetMapping("/Final")
+    public String moveFinal(@AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
+        model.addAttribute("user", currentUser);
+        return "Final";  
+    }
+
 }
 

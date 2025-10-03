@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.app.entity.Subject;
 import com.example.app.service.serviceInterface.LessonStudyingService;
 import com.example.app.service.serviceInterface.PlayerStatsService;
+import com.example.app.service.serviceInterface.SubjectSelectedFinalService;
 import com.example.app.service.serviceInterface.SubjectSelectedMidtermService;
 import com.example.app.service.serviceInterface.SubjectService;
 import com.example.app.service.serviceInterface.UserCurriculumService;
@@ -37,6 +38,9 @@ public class CourseRestController {
 
     @Autowired
     private SubjectSelectedMidtermService subjectSelectedMidtermService;
+
+    @Autowired
+    private SubjectSelectedFinalService subjectSelectedFinalService;
     @GetMapping("/list/{userId}")
     public Map<String, Object> getCourses(@PathVariable int userId) {
         Map<String, Object> result = new HashMap<>();
@@ -58,6 +62,7 @@ public class CourseRestController {
         List<Integer> lessonIds = payload.getOrDefault("lessons", List.of()); 
         lessonStudyingService.insert(userId, lessonIds, subjectRegisterId);
         subjectSelectedMidtermService.insert(subjectRegisterId);
+        subjectSelectedFinalService.insert(subjectRegisterId);
         playerStatsService.updateEnergy(userId, -5);
         return "Registered subject " + subjectId + " for curriculum " + userCurriculumService.getCurriculumIdByUserId(userId);
     }

@@ -69,9 +69,9 @@
         <label>Order:</label><br />
         <input type="number" id="updateOrder" required /><br /><br />
         <label>Question Image:</label><br />
-        <input type="text" id="updateQuestionImage" required /><br /><br />
+        <input type="file" id="updateQuestionImage" /><br /><br />
         <label>Answer Image:</label><br />
-        <input type="text" id="updateAnswerImage" required /><br /><br />
+        <input type="file" id="updateAnswerImage" /><br /><br />
         <label>Answer:</label><br />
         <input type="text" id="updateAnswer" required /><br /><br />
         <button type="submit">Save</button>
@@ -104,12 +104,12 @@
             options += `<option value="${f.finalId}">${f.finalId}</option>`
           })
           row.innerHTML = `
-            <td><select name="final_id" required>${options}</select></td>
-            <td><input type="number" name="problem_order" required /></td>
-            <td><input type="text" name="question_image" required /></td>
-            <td><input type="text" name="answer_image" required /></td>
-            <td><input type="text" name="answer" required /></td>
-          `
+          <td><select name="final_id" required>${options}</select></td>
+          <td><input type="number" name="problem_order" required /></td>
+          <td><input type="file" name="question_image" accept="image/*" required /></td>
+          <td><input type="file" name="answer_image" accept="image/*" required /></td>
+          <td><input type="text" name="answer" required /></td>
+        `
           table.appendChild(row)
         }
       }
@@ -124,48 +124,44 @@
         problems.forEach((problem) => {
           const row = document.createElement('tr')
           row.innerHTML = `
-            <td>${problem.finalProblemId}</td>
-            <td>${problem.finalId}</td>
-            <td>${problem.problemOrder}</td>
-            <td>${problem.questionImage}</td>
-            <td>${problem.answerImage}</td>
-            <td>${problem.answer}</td>
-            <td><button class="btn-delete" data-id="${problem.finalProblemId}">🗑️</button></td>
-            <td><button class="btn-update" data-id="${problem.finalProblemId}">✏️</button></td>
-          `
+          <td>${problem.finalProblemId}</td>
+          <td>${problem.finalId}</td>
+          <td>${problem.problemOrder}</td>
+          <td>${problem.questionImage}</td>
+          <td>${problem.answerImage}</td>
+          <td>${problem.answer}</td>
+          <td><button class="btn-delete" data-id="${problem.finalProblemId}">🗑️</button></td>
+          <td><button class="btn-update" data-id="${problem.finalProblemId}">✏️</button></td>
+        `
           tableBody.appendChild(row)
         })
       }
 
       document
         .getElementById('formProblem')
-        .addEventListener('submit', async (e) => {
+        .addEventListener('submit', async function (e) {
           e.preventDefault()
           const rows = document.querySelectorAll('#problemTable tr')
-          const problems = []
-
-          rows.forEach((row) => {
-            const inputs = row.querySelectorAll('input, select')
-            const problem = {
-              finalId: parseInt(inputs[0].value),
-              problemOrder: parseInt(inputs[1].value),
-              questionImage: inputs[2].value,
-              answerImage: inputs[3].value,
-              answer: inputs[4].value,
-            }
-            problems.push(problem)
-          })
-
           try {
-            for (const p of problems) {
+            for (const row of rows) {
+              const inputs = row.querySelectorAll('input, select')
+              const formData = new FormData()
+
+              formData.append('finalId', inputs[0].value)
+              formData.append('problemOrder', inputs[1].value)
+              formData.append('questionImage', inputs[2].files[0])
+              formData.append('answerImage', inputs[3].files[0])
+              formData.append('answer', inputs[4].value)
+
               const res = await fetch('/admin/api/final-problem/add', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(p),
+                body: formData,
               })
-              if (!res.ok) throw new Error('Add failed')
+              if (!res.ok) throw new Error('Error adding problem')
             }
+
             await loadProblems()
+            alert('Problems added successfully!')
           } catch (err) {
             console.error(err)
             alert(err.message)
@@ -210,9 +206,8 @@
         document.getElementById('updateProblemId').value =
           problem.finalProblemId
         document.getElementById('updateOrder').value = problem.problemOrder
-        document.getElementById('updateQuestionImage').value =
-          problem.questionImage
-        document.getElementById('updateAnswerImage').value = problem.answerImage
+        document.getElementById('updateQuestionImage').value = ''
+        document.getElementById('updateAnswerImage').value = ''
         document.getElementById('updateAnswer').value = problem.answer
 
         const select = document.getElementById('updateFinalId')
@@ -236,29 +231,48 @@
         .getElementById('updateForm')
         .addEventListener('submit', async function (e) {
           e.preventDefault()
-          const updated = {
-            finalProblemId: document.getElementById('updateProblemId').value,
-            finalId: parseInt(document.getElementById('updateFinalId').value),
-            problemOrder: parseInt(
-              document.getElementById('updateOrder').value
-            ),
-            questionImage: document.getElementById('updateQuestionImage').value,
-            answerImage: document.getElementById('updateAnswerImage').value,
-            answer: document.getElementById('updateAnswer').value,
+
+          const formData = new FormData()
+          formData.append(
+            'finalId',
+            document.getElementById('updateFinalId').value
+          )
+          formData.append(
+            'problemOrder',
+            document.getElementById('updateOrder').value
+          )
+          formData.append(
+            'answer',
+            document.getElementById('updateAnswer').value
+          )
+
+          const questionFile = document.getElementById('updateQuestionImage')
+            .files[0]
+          const answerFile =
+            document.getElementById('updateAnswerImage').files[0]
+
+          if (questionFile) {
+            formData.append('questionImage', questionFile)
+          }
+          if (answerFile) {
+            formData.append('answerImage', answerFile)
           }
 
           try {
             const res = await fetch(
-              `/admin/api/final-problem/update/${updated.finalProblemId}`,
+              `/admin/api/final-problem/update/${
+                document.getElementById('updateProblemId').value
+              }`,
               {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updated),
+                body: formData,
               }
             )
+
             if (!res.ok) throw new Error('Update failed')
             await loadProblems()
             closeModal()
+            alert('Updated successfully!')
           } catch (err) {
             console.error(err)
             alert(err.message)

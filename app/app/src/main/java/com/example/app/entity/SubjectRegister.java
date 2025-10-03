@@ -55,6 +55,17 @@ public class SubjectRegister {
     @JsonManagedReference
     private SubjectSelectedMidterm subjectSelectedMidterm;
 
+    @OneToOne(mappedBy = "subjectRegister")
+    @JsonManagedReference
+    private SubjectSelectedFinal subjectSelectedFinal;
+
+    public SubjectSelectedFinal getSubjectSelectedFinal() {
+        return subjectSelectedFinal;
+    }
+
+    public void setSubjectSelectedFinal(SubjectSelectedFinal subjectSelectedFinal) {
+        this.subjectSelectedFinal = subjectSelectedFinal;
+    }
 
     public enum Status {
         pass, fail, studying
