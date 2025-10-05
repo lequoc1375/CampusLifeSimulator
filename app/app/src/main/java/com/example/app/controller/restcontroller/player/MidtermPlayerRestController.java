@@ -80,6 +80,7 @@ public class MidtermPlayerRestController {
         System.out.println("Score" + countScore);
         subjectSelectedMidtermService.updateScore(midtermId, subjectId, userCurriculumId, countScore);
         subjectSelectedMidtermService.updateExamFinishedStatus(midtermId, subjectId, userCurriculumId);
+        subjectSelectedMidtermService.updateAvaiStatus(midtermId, subjectId, userCurriculumId);
         playerStatsService.updateStress(userCurriculumService.getUserIdByCurriculumId(userCurriculumId),5);
         return ResponseEntity.ok(results);
     }

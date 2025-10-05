@@ -12,7 +12,7 @@ public class FinalDTOResponse {
     private Integer finalId;
     private Integer subjectId;
     private String subject_name;
-    private List<FinalProblem> problemList;
+    private List<FinalProblem> problems;
     
 
     public String getSubject_name() {
@@ -24,7 +24,6 @@ public class FinalDTOResponse {
     }
 
     private Integer time;
-    private List<FinalProblemDTOResponse> problems;
 
     public Integer getFinalId() {
         return finalId;
@@ -50,20 +49,12 @@ public class FinalDTOResponse {
         this.time = time;
     }
 
-    public List<FinalProblemDTOResponse> getProblems() {
+    public List<FinalProblem> getProblems() {
         return problems;
     }
 
-    public void setProblems(List<FinalProblemDTOResponse> problems) {
+    public void setProblems(List<FinalProblem> problems) {
         this.problems = problems;
-    }
-
-    public List<FinalProblem> getProblemList() {
-        return problemList;
-    }
-
-    public void setProblemList(List<FinalProblem> problemList) {
-        this.problemList = problemList;
     }
 
 }

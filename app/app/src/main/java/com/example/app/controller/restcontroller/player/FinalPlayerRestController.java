@@ -79,6 +79,7 @@ public class FinalPlayerRestController {
         System.out.println("Score" + countScore);
         subjectSelectedFinalService.updateScore(finalId, subjectId, userCurriculumId, countScore);
         subjectSelectedFinalService.updateExamFinishedStatus(finalId, subjectId, userCurriculumId);
+        subjectSelectedFinalService.updateAvaiStatus(finalId, subjectId, userCurriculumId);
         playerStatsService.updateStress(userCurriculumService.getUserIdByCurriculumId(userCurriculumId),5);
         return ResponseEntity.ok(results);
     }

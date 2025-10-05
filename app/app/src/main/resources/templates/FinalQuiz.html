@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Final Quiz</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f8f9fa;
+      }
+      .quiz-container {
+        max-width: 1200px;
+        margin: auto;
+        display: flex;
+        gap: 20px;
+      }
+      .quiz-section {
+        flex: 1;
+        max-width: 800px;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      }
+      .results-section {
+        flex: 1;
+        max-width: 400px;
+        display: none;
+        border-left: 2px solid #ccc;
+        padding-left: 20px;
+        background: white;
+        border-radius: 12px;
+      }
+      .question {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background-color: #fafafa;
+      }
+      .question img,
+      .results-section img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+      }
+      .options label {
+        display: block;
+        margin: 8px 0;
+      }
+      .submit-btn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 8px;
+      }
+      .submit-btn:hover {
+        background-color: #45a049;
+      }
+      .submit-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+      .error-message {
+        color: red;
+        display: none;
+        margin-top: 10px;
+      }
+      .timer {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #d9534f;
+      }
+      .score {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .result-item {
+        margin-bottom: 15px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        background: #f1f1f1;
+      }
+      .action-buttons {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+      }
+      .action-buttons button {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="quiz-container">
+      <div class="quiz-section">
+        <h1>Final Quiz Details</h1>
+        <div th:if="${final != null}">
+          <p>
+            Final ID: <span th:text="${final.finalId}"></span>, Time:
+            <span th:text="${final.time} + ' minutes'"></span>, Number of
+            Questions:
+            <span th:text="${#lists.size(final.problems)}"></span>
+          </p>
+          <div class="timer" id="timer">Time Remaining: --:--</div>
+          <div th:if="${#lists.size(final.problems) > 0}">
+            <h3>Questions</h3>
+            <form id="quizForm" onsubmit="submitQuiz(event)">
+              <div
+                th:each="problem, iterStat : ${final.problems}"
+                class="question"
+                th:data-problem-order="${problem.problemOrder}"
+                th:data-answer-image="${problem.answerImage != null ? problem.answerImage : ''}"
+              >
+                <h4>
+                  Question <span th:text="${iterStat.count}"></span> (ID:
+                  <span th:text="${problem.finalProblemId}"></span>, Order:
+                  <span th:text="${problem.problemOrder}"></span>)
+                </h4>
+                <div th:if="${problem.questionImage != null}">
+                  <img th:src="${problem.questionImage}" alt="Question Image" />
+                </div>
+                <div th:unless="${problem.questionImage != null}">
+                  <p>No question image available.</p>
+                </div>
+                <div class="options">
+                  <p>Please select one option:</p>
+                  <label>
+                    <input
+                      type="radio"
+                      th:name="'answer_' + ${problem.finalProblemId}"
+                      th:data-order="${problem.problemOrder}"
+                      value="A"
+                      required
+                    />
+                    A
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      th:name="'answer_' + ${problem.finalProblemId}"
+                      th:data-order="${problem.problemOrder}"
+                      value="B"
+                    />
+                    B
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      th:name="'answer_' + ${problem.finalProblemId}"
+                      th:data-order="${problem.problemOrder}"
+                      value="C"
+                    />
+                    C
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      th:name="'answer_' + ${problem.finalProblemId}"
+                      th:data-order="${problem.problemOrder}"
+                      value="D"
+                    />
+                    D
+                  </label>
+                </div>
+              </div>
+              <button type="submit" class="submit-btn" id="submitBtn">
+                Submit Quiz
+              </button>
+              <p id="errorMessage" class="error-message"></p>
+            </form>
+          </div>
+        </div>
+        <div th:if="${final == null}">
+          <p>No final found.</p>
+        </div>
+      </div>
+      <div class="results-section" id="resultsSection">
+        <h3>Results</h3>
+        <p class="score" id="score"></p>
+        <div id="results"></div>
+        <div class="action-buttons">
+          <button
+            onclick="returnPage()"
+            class="submit-btn"
+            style="background-color: #f44336"
+          >
+            Return
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script th:inline="javascript">
+      const finalId = /*[[${final.finalId}]]*/ 0
+      const quizTimeMinutes = /*[[${final.time}]]*/ 0
+      const userCurriculumId = /*[[${userCurriculumId}]]*/ 0
+      const subjectId = /*[[${subjectId}]]*/ 0
+
+      let timerInterval = null
+
+      function startTimer(durationSeconds) {
+        let timeLeft = durationSeconds
+        const timerDisplay = document.getElementById('timer')
+        const submitBtn = document.getElementById('submitBtn')
+
+        timerInterval = setInterval(() => {
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval)
+            timerDisplay.textContent = 'Time Remaining: 00:00'
+            submitBtn.disabled = true
+            const errorMessage = document.getElementById('errorMessage')
+            errorMessage.textContent =
+              'Time is up! Quiz submission is disabled.'
+            errorMessage.style.display = 'block'
+            return
+          }
+
+          const minutes = Math.floor(timeLeft / 60)
+          const seconds = timeLeft % 60
+          timerDisplay.textContent = `Time Remaining: ${minutes
+            .toString()
+            .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+          timeLeft--
+        }, 1000)
+      }
+
+      if (quizTimeMinutes) {
+        startTimer(quizTimeMinutes * 60)
+      } else {
+        document.getElementById('timer').textContent = 'No time limit'
+      }
+
+      async function submitQuiz(event) {
+        event.preventDefault()
+        clearInterval(timerInterval)
+
+        const form = document.getElementById('quizForm')
+        const formData = new FormData(form)
+        const answers = {}
+
+        if (!finalId) {
+          const errorMessage = document.getElementById('errorMessage')
+          errorMessage.textContent = 'Final ID not found. Please try again.'
+          errorMessage.style.display = 'block'
+          return
+        }
+
+        for (const [key, value] of formData.entries()) {
+          if (key.startsWith('answer_')) {
+            const input = form.querySelector(`[name="${key}"]:checked`)
+            if (input) {
+              const order = input.getAttribute('data-order')
+              answers[order] = value
+            }
+          }
+        }
+
+        try {
+          const response = await fetch(
+            `/player/api/final/submitFinalQuiz/${userCurriculumId}/${subjectId}?finalId=${finalId}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(answers),
+            }
+          )
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`)
+          }
+
+          const result = await response.json()
+          const submitBtn = document.getElementById('submitBtn')
+          submitBtn.disabled = true
+
+          let correctCount = 0
+          let totalQuestions = Object.keys(result).length
+          for (const outcome of Object.values(result)) {
+            if (outcome === 'Correct') {
+              correctCount++
+            }
+          }
+          const score = (correctCount / totalQuestions) * 100
+
+          const resultsSection = document.getElementById('resultsSection')
+          const scoreDisplay = document.getElementById('score')
+          const resultsContainer = document.getElementById('results')
+          scoreDisplay.textContent = `Score: ${score.toFixed(2)}%`
+          resultsSection.style.display = 'block'
+
+          resultsContainer.innerHTML = ''
+          for (const [order, outcome] of Object.entries(result)) {
+            const questionDiv = document.querySelector(
+              `.question[data-problem-order="${order}"]`
+            )
+            const answerImage = questionDiv
+              ? questionDiv.getAttribute('data-answer-image')
+              : ''
+            const correctAnswer = outcome.includes('Correct')
+              ? answers[order]
+              : outcome.match(/Correct answer: (\w+)/)?.[1] || 'Unknown'
+
+            const resultItem = document.createElement('div')
+            resultItem.className = 'result-item'
+            resultItem.innerHTML = `
+              <p>Question ${order}: ${outcome}</p>
+              <p>Your Answer: ${answers[order] || 'None'}</p>
+              ${
+                answerImage
+                  ? `<img src="${answerImage}" alt="Answer Image" />`
+                  : '<p>No answer image available.</p>'
+              }
+            `
+            resultsContainer.appendChild(resultItem)
+          }
+        } catch (error) {
+          console.error('Error submitting quiz:', error)
+          const errorMessage = document.getElementById('errorMessage')
+          errorMessage.textContent = 'Failed to submit quiz. Please try again.'
+          errorMessage.style.display = 'block'
+        }
+      }
+      function returnPage() {
+        window.location.href = '/CampusLife/Final'
+      }
+    </script>
+  </body>
+</html>

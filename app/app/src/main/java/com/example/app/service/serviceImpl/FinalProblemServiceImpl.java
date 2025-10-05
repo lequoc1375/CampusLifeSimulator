@@ -59,7 +59,8 @@ public class FinalProblemServiceImpl implements FinalProblemService {
     }
 
     @Override
-    public void createFinalProblem(int finalId, int problemOrder, String answer, MultipartFile questionImage,MultipartFile answerImage) {
+    public void createFinalProblem(int finalId, int problemOrder, String answer, MultipartFile questionImage,
+            MultipartFile answerImage) {
         FinalExam finalEntity = finalRepo.findById(finalId).orElseThrow();
 
         FinalProblem entity = new FinalProblem();
@@ -67,7 +68,6 @@ public class FinalProblemServiceImpl implements FinalProblemService {
         entity.setProblemOrder(problemOrder);
         entity.setAnswer(answer);
 
-     
         if (questionImage != null && !questionImage.isEmpty()) {
             try {
                 String url = cloudinaryService.uploadFile(questionImage);
@@ -106,7 +106,6 @@ public class FinalProblemServiceImpl implements FinalProblemService {
         entity.setProblemOrder(problemOrder);
         entity.setAnswer(answer);
 
-
         if (questionImage != null && !questionImage.isEmpty()) {
             try {
                 String url = cloudinaryService.uploadFile(questionImage);
@@ -130,8 +129,8 @@ public class FinalProblemServiceImpl implements FinalProblemService {
 
     @Override
     public List<FinalProblem> getAllFinalProblemsByFinalId(int finalId) {
-       FinalDTOResponse finalDTOResponse = finalService.getFinal(finalId);
-       return finalDTOResponse.getProblemList();
+        FinalDTOResponse finalDTOResponse = finalService.getFinal(finalId);
+        return finalDTOResponse.getProblems();
     }
 
 }

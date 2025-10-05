@@ -22,7 +22,7 @@ public class FinalPlayerController {
     @GetMapping("/final/{finalId}/{userCurriculumId}/{subjectId}")
     public String getMethodName(@PathVariable int finalId,@PathVariable int userCurriculumId,@PathVariable int subjectId,Model model) {
         FinalDTOResponse finalExam = finalService.getFinal(finalId);
-        finalExam.setProblemList(finalExam.getProblemList().stream().sorted(Comparator.comparingInt(FinalProblem::getProblemOrder)).toList());
+        finalExam.setProblems(finalExam.getProblems().stream().sorted(Comparator.comparingInt(FinalProblem::getProblemOrder)).toList());
         model.addAttribute("final", finalExam);
         model.addAttribute("userCurriculumId",userCurriculumId);
         model.addAttribute("subjectId",subjectId);
