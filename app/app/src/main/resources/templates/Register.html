@@ -4,61 +4,48 @@
     <meta charset="UTF-8" />
     <title>Register - Campus Life Simulator</title>
     <link rel="stylesheet" th:href="@{/css/register.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   </head>
   <body>
     <div class="background-title">Campus Life Simulator</div>
 
     <div class="register-container">
       <h2>Register Account</h2>
-      <form th:action="@{/register}" method="post" th:object="${registerDTOrq}">
-        <input
-          type="text"
-          th:field="*{username}"
-          placeholder="Username"
-          required
-        />
+      <form th:action="@{/register}" method="post" th:object="${registerDTOrq}" class="register-form">
+        <div class="form-row">
+          <!-- Cột trái -->
+          <div class="form-column">
+            <input type="text" th:field="*{username}" placeholder="Username" required />
+            <input type="password" th:field="*{password}" placeholder="Password" required />
+            <input type="password" th:field="*{confirmPassword}" placeholder="Confirm Password" required />
+            <input type="email" th:field="*{email}" placeholder="Email" required />
+          </div>
 
-        <input
-          type="password"
-          th:field="*{password}"
-          placeholder="Password"
-          required
-        />
+          <!-- Cột phải -->
+          <div class="form-column">
+            <input type="text" th:field="*{firstname}" placeholder="First Name" required />
+            <input type="text" th:field="*{lastname}" placeholder="Last Name" required />
+            <input type="tel" th:field="*{phone}" placeholder="Phone Number" required />
 
-        <input
-          type="password"
-          th:field="*{confirmPassword}"
-          placeholder="Confirm Password"
-          required
-        />
+            <div class="gender-selection">
+              <label class="gender-option" data-gender="male">
+                <input type="radio" name="gender" value="male" hidden>
+                <div class="gender-box">
+                  <i class="fa-solid fa-mars"></i>
+                  <span>Male</span>
+                </div>
+              </label>
 
-        <input
-          type="text"
-          th:field="*{firstname}"
-          placeholder="First Name"
-          required
-        />
-
-        <input
-          type="text"
-          th:field="*{lastname}"
-          placeholder="Last Name"
-          required
-        />
-
-        <input 
-          type="email" 
-          th:field="*{email}" 
-          placeholder="Email" 
-          required 
-        />
-
-        <input 
-          type="text" 
-          th:field="*{phone}" 
-          placeholder="Phone Number" 
-          required 
-        />
+              <label class="gender-option" data-gender="female">
+                <input type="radio" name="gender" value="female" hidden>
+                <div class="gender-box">
+                  <i class="fa-solid fa-venus"></i>
+                  <span>Female</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
 
         <button type="submit">Register</button>
       </form>

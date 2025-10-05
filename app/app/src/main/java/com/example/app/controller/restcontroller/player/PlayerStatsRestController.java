@@ -39,11 +39,6 @@ public class PlayerStatsRestController {
         return playerStatsService.getByUserId(user.getUser_id());
     }
 
-    @GetMapping("/getByUser/{id}")
-    public PlayerStats getStatsByUserId(@PathVariable int id) {
-        return playerStatsService.getByUserId(id);
-    }
-
     @PutMapping("/{id}")
     public PlayerStats updateStats(@PathVariable int id, @RequestBody PlayerStats stats) {
         return playerStatsService.update(id, stats);

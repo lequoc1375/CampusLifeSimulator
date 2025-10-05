@@ -1,0 +1,73 @@
+/* Global reset */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5faff;
+  color: #333;
+  margin: 0;
+  padding: 30px;
+}
+
+/* Container for buttons */
+.btn-mod {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Button styles */
+.btn-mod button {
+  background: #004080;
+  color: #fff;
+  border: none;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  text-transform: capitalize;
+}
+
+/* Hover + active states */
+.btn-mod button:hover {
+  background: #0066cc;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-mod button:active {
+  background: #003060;
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .btn-mod {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .btn-mod button {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 15px;
+  }
+
+  .btn-mod {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .btn-mod button {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}

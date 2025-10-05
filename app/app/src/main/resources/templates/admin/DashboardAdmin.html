@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home page</title>
+    <title>Admin dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/AdminDashboard.css}" />
   </head>
   <body>
     <div class="btn-mod">
@@ -100,6 +101,12 @@
         th:onclick="'window.location.href=\'' + @{/admin/floor/form} + '\''"
       >
         Floor
+      </button>
+
+      <button
+        th:onclick="'window.location.href=\'' + @{/admin/avatar/form} + '\''"
+      >
+        Avatar
       </button>
 
       <button

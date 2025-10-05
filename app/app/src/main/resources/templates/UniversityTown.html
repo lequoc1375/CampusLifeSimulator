@@ -115,7 +115,7 @@
 
     async function loadPlayerStats() {
       try {
-        const response = await fetch("/player/api/stats/getByUser/[[${user.userId}]]");
+        const response = await fetch("/player/api/stats/me");
         if (!response.ok) throw new Error("API error");
 
         const stats = await response.json();

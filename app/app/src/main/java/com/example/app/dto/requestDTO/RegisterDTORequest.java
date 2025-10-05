@@ -35,6 +35,8 @@ public class RegisterDTORequest {
     )
     private String phone;
 
+    private String gender;
+
     public String getEmail() {
         return email;
     }
@@ -89,6 +91,14 @@ public class RegisterDTORequest {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
 }

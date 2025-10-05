@@ -70,7 +70,15 @@
     </div>
 
     <div class="avatar-section">
-      <div class="avatar-box"></div>
+      <div id="avatarBox" class="avatar-box">
+        <img class="layer" id="baseLayer" />
+        <img id="footLayer" class="layer" />
+        <img id="lowerLayer" class="layer" />
+        <img id="upperLayer" class="layer" />
+        <img id="fullLayer" class="layer" />
+        <img id="accessoriesLayer" class="layer" />
+      </div>
+
       <a th:href="@{/change-cloth}">
         <button class="change-cloth">Change Clothes</button>
       </a>
@@ -208,16 +216,16 @@
           body: JSON.stringify({ receiverId: parseInt(friendId) }),
         });
 
+        const text = await response.text();
+
         if (response.ok) {
-          document.getElementById("friendRequestStatus").innerText = "Friend request sent successfully.";
+          document.getElementById("friendRequestStatus").innerText = text;
           document.getElementById("previewFriendInfo").innerHTML = "";
-          loadSentRequests();
         } else {
-          const err = await response.text();
-          document.getElementById("friendRequestStatus").innerText = `${err}`;
+          document.getElementById("friendRequestStatus").innerText = text;
         }
       } catch (error) {
-        console.error(error);
+        console.error("Error sending request:", error);
         document.getElementById("friendRequestStatus").innerText = "Something went wrong.";
       }
     }
@@ -236,7 +244,6 @@
       document.getElementById("btnRequestList").classList.add("active-tab");
 
       loadPendingRequests();
-      loadSentRequests();
     }
 
     async function loadFriends() {
@@ -317,16 +324,18 @@
           method: "POST"
         });
 
+        const text = await response.text(); 
+
         if (response.ok) {
-          alert("Friend request accepted.");
-          showRequestList();
-          loadFriends();
+          alert(text || "Friend request accepted."); 
+          await showRequestList();
+          await loadFriends();
         } else {
-          alert("Failed to accept the request.");
+          alert("Failed to accept the request: " + text);
         }
       } catch (error) {
-        console.error(error);
-        alert("Server error.");
+        console.error("❌ Fetch error:", error);
+        alert("Server error. Please try again later.");
       }
     }
 
@@ -336,8 +345,10 @@
           method: "POST"
         });
 
+        const text = await response.text();
+
         if (response.ok) {
-          alert("Friend request declined.");
+          alert(text || "Friend request declined.");
           showRequestList();
         } else {
           alert("Failed to decline the request.");
@@ -564,13 +575,53 @@
       });
     }
 
+    async function loadPlayerAvatar() {
+      try {
+        const response = await fetch("/player/api/avatar/current");
+        if (!response.ok) {
+          console.error("Failed to fetch avatar:", response.status);
+          return;
+        }
+
+        const avatar = await response.json();
+        const baseLayer = document.getElementById("baseLayer");
+
+        // ✅ Hiển thị đúng base body theo giới tính đã lưu
+        if (avatar.baseBody === "male") {
+          baseLayer.src = "/images/BaseBodyMale.png";
+        } else if (avatar.baseBody === "female") {
+          baseLayer.src = "/images/BaseBodyFemale.png";
+        } else {
+          baseLayer.src = "/images/BaseBodyMale.png"; // fallback mặc định
+        }
+
+        // ✅ Các layer khác nếu có URL (từ Cloudinary)
+        if (avatar.footImageUrl)
+          document.getElementById("footLayer").src = avatar.footImageUrl;
+
+        if (avatar.lowerImageUrl)
+          document.getElementById("lowerLayer").src = avatar.lowerImageUrl;
+
+        if (avatar.upperImageUrl)
+          document.getElementById("upperLayer").src = avatar.upperImageUrl;
+
+        if (avatar.fullImageUrl)
+          document.getElementById("fullLayer").src = avatar.fullImageUrl;
+
+        if (avatar.accessoryImageUrl)
+          document.getElementById("accessoriesLayer").src = avatar.accessoryImageUrl;
+
+      } catch (err) {
+        console.error("Error while loading player avatar:", err);
+      }
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       loadPlayerStats();
       loadFriends();
       connectWebSocket();
+      loadPlayerAvatar(); 
     });
-
-
   </script>
 
   <script>
@@ -638,5 +689,6 @@
     // Lần đầu load
     renderCalendar(currentDate);
   </script>
+
 </body>
 </html>

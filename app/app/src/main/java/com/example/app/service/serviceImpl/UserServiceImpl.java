@@ -2,6 +2,7 @@ package com.example.app.service.serviceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,8 @@ import com.example.app.entity.User;
 import com.example.app.entity.User.Role;
 import com.example.app.repository.UserRepo;
 import com.example.app.service.serviceInterface.UserService;
+
+import org.springframework.security.core.Authentication;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -72,6 +75,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUsername(String username) {
+        return userRepo.findByUsername(username);
+    }
+
+    @Override
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        String username = authentication.getName();
         return userRepo.findByUsername(username);
     }
 }

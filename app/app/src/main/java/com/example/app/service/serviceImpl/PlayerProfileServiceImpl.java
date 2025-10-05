@@ -15,7 +15,7 @@ public class PlayerProfileServiceImpl implements PlayerProfileService {
     PlayerProfileRepo playerProfileRepo;
 
     @Override
-    public boolean registerProfile(String firstname, String lastname, String email, String phone, User user) {
+    public boolean registerProfile(String firstname, String lastname, String gender, String email, String phone, User user) {
         if(playerProfileRepo.findByEmail(email) != null || playerProfileRepo.findByPhone(phone) != null) {
             return false;
         }
@@ -23,6 +23,7 @@ public class PlayerProfileServiceImpl implements PlayerProfileService {
         PlayerProfile playerProfile = new PlayerProfile();
         playerProfile.setFirstname(firstname);
         playerProfile.setLastname(lastname);
+        playerProfile.setGender(gender);
         playerProfile.setPhone(phone);
         playerProfile.setEmail(email);
         playerProfile.setUser(user);

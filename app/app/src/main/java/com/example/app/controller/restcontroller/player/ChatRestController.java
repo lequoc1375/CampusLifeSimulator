@@ -77,7 +77,6 @@ public class ChatRestController {
         return ResponseEntity.ok(response);
     }
 
-    // Lấy tất cả conversation của 1 user
     @GetMapping("/conversations/{userId}")
     public List<Map<String, Object>> getAllConversations(@PathVariable int userId) {
         User user = userRepo.findByUserId(userId);
@@ -104,7 +103,6 @@ public class ChatRestController {
         return result;
     }
 
-    // Lấy message history
     @GetMapping("/conversations/{conversationId}/messages")
     public List<ChatMessageDTOResponse> getMessages(
             @PathVariable Long conversationId,
