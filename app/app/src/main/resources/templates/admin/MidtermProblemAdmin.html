@@ -69,9 +69,9 @@
         <label>Order:</label><br />
         <input type="number" id="updateOrder" required /><br /><br />
         <label>Question Image:</label><br />
-        <input type="text" id="updateQuestionImage" required /><br /><br />
+        <input type="file" id="updateQuestionImage" /><br /><br />
         <label>Answer Image:</label><br />
-        <input type="text" id="updateAnswerImage" required /><br /><br />
+        <input type="file" id="updateAnswerImage" /><br /><br />
         <label>Answer:</label><br />
         <input type="text" id="updateAnswer" required /><br /><br />
         <button type="submit">Save</button>
@@ -106,8 +106,8 @@
           row.innerHTML = `
           <td><select name="midterm_id" required>${options}</select></td>
           <td><input type="number" name="problem_order" required /></td>
-          <td><input type="text" name="question_image" required /></td>
-          <td><input type="text" name="answer_image" required /></td>
+          <td><input type="file" name="question_image" accept="image/*" required /></td>
+          <td><input type="file" name="answer_image" accept="image/*" required /></td>
           <td><input type="text" name="answer" required /></td>
         `
           table.appendChild(row)
@@ -139,33 +139,29 @@
 
       document
         .getElementById('formProblem')
-        .addEventListener('submit', async (e) => {
+        .addEventListener('submit', async function (e) {
           e.preventDefault()
           const rows = document.querySelectorAll('#problemTable tr')
-          const problems = []
-
-          rows.forEach((row) => {
-            const inputs = row.querySelectorAll('input, select')
-            const problem = {
-              midtermId: parseInt(inputs[0].value),
-              problemOrder: parseInt(inputs[1].value),
-              questionImage: inputs[2].value,
-              answerImage: inputs[3].value,
-              answer: inputs[4].value,
-            }
-            problems.push(problem)
-          })
-
           try {
-            for (const p of problems) {
+            for (const row of rows) {
+              const inputs = row.querySelectorAll('input, select')
+              const formData = new FormData()
+
+              formData.append('midterm_id', inputs[0].value)
+              formData.append('problem_order', inputs[1].value)
+              formData.append('question_image', inputs[2].files[0])
+              formData.append('answer_image', inputs[3].files[0])
+              formData.append('answer', inputs[4].value)
+
               const res = await fetch('/admin/api/midterm-problem/add', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(p),
+                body: formData,
               })
-              if (!res.ok) throw new Error('Add failed')
+              if (!res.ok) throw new Error('Error adding problem')
             }
+
             await loadProblems()
+            alert('Problems added successfully!')
           } catch (err) {
             console.error(err)
             alert(err.message)
@@ -209,10 +205,10 @@
 
         document.getElementById('updateProblemId').value = problem.midProblemId
         document.getElementById('updateOrder').value = problem.problemOrder
-        document.getElementById('updateQuestionImage').value =
-          problem.questionImage
-        document.getElementById('updateAnswerImage').value = problem.answerImage
         document.getElementById('updateAnswer').value = problem.answer
+
+        document.getElementById('updateQuestionImage').value = ''
+        document.getElementById('updateAnswerImage').value = ''
 
         const select = document.getElementById('updateMidtermId')
         select.innerHTML = ''
@@ -235,31 +231,48 @@
         .getElementById('updateForm')
         .addEventListener('submit', async function (e) {
           e.preventDefault()
-          const updated = {
-            midProblemId: document.getElementById('updateProblemId').value,
-            midtermId: parseInt(
-              document.getElementById('updateMidtermId').value
-            ),
-            problemOrder: parseInt(
-              document.getElementById('updateOrder').value
-            ),
-            questionImage: document.getElementById('updateQuestionImage').value,
-            answerImage: document.getElementById('updateAnswerImage').value,
-            answer: document.getElementById('updateAnswer').value,
+
+          const formData = new FormData()
+          formData.append(
+            'midterm_id',
+            document.getElementById('updateMidtermId').value
+          )
+          formData.append(
+            'problem_order',
+            document.getElementById('updateOrder').value
+          )
+          formData.append(
+            'answer',
+            document.getElementById('updateAnswer').value
+          )
+
+          const questionFile = document.getElementById('updateQuestionImage')
+            .files[0]
+          const answerFile =
+            document.getElementById('updateAnswerImage').files[0]
+
+          if (questionFile) {
+            formData.append('question_image', questionFile)
+          }
+          if (answerFile) {
+            formData.append('answer_image', answerFile)
           }
 
           try {
             const res = await fetch(
-              `/admin/api/midterm-problem/update/${updated.midProblemId}`,
+              `/admin/api/midterm-problem/update/${
+                document.getElementById('updateProblemId').value
+              }`,
               {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updated),
+                body: formData,
               }
             )
+
             if (!res.ok) throw new Error('Update failed')
             await loadProblems()
             closeModal()
+            alert('Updated successfully!')
           } catch (err) {
             console.error(err)
             alert(err.message)

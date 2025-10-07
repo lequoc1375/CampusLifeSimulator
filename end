@@ -1,0 +1,64 @@
+[33m3d4f8d7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mstudy[m[33m, [m[1;31morigin/study[m[33m)[m Checked, need recheck
+[33mac46bd9[m Final v1, non-test
+[33m75a6798[m Update upload image  cloudinary in problem lesson, adding logic stress and energy user
+[33m9a99c3b[m Midterm v1.0.0
+[33me07cc99[m Not fixed UI, complete function study
+[33mcbc0bfe[m Update v1 learning lesson
+[33me1d5cc2[m New branch
+[33m390c4a2[m[33m ([m[1;31morigin/feature/study[m[33m)[m Small fix
+[33m3dd3750[m Feat: implement course registration design
+[33mb52f0ee[m[33m ([m[1;31morigin/admin_cloth[m[33m, [m[1;32madmin_cloth[m[33m)[m Update shop accessories
+[33m4c22c55[m Update shop of full, lower, foot
+[33m4416560[m Update shop cloth
+[33mb1c59dd[m Admin cloth
+[33ma591d14[m Merge pull request #19 from lequoc1375/security
+[33maea8d27[m[33m ([m[1;31morigin/security[m[33m, [m[1;32msecurity[m[33m)[m Merge complete
+[33mb61bef7[m[33m ([m[1;31morigin/feature/homepage-ui-update[m[33m)[m Feat(friend): change search from userId to username and update UI
+[33m1a25bf9[m Merge remote-tracking branch 'origin/develop' into feature/homepage-ui-update
+[33m9d6ace5[m Delete 2FA
+[33m79294a0[m[33m ([m[1;32madmin-pet[m[33m)[m 2FA, SPRING SECURITY
+[33maaef95d[m Merge pull request #18 from lequoc1375/admin-pet
+[33m64bb859[m Update homepage UI layout
+[33m77072c5[m[33m ([m[1;31morigin/admin-pet[m[33m)[m Floor
+[33mc914f45[m Merge pull request #17 from lequoc1375/admin-pet
+[33m922a71e[m Pet, Wall, DecorItems
+[33mff4659a[m Merge pull request #16 from lequoc1375/admin-pet
+[33m2686133[m Merge success
+[33m796ee09[m[33m ([m[1;31morigin/feature/friend-system[m[33m)[m Fix message saving logic and improve chat box UI
+[33ma03ba63[m Feature: Chatting with friend in current session
+[33m1c3ca3b[m Merge pull request #15 from lequoc1375/admin-pet
+[33m8bc6bd3[m Pet complete
+[33mc2af28c[m Merge pull request #14 from lequoc1375/admin-food
+[33mfbe0d33[m[33m ([m[1;31morigin/admin-food[m[33m, [m[1;32madmin-food[m[33m)[m Food and meal complete
+[33m6b5a42f[m refactor: simplify and clarify logic for friend search and request handling
+[33med5ed86[m[33m ([m[1;31morigin/admin-job[m[33m, [m[1;32madmin-job[m[33m)[m Complete all job, job requirement, requirement
+[33md11215e[m Job complete
+[33m489e764[m Merge branch 'develop' into feature/friend-system :wq
+[33mb8a32a5[m Merge pull request #13 from lequoc1375/admin-final
+[33m4bf69e6[m[33m ([m[1;31morigin/admin-final[m[33m, [m[1;32madmin-final[m[33m)[m Final and final problem completed
+[33m4fbacf8[m Feature: Auto add friend
+[33md678df9[m Implement friend system and basic UI for friend panel
+[33mcc7bc02[m Merge pull request #11 from lequoc1375/admin-midterm
+[33maaa42f1[m[33m ([m[1;31morigin/admin-midterm[m[33m, [m[1;32madmin-midterm[m[33m)[m Complete midterm and midterm problem
+[33m34dcb72[m Merge pull request #10 from lequoc1375/feature/player-stats-homepage
+[33m8a717c0[m[33m ([m[1;31morigin/feature/player-stats-homepage[m[33m, [m[1;32mfeature/player-stats-homepage[m[33m)[m Merge player stats to homepage
+[33m7569a9c[m Feature: Add player stats feature and display on homepage
+[33m4f011e3[m Merge pull request #9 from lequoc1375/admin-problem
+[33mc53d2ed[m[33m ([m[1;31morigin/admin-problem[m[33m, [m[1;32madmin-problem[m[33m)[m Admin problem is done. Checked completed
+[33m544ca52[m Merge pull request #8 from lequoc1375/admin-lesson
+[33md61872a[m[33m ([m[1;31morigin/admin-lesson[m[33m, [m[1;32madmin-lesson[m[33m)[m After checking done
+[33m7c0f7dc[m Merge pull request #6 from lequoc1375/admin-lesson
+[33m51098c2[m Subject add done
+[33m3ed2974[m Merge pull request #5 from lequoc1375/admin-lesson
+[33m1ef005d[m Update lesson
+[33m6b45f6d[m Merge pull request #4 from lequoc1375/admin-lesson
+[33mbb17619[m ADD,DELETE,LIST Lesson, no update version
+[33m1a01fcb[m Merge register feature
+[33m4e7212f[m Not complete lesson
+[33me2b6834[m[33m ([m[1;31morigin/feature/refactor-register[m[33m)[m Refactor: serviceImpl & register controller
+[33mf0d4b73[m[33m ([m[1;32mdevelop[m[33m)[m Merge pull request #2 from lequoc1375/feature-login
+[33m1762150[m[33m ([m[1;31morigin/feature-login[m[33m, [m[1;32mfeature-login[m[33m)[m Login and register
+[33m073ec51[m Merge pull request #1 from lequoc1375/feature-login
+[33m70fc5a2[m Update login
+[33md61e38d[m Login and register
+[33m01cf62e[m[33m ([m[1;31morigin/master[m[33m, [m[1;32mmaster[m[33m)[m Kick-off

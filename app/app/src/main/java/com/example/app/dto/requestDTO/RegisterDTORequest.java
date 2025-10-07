@@ -11,16 +11,10 @@ public class RegisterDTORequest {
     @NotBlank(message = "Not valid blank")
     private String username;
 
-    @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d@$!%*?&]{8,20}$",
-        message = "Wrong form password"
-    )
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d@$!%*?&]{8,20}$", message = "Wrong form password")
     private String password;
 
-    @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d@$!%*?&]{8,20}$",
-        message = "Wrong form password"
-    )
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d@$!%*?&]{8,20}$", message = "Wrong form password")
     private String confirmPassword;
 
     @NotBlank(message = "First name cannot be blank")
@@ -29,11 +23,10 @@ public class RegisterDTORequest {
     @NotBlank(message = "Last name cannot be blank")
     private String lastname;
 
-    @Pattern(
-        regexp = "^\\+?\\d{9,15}$",
-        message = "Invalid phone number"
-    )
+    @Pattern(regexp = "^\\+?\\d{9,15}$", message = "Invalid phone number")
     private String phone;
+
+    private String gender;
 
     public String getEmail() {
         return email;
@@ -89,6 +82,14 @@ public class RegisterDTORequest {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
 }

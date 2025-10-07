@@ -2,15 +2,18 @@ package com.example.app.dto.responseDTO;
 
 import java.util.List;
 
+import com.example.app.entity.FinalProblem;
+
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-
 @NoArgsConstructor
 @AllArgsConstructor
 public class FinalDTOResponse {
     private Integer finalId;
     private Integer subjectId;
     private String subject_name;
+    private List<FinalProblem> problems;
+    
 
     public String getSubject_name() {
         return subject_name;
@@ -21,7 +24,6 @@ public class FinalDTOResponse {
     }
 
     private Integer time;
-    private List<FinalProblemDTOResponse> problems;
 
     public Integer getFinalId() {
         return finalId;
@@ -47,11 +49,11 @@ public class FinalDTOResponse {
         this.time = time;
     }
 
-    public List<FinalProblemDTOResponse> getProblems() {
+    public List<FinalProblem> getProblems() {
         return problems;
     }
 
-    public void setProblems(List<FinalProblemDTOResponse> problems) {
+    public void setProblems(List<FinalProblem> problems) {
         this.problems = problems;
     }
 

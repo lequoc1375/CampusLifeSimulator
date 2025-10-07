@@ -1,13 +1,14 @@
 package com.example.app.service.serviceImpl;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.app.dto.mapper.MidtermProblemMapper;
-import com.example.app.dto.requestDTO.MidtermProblemDTORequest;
 import com.example.app.dto.responseDTO.MidtermDTOResponse;
 import com.example.app.dto.responseDTO.MidtermProblemDTOResponse;
 import com.example.app.entity.Midterm;
@@ -32,6 +33,9 @@ public class MidtermProblemServiceImpl implements MidtermProblemService {
     @Autowired
     private MidtermProblemMapper midtermProblemMapper;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     @Override
     public List<MidtermProblemDTOResponse> getAllMidtermProblems() {
         return midtermProblemRepo.findAll()
@@ -48,33 +52,6 @@ public class MidtermProblemServiceImpl implements MidtermProblemService {
     }
 
     @Override
-    public void createMidtermProblem(MidtermProblemDTORequest request) {
-        MidtermProblem entity = midtermProblemMapper.convertToMidtermProblem(request);
-        Midterm midterm = midtermRepo.findById(request.getMidtermId())
-                .orElseThrow(() -> new RuntimeException("Midterm 4.1 not found"));
-
-        entity.setMidterm(midterm);
-        midtermProblemRepo.save(entity);
-    }
-
-    @Override
-    public void updateMidtermProblem(int id, MidtermProblemDTORequest request) {
-        MidtermProblem entity = midtermProblemRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Midterm Problem 4.2 not exist"));
-
-        entity.setProblemOrder(request.getProblemOrder());
-        entity.setQuestionImage(request.getQuestionImage());
-        entity.setAnswerImage(request.getAnswerImage());
-        entity.setAnswer(request.getAnswer());
-
-        Midterm midterm = midtermRepo.findById(request.getMidtermId())
-                .orElseThrow(() -> new RuntimeException("Midterm 4.2 not found"));
-        entity.setMidterm(midterm);
-
-        midtermProblemRepo.save(entity);
-    }
-
-    @Override
     public void deleteMidtermProblem(int id) {
         MidtermProblem entity = midtermProblemRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Midterm Problem 4.3 not found"));
@@ -83,7 +60,73 @@ public class MidtermProblemServiceImpl implements MidtermProblemService {
 
     @Override
     public List<MidtermProblem> getAllMidtermProblemsByMidtermId(int midtermId) {
-        MidtermDTOResponse midterm  = midtermService.getMidterm(midtermId);
-        return  midterm.getProblems();
+        MidtermDTOResponse midterm = midtermService.getMidterm(midtermId);
+        return midterm.getProblems();
+    }
+
+    @Override
+    public void createMidtermProblem(int midtermId, int problemOrder, String answer, MultipartFile questionImage,
+            MultipartFile answerImage) {
+        Midterm midterm = midtermRepo.findById(midtermId)
+                .orElseThrow(() -> new RuntimeException("Midterm not found"));
+
+        MidtermProblem entity = new MidtermProblem();
+        entity.setMidterm(midterm);
+        entity.setProblemOrder(problemOrder);
+        entity.setAnswer(answer);
+
+        if (questionImage != null && !questionImage.isEmpty()) {
+            try {
+                String url = cloudinaryService.uploadFile(questionImage);
+                entity.setQuestionImage(url);
+            } catch (IOException ex) {
+                throw new RuntimeException("Upload question image failed", ex);
+            }
+        }
+
+        if (answerImage != null && !answerImage.isEmpty()) {
+            try {
+                String url = cloudinaryService.uploadFile(answerImage);
+                entity.setAnswerImage(url);
+            } catch (IOException ex) {
+                throw new RuntimeException("Upload answer image failed", ex);
+            }
+        }
+
+        midtermProblemRepo.save(entity);
+    }
+
+    @Override
+    public void updateMidtermProblem(int id, int midtermId, int problemOrder, String answer,
+            MultipartFile questionImage, MultipartFile answerImage) {
+        MidtermProblem entity = midtermProblemRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Midterm problem not found"));
+
+        Midterm midterm = midtermRepo.findById(midtermId)
+                .orElseThrow(() -> new RuntimeException("Midterm not found"));
+
+        entity.setMidterm(midterm);
+        entity.setProblemOrder(problemOrder);
+        entity.setAnswer(answer);
+
+        if (questionImage != null && !questionImage.isEmpty()) {
+            try {
+                String url = cloudinaryService.uploadFile(questionImage);
+                entity.setQuestionImage(url);
+            } catch (IOException ex) {
+                throw new RuntimeException("Upload question image failed", ex);
+            }
+        }
+
+        if (answerImage != null && !answerImage.isEmpty()) {
+            try {
+                String url = cloudinaryService.uploadFile(answerImage);
+                entity.setAnswerImage(url);
+            } catch (IOException ex) {
+                throw new RuntimeException("Upload answer image failed", ex);
+            }
+        }
+
+        midtermProblemRepo.save(entity);
     }
 }

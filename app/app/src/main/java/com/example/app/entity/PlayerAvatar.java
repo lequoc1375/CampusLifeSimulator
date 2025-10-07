@@ -1,64 +1,73 @@
 package com.example.app.entity;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="player_avatar")
+@Table(name = "player_avatar")
 public class PlayerAvatar {
 
     @Id
-    private int player_avatar_id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "player_avatar_id")
+    private int playerAvatarId;
 
-    @Column(name = "cloth_id")
-    private int cloth_id;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "base_body", nullable = false)
+    private BaseBody baseBody;
 
-    @Column(name = "accessory_id")
-    private int accessory_id;
+    @ManyToOne
+    @JoinColumn(name = "cloth_id")
+    private Clothing clothing;
 
-    @Column(name = "color")
-    private String color;
+    @ManyToOne
+    @JoinColumn(name = "accessory_id")
+    private Accessory accessories;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public int getPlayer_avatar_id() {
-        return player_avatar_id;
+    // --- Getters & Setters ---
+    public int getPlayerAvatarId() {
+        return playerAvatarId;
     }
 
-    public void setPlayer_avatar_id(int player_avatar_id) {
-        this.player_avatar_id = player_avatar_id;
+    public void setPlayerAvatarId(int playerAvatarId) {
+        this.playerAvatarId = playerAvatarId;
     }
 
-    public int getCloth_id() {
-        return cloth_id;
+    public BaseBody getBaseBody() {
+        return baseBody;
     }
 
-    public void setCloth_id(int cloth_id) {
-        this.cloth_id = cloth_id;
+    public void setBaseBody(BaseBody baseBody) {
+        this.baseBody = baseBody;
     }
 
-    public int getAccessory_id() {
-        return accessory_id;
+    public Clothing getClothing() {
+        return clothing;
     }
 
-    public void setAccessory_id(int accessory_id) {
-        this.accessory_id = accessory_id;
+    public void setClothing(Clothing clothing) {
+        this.clothing = clothing;
     }
 
-    public String getColor() {
-        return color;
+    public Accessory getAccessories() {
+        return accessories;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setAccessories(Accessory accessories) {
+        this.accessories = accessories;
     }
 
     public User getUser() {
@@ -69,5 +78,9 @@ public class PlayerAvatar {
         this.user = user;
     }
 
-    
+    // --- Enum cho cột ENUM('male', 'female') ---
+    public enum BaseBody {
+        male,
+        female
+    }
 }

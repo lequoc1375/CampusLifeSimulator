@@ -15,57 +15,56 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.app.entity.Midterm;
-import com.example.app.entity.MidtermProblem;
+import com.example.app.entity.FinalExam;
+import com.example.app.entity.FinalProblem;
 import com.example.app.entity.Subject;
-import com.example.app.entity.SubjectSelectedMidterm;
-import com.example.app.repository.MidtermRepo;
+import com.example.app.entity.SubjectSelectedFinal;
+import com.example.app.repository.FinalRepo;
 import com.example.app.repository.SubjectRegisterRepo;
-import com.example.app.repository.SubjectSelectedMidtermRepo;
-import com.example.app.service.serviceInterface.MidtermProblemService;
+import com.example.app.repository.SubjectSelectedFinalRepo;
+import com.example.app.service.serviceInterface.FinalProblemService;
 import com.example.app.service.serviceInterface.PlayerStatsService;
-import com.example.app.service.serviceInterface.SubjectSelectedMidtermService;
+import com.example.app.service.serviceInterface.SubjectSelectedFinalService;
 import com.example.app.service.serviceInterface.UserCurriculumService;
 
 @RestController
-@RequestMapping("/player/api/midterm")
-public class MidtermPlayerRestController {
+@RequestMapping("/player/api/final")
+public class FinalPlayerRestController {
 
     @Autowired
-    private MidtermProblemService midtermProblemService;
+    private FinalProblemService finalProblemService;
 
     @Autowired
-    private SubjectSelectedMidtermService subjectSelectedMidtermService;
+    private SubjectSelectedFinalService subjectSelectedFinalService;
 
     @Autowired
     private SubjectRegisterRepo subjectRegisterRepo;
 
     @Autowired
-    private MidtermRepo midtermRepo;
+    private FinalRepo finalRepo;
 
     @Autowired
-    private SubjectSelectedMidtermRepo subjectSelectedMidtermRepo;
+    private SubjectSelectedFinalRepo subjectSelectedFinalRepo;
 
     @Autowired
     private UserCurriculumService userCurriculumService;
 
-
     @Autowired
     private PlayerStatsService playerStatsService;
 
-    @PostMapping("/submitMidtermQuiz/{userCurriculumId}/{subjectId}")
+    @PostMapping("/submitFinalQuiz/{userCurriculumId}/{subjectId}")
     public ResponseEntity<?> submitQuiz(@RequestBody Map<String, String> answers,
-            @RequestParam("midtermId") Integer midtermId, @PathVariable Integer userCurriculumId,
+            @RequestParam("finalId") Integer finalId, @PathVariable Integer userCurriculumId,
             @PathVariable Integer subjectId) {
 
-        List<MidtermProblem> problems = midtermProblemService.getAllMidtermProblemsByMidtermId(midtermId);
+        List<FinalProblem> problems = finalProblemService.getAllFinalProblemsByFinalId(finalId);
         if (problems.isEmpty()) {
             return ResponseEntity.badRequest()
                     .body(Map.of("status", "error", "message", "Not found problem"));
         }
         Map<String, String> results = new HashMap<>();
         double countScore = 0;
-        for (MidtermProblem problem : problems) {
+        for (FinalProblem problem : problems) {
             String problemOrder = String.valueOf(problem.getProblemOrder());
             String submittedAnswer = answers.get(problemOrder);
             String correctAnswer = problem.getAnswer();
@@ -78,53 +77,59 @@ public class MidtermPlayerRestController {
             }
         }
         System.out.println("Score" + countScore);
-        subjectSelectedMidtermService.updateScore(midtermId, subjectId, userCurriculumId, countScore);
-        subjectSelectedMidtermService.updateExamFinishedStatus(midtermId, subjectId, userCurriculumId);
-        subjectSelectedMidtermService.updateAvaiStatus(midtermId, subjectId, userCurriculumId);
+        subjectSelectedFinalService.updateScore(finalId, subjectId, userCurriculumId, countScore);
+        subjectSelectedFinalService.updateExamFinishedStatus(finalId, subjectId, userCurriculumId);
+        subjectSelectedFinalService.updateAvaiStatus(finalId, subjectId, userCurriculumId);
         playerStatsService.updateStress(userCurriculumService.getUserIdByCurriculumId(userCurriculumId),5);
         return ResponseEntity.ok(results);
     }
 
-    @GetMapping("/check/{midtermId}/{userCurriculumId}/{subjectId}")
-    public Map<String, String> getAvaiStatus(@PathVariable int midtermId, @PathVariable int userCurriculumId,
+    @GetMapping("/check/{finalId}/{userCurriculumId}/{subjectId}")
+    public Map<String, String> getAvaiStatus(@PathVariable int finalId, @PathVariable int userCurriculumId,
             @PathVariable int subjectId) {
 
-        return subjectSelectedMidtermService.getAvaiStatus(midtermId, subjectId, userCurriculumId);
+        return subjectSelectedFinalService.getAvaiStatus(finalId, subjectId, userCurriculumId);
     }
 
-    @GetMapping("/checkFinished/{midtermId}/{userCurriculumId}/{subjectId}")
-    public Map<String, String> getExamStatus(@PathVariable int midtermId, @PathVariable int userCurriculumId,
+    @GetMapping("/checkFinished/{finalId}/{userCurriculumId}/{subjectId}")
+    public Map<String, String> getExamStatus(@PathVariable int finalId, @PathVariable int userCurriculumId,
             @PathVariable int subjectId) {
 
-        return subjectSelectedMidtermService.getFinishedStatus(midtermId, subjectId, userCurriculumId);
+        return subjectSelectedFinalService.getFinishedStatus(finalId, subjectId, userCurriculumId);
     }
 
     @GetMapping("/random/{subjectId}/{userCurriculumId}")
-    public ResponseEntity<Midterm> getRandomMidterm(
+    public ResponseEntity<FinalExam> getRandomFinal(
             @PathVariable Integer subjectId,
             @PathVariable Integer userCurriculumId) {
 
         Integer subjectRegisterId = subjectRegisterRepo
                 .findIdBySubjectIdAndUserCurriculumId(subjectId, userCurriculumId);
-
-        SubjectSelectedMidterm sbm = subjectSelectedMidtermService
+                System.out.println("/n");
+        System.out.println(subjectRegisterId);
+        System.out.println("/n");
+        SubjectSelectedFinal sbf = subjectSelectedFinalService
                 .getBySubjectRegisterId(subjectRegisterId);
-
-        if (sbm.getMidterm() != null) {
-            return ResponseEntity.ok(sbm.getMidterm());
+                System.out.println("/n");
+                System.out.println("/n");
+        System.out.println(sbf);
+        System.out.println("/n");
+        System.out.println("/n");
+        if (sbf.getFinalExam() != null) {
+            return ResponseEntity.ok(sbf.getFinalExam());
         }
 
-        Subject subject = sbm.getSubjectRegister().getSubject();
-        List<Midterm> midterms = midtermRepo.findBySubject(subject);
+        Subject subject = sbf.getSubjectRegister().getSubject();
+        List<FinalExam> finals = finalRepo.findBySubject(subject);
 
-        if (midterms == null || midterms.isEmpty()) {
+        if (finals == null || finals.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        Midterm chosen = midterms.get(new Random().nextInt(midterms.size()));
+        FinalExam chosen = finals.get(new Random().nextInt(finals.size()));
 
-        sbm.setMidterm(chosen);
-        subjectSelectedMidtermRepo.save(sbm);
+        sbf.setFinalExam(chosen);
+        subjectSelectedFinalRepo.save(sbf);
 
         return ResponseEntity.ok(chosen);
     }

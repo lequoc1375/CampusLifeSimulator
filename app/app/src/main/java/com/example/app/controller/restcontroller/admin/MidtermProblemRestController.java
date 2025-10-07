@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.example.app.dto.requestDTO.MidtermProblemDTORequest;
 import com.example.app.dto.responseDTO.MidtermProblemDTOResponse;
 import com.example.app.service.serviceInterface.MidtermProblemService;
 
@@ -34,13 +34,24 @@ public class MidtermProblemRestController {
     }
 
     @PostMapping("/add")
-    public void addMidtermProblem(@RequestBody MidtermProblemDTORequest request) {
-        midtermProblemService.createMidtermProblem(request);
+    public void addMidtermProblem(
+            @RequestParam("midterm_id") int midtermId,
+            @RequestParam("problem_order") int problemOrder,
+            @RequestParam("answer") String answer,
+            @RequestParam("question_image") MultipartFile questionImage,
+            @RequestParam("answer_image") MultipartFile answerImage) {
+        midtermProblemService.createMidtermProblem(midtermId, problemOrder, answer, questionImage, answerImage);
     }
 
     @PutMapping("/update/{id}")
-    public void updateMidtermProblem(@PathVariable int id, @RequestBody MidtermProblemDTORequest request) {
-        midtermProblemService.updateMidtermProblem(id, request);
+    public void updateMidtermProblem(
+            @PathVariable int id,
+            @RequestParam("midterm_id") int midtermId,
+            @RequestParam("problem_order") int problemOrder,
+            @RequestParam("answer") String answer,
+            @RequestParam(value = "question_image", required = false) MultipartFile questionImage,
+            @RequestParam(value = "answer_image", required = false) MultipartFile answerImage) {
+        midtermProblemService.updateMidtermProblem(id, midtermId, problemOrder, answer, questionImage, answerImage);
     }
 
     @DeleteMapping("/delete/{id}")

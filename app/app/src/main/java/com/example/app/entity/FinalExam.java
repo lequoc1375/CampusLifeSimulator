@@ -2,6 +2,9 @@ package com.example.app.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,10 +35,23 @@ public class FinalExam {
 
     @ManyToOne
     @JoinColumn(name = "subject_id", referencedColumnName = "subject_id")
+     @JsonBackReference
     private Subject subject;
 
     @OneToMany(mappedBy = "finalExam", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FinalProblem> problems;
+
+    @OneToMany(mappedBy = "finalExam")
+    @JsonManagedReference
+    private List<SubjectSelectedFinal> subjectSelectedFinals;
+
+    public List<SubjectSelectedFinal> getSubjectSelectedFinals() {
+        return subjectSelectedFinals;
+    }
+
+    public void setSubjectSelectedFinals(List<SubjectSelectedFinal> subjectSelectedFinals) {
+        this.subjectSelectedFinals = subjectSelectedFinals;
+    }
 
     public Integer getFinalId() {
         return finalId;
