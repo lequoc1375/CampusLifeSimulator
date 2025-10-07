@@ -27,6 +27,9 @@ public class PlayerProfile {
     @Column(name = "lastname")
     private String lastname;
 
+    @Column(name = "gender")
+    private String gender;
+
     @Column(name = "phone")
     private String phone;
 
@@ -59,6 +62,14 @@ public class PlayerProfile {
 
     public String getLastname() {
         return lastname;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public void setLastname(String lastname) {

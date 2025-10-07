@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home page</title>
+    <title>Admin dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/AdminDashboard.css}" />
   </head>
   <body>
     <div class="btn-mod">
@@ -103,6 +104,12 @@
       </button>
 
       <button
+        th:onclick="'window.location.href=\'' + @{/admin/avatar/form} + '\''"
+      >
+        Avatar
+      </button>
+
+      <button
         th:onclick="'window.location.href=\'' + @{/admin/uppercloth/form} + '\''"
       >
         Upper Cloth
@@ -184,36 +191,6 @@
         th:onclick="'window.location.href=\'' + @{/admin/shopFootCloth/form} + '\''"
       >
         Shop Foot cloth
-      </button>
-
-      <button
-        th:onclick="'window.location.href=\'' + @{/admin/shopHeadAccessories/form} + '\''"
-      >
-        Shop Head Accessories
-      </button>
-
-      <button
-        th:onclick="'window.location.href=\'' + @{/admin/shopFaceAccessories/form} + '\''"
-      >
-        Shop Face Accessories
-      </button>
-
-      <button
-        th:onclick="'window.location.href=\'' + @{/admin/shopBackAccessories/form} + '\''"
-      >
-        Shop Back Accessories
-      </button>
-
-      <button
-        th:onclick="'window.location.href=\'' + @{/admin/shopFrontAccessories/form} + '\''"
-      >
-        Shop Front Accessories
-      </button>
-
-      <button
-        th:onclick="'window.location.href=\'' + @{/admin/shopGearAccessories/form} + '\''"
-      >
-        Shop Gear Accessories
       </button>
     </div>
   </body>

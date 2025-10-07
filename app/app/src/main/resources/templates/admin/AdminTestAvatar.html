@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Avatar Inventory</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      display: flex;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    /* Avatar Box */
+    #avatarContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #avatarBox {
+      width: 260px;
+      height: 500px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    /* Reset button */
+    #resetBtn {
+      padding: 8px 16px;
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    #resetBtn:hover {
+      background: #c0392b;
+    }
+
+    /* Inventory Panel */
+    #clothesPanel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: #e9edf5;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .tab:hover {
+      background: #d6dcec;
+    }
+
+    .tab.active {
+      background: #fff;
+      color: #333;
+      border-bottom: 3px solid #4a90e2;
+    }
+
+    /* Tab content */
+    .tab-content {
+      flex: 1;
+      display: none;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Clothes grid */
+    .cloth-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 15px;
+    }
+
+    .cloth-card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      cursor: pointer;
+      background: #fafafa;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cloth-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    }
+
+    .cloth-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+    }
+
+    .cloth-card p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <!-- Avatar -->
+  <div id="avatarContainer">
+    <div id="avatarBox">
+      <img th:src="@{/images/BaseBody.png}" class="layer" id="baseLayer" />
+      <img id="footLayer" class="layer" />
+      <img id="lowerLayer" class="layer" />
+      <img id="upperLayer" class="layer" />
+      <img id="fullLayer" class="layer" />
+      <img id="accessoriesLayer" class="layer" />
+    </div>
+    <button id="resetBtn">Reset Outfit</button>
+  </div>
+
+  <!-- Inventory -->
+  <div id="clothesPanel">
+    <div class="tabs">
+      <div class="tab active" data-tab="upper">Upper</div>
+      <div class="tab" data-tab="lower">Lower</div>
+      <div class="tab" data-tab="full">Full</div>
+      <div class="tab" data-tab="foot">Foot</div>
+      <div class="tab" data-tab="accessories">Accessories</div>
+    </div>
+
+    <div id="upperTab" class="tab-content active">
+      <div id="upperList" class="cloth-list"></div>
+    </div>
+    <div id="lowerTab" class="tab-content">
+      <div id="lowerList" class="cloth-list"></div>
+    </div>
+    <div id="fullTab" class="tab-content">
+      <div id="fullList" class="cloth-list"></div>
+    </div>
+    <div id="footTab" class="tab-content">
+      <div id="footList" class="cloth-list"></div>
+    </div>
+    <div id="accessoriesTab" class="tab-content">
+      <div id="accessoriesList" class="cloth-list"></div>
+    </div>
+  </div>
+
+  <script>
+  // Tab switching
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(tab.dataset.tab + "Tab").classList.add("active");
+    });
+  });
+
+  // Load clothes
+  async function loadClothes(type, containerId, layerId) {
+    const res = await fetch(`/admin/api/${type}`);
+    const items = await res.json();
+    const container = document.getElementById(containerId);
+    items.forEach(cloth => {
+      const card = document.createElement("div");
+      card.className = "cloth-card";
+      card.innerHTML = `
+        <img src="${cloth.imageUrl}" alt="${cloth.name}" />
+        <p>${cloth.name}</p>
+      `;
+      card.addEventListener("click", () => {
+        if (type === "fullcloth") {
+          // Khi mặc đồ full thì xoá upper + lower
+          document.getElementById("upperLayer").src = "";
+          document.getElementById("lowerLayer").src = "";
+          document.getElementById("fullLayer").src = cloth.imageUrl;
+        } else if (type === "uppercloth") {
+          // Khi mặc upper thì xoá full
+          document.getElementById("fullLayer").src = "";
+          document.getElementById("upperLayer").src = cloth.imageUrl;
+        } else if (type === "lowercloth") {
+          // Khi mặc lower thì xoá full
+          document.getElementById("fullLayer").src = "";
+          document.getElementById("lowerLayer").src = cloth.imageUrl;
+        } else {
+          // Các loại khác thì mặc bình thường
+          document.getElementById(layerId).src = cloth.imageUrl;
+        }
+      });
+      container.appendChild(card);
+    });
+  }
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    await loadClothes("uppercloth", "upperList", "upperLayer");
+    await loadClothes("lowercloth", "lowerList", "lowerLayer");
+    await loadClothes("fullcloth", "fullList", "fullLayer");
+    await loadClothes("footcloth", "footList", "footLayer");
+    await loadClothes("accessoriescloth", "accessoriesList", "accessoriesLayer");
+  });
+
+  // Reset outfit
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    ["upperLayer", "lowerLayer", "footLayer", "fullLayer", "accessoriesLayer"].forEach(id => {
+      document.getElementById(id).src = "";
+    });
+  });
+</script>
+</body>
+</html>
