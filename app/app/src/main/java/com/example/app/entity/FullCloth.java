@@ -23,7 +23,7 @@ public class FullCloth {
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "image", length = 255)
+    @Column(name = "image_url", length = 255)
     private String image;
 
     @Column(name = "price", precision = 10)

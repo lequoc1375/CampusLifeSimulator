@@ -37,7 +37,7 @@ public class PlayerAvatar {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // --- Getters & Setters ---
+
     public int getPlayerAvatarId() {
         return playerAvatarId;
     }
@@ -78,7 +78,6 @@ public class PlayerAvatar {
         this.user = user;
     }
 
-    // --- Enum cho cột ENUM('male', 'female') ---
     public enum BaseBody {
         male,
         female

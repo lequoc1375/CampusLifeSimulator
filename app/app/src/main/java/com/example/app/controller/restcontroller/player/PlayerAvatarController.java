@@ -27,7 +27,7 @@ public class PlayerAvatarController {
         if (currentUser == null) {
             throw new RuntimeException("User not logged in");
         }
-
+        System.out.println(currentUser.getUserId());
         PlayerAvatar avatar = playerAvatarService.getAvatarEntityByUserId(currentUser.getUserId());
         if (avatar == null) {
             throw new RuntimeException("Avatar not found for user");
