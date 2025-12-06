@@ -1,5 +1,7 @@
 package com.example.app.controller.pagecontroller.player;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -55,7 +57,7 @@ public class RegisterController {
             return "Register";
         }
 
-        playerStatsService.create(user, 18, 150.0, 100, 100, 100, 0);
+        playerStatsService.create(user, 18, new BigDecimal("100.00"), 100, 100, 100, 0);
         userCurriculumService.create(user, 0, 0);
 
         PlayerAvatar avatar = new PlayerAvatar();

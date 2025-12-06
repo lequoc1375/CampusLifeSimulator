@@ -5,10 +5,9 @@ package com.example.app.dto.responseDTO;
 public class LowerClothResponseDTO {
     private Integer lowerId;
     private String name;
-    private String image;
     private Double price;
     private String categories;
-
+    private String imageUrl;
 
 
     public String getName() {
@@ -17,14 +16,6 @@ public class LowerClothResponseDTO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public Double getPrice() {
@@ -49,5 +40,13 @@ public class LowerClothResponseDTO {
 
     public void setLowerId(Integer lowerId) {
         this.lowerId = lowerId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

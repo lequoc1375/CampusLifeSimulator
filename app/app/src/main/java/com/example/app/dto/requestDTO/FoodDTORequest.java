@@ -7,16 +7,17 @@ import com.example.app.entity.Food.LivingRequirement;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-
 @NoArgsConstructor
 @AllArgsConstructor
 public class FoodDTORequest {
+
     private String name;
     private Integer energyAffected;
     private Integer stressAffected;
     private BigDecimal price;
     private String type;
     private LivingRequirement livingRequirement;
+
     public String getName() {
         return name;
     }
@@ -35,7 +36,12 @@ public class FoodDTORequest {
     public void setStressAffected(Integer stressAffected) {
         this.stressAffected = stressAffected;
     }
-    
+    public BigDecimal getPrice() {
+        return price;
+    }
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
     public String getType() {
         return type;
     }
@@ -48,11 +54,4 @@ public class FoodDTORequest {
     public void setLivingRequirement(LivingRequirement livingRequirement) {
         this.livingRequirement = livingRequirement;
     }
-    public BigDecimal getPrice() {
-        return price;
-    }
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-    
 }

@@ -49,6 +49,18 @@ public class MenuController {
         return "UniversityPage";  
     }
 
+    @GetMapping("/Food")
+    public String moveFoodPage(@AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
+        model.addAttribute("user", currentUser);
+        return "FoodPage";  
+    }
+
+    @GetMapping("/Gym")
+    public String moveGymPage(@AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
+        model.addAttribute("user", currentUser);
+        return "GymPage";  
+    }
+
     @GetMapping("/Midterm")
     public String moveMidterm(@AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
         model.addAttribute("user", currentUser);

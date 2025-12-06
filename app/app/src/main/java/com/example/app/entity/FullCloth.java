@@ -1,18 +1,14 @@
 package com.example.app.entity;
 
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "full_cloth")
+@Table(name="full_cloth")
 public class FullCloth {
 
     @Id
@@ -23,17 +19,17 @@ public class FullCloth {
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "image_url", length = 255)
-    private String image;
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
+    @Column(name = "public_id", length = 255)
+    private String publicId;
 
     @Column(name = "price", precision = 10)
     private Double price;
 
     @Column(name = "categories", length = 50)
     private String categories;
-
-    @OneToMany(mappedBy = "fullCloth", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ShopFullCloth> shopFullCloth;
 
     public Integer getFullId() {
         return fullId;
@@ -51,24 +47,24 @@ public class FullCloth {
         this.name = name;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
     }
 
     public Double getPrice() {
         return price;
-    }
-
-    public List<ShopFullCloth> getShopFullCloth() {
-        return shopFullCloth;
-    }
-
-    public void setShopFullCloth(List<ShopFullCloth> shopFullCloth) {
-        this.shopFullCloth = shopFullCloth;
     }
 
     public void setPrice(Double price) {

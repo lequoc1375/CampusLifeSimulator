@@ -1,5 +1,7 @@
 package com.example.app.entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,7 +28,7 @@ public class PlayerStats {
     private int age;
 
     @Column(name = "money")
-    private double money;
+    private BigDecimal money;
 
     @Column(name = "max_energy")
     private int maxEnergy;
@@ -66,11 +68,11 @@ public class PlayerStats {
         this.age = age;
     }
 
-    public double getMoney() {
+    public BigDecimal getMoney() {
         return money;
     }
 
-    public void setMoney(double money) {
+    public void setMoney(BigDecimal money) {
         this.money = money;
     }
 

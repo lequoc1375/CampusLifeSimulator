@@ -23,8 +23,11 @@ public class UpperCloth {
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "image_url", length = 255)
-    private String image;
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
+    @Column(name = "public_id", length = 255)
+    private String publicId;
 
     @Column(name = "price", precision = 10)
     private Double price;
@@ -59,12 +62,20 @@ public class UpperCloth {
         this.name = name;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
     }
 
     public Double getPrice() {

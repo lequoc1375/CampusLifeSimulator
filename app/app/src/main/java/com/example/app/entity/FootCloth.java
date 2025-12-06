@@ -1,15 +1,6 @@
 package com.example.app.entity;
 
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "foot_cloth")
@@ -23,17 +14,17 @@ public class FootCloth {
     @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "image_url", length = 255)
-    private String image;
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
+    @Column(name = "public_id", length = 255)
+    private String publicId;
 
     @Column(name = "price", precision = 10)
     private Double price;
 
     @Column(name = "categories", length = 50)
     private String categories;
-
-    @OneToMany(mappedBy = "footCloth", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ShopFootCloth> shopFootCloth;
 
     public Integer getFootId() {
         return footId;
@@ -51,20 +42,20 @@ public class FootCloth {
         this.name = name;
     }
 
-    public List<ShopFootCloth> getShopFootCloth() {
-        return shopFootCloth;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setShopFootCloth(List<ShopFootCloth> shopFootCloth) {
-        this.shopFootCloth = shopFootCloth;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
-    public String getImage() {
-        return image;
+    public String getPublicId() {
+        return publicId;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
     }
 
     public Double getPrice() {

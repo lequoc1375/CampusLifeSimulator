@@ -1,5 +1,6 @@
 package com.example.app.controller.restcontroller.player;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class PlayerStatsRestController {
     }
 
     @PutMapping("/update-money/{id}")
-    public PlayerStats updateMoney(@PathVariable int id, @RequestBody double newMoney) {
+    public PlayerStats updateMoney(@PathVariable int id, @RequestBody BigDecimal newMoney) {
         return playerStatsService.updateMoney(id, newMoney);
     }
 

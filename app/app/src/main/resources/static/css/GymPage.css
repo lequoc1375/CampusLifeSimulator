@@ -1,0 +1,238 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #add8e6;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+.main-container {
+  display: flex;
+  align-items: flex-start;
+  margin: 20px 5%;
+}
+
+/* RIGHT PANEL */
+.right-panel {
+  width: 70%;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #fdfdfd;
+  margin-left: 20px;
+  border-radius: 20px;
+}
+
+/* GYM GRID */
+.gym-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* CARD */
+.gym-card {
+  width: 180px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: 0.25s ease;
+}
+
+.gym-card:hover {
+  transform: translateY(-4px);
+}
+
+/* IMAGE */
+.gym-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  background: #eaeaea;
+}
+
+/* INFO */
+.gym-info {
+  padding: 10px 12px;
+  flex: 1;
+}
+
+.gym-name {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 5px 0;
+}
+
+.stats p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* BOTTOM ROW */
+.gym-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* TRAIN BUTTON */
+.train-btn {
+  background: #00c853;
+  color: white;
+  border: none;
+  padding: 7px 14px;
+  font-size: 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.train-btn:hover {
+  background: #009e43;
+}
+
+/* PURCHASED EFFECT */
+.gym-card.purchased {
+  border: 2px solid #4CAF50;
+  transform: scale(1.03);
+}
+
+/* LOCKED */
+.gym-card.locked {
+  filter: grayscale(100%);
+  opacity: 0.6;
+  position: relative;
+}
+
+.locked-label {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 2px 8px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+/* Shake animation */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: shake 0.4s ease;
+}
+
+/* Glow animation for EXP bar */
+@keyframes glow {
+  0% { box-shadow: 0 0 3px #00ff00; }
+  100% { box-shadow: 0 0 15px #00cc00; }
+}
+.exp-glow {
+  animation: glow 0.5s ease-out;
+}
+
+/* Pulse for Energy / Stress bars */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.pulse {
+  animation: pulse 0.4s ease;
+}
+
+.train-btn {
+    transition: 0.2s;
+}
+.train-btn:active {
+    transform: scale(0.9);
+}
+
+.req-level {
+  margin: 4px 0 8px 0;
+  font-size: 14px;
+  color: #d9534f;
+  font-weight: 600;
+}
+
+.req-level.available {
+  color: #28a745;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 400px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    animation: pop 0.25s ease-out;
+}
+
+@keyframes pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.package-card {
+    border: 1px solid #ddd;
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+.package-card h3 {
+    margin: 0 0 8px;
+}
+
+.buy-btn2 {
+    width: 100%;
+    padding: 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    margin-top: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.buy-btn2:hover {
+    background: #45a049;
+}
+
+.close-modal {
+    background: #ccc;
+    padding: 10px;
+    width: 100%;
+    border: none;
+    margin-top: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+}

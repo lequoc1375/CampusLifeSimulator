@@ -1,16 +1,12 @@
 package com.example.app.controller.restcontroller.admin;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.app.dto.requestDTO.LowerClothRequestDTO;
 import com.example.app.dto.responseDTO.LowerClothResponseDTO;
@@ -23,28 +19,38 @@ public class LowerClothRestController {
     @Autowired
     private LowerClothService lowerClothService;
 
-    @GetMapping("/list")
-    public List<LowerClothResponseDTO> getAllLowerCloths() {
+    @GetMapping
+    public List<LowerClothResponseDTO> getAll() {
         return lowerClothService.getAll();
     }
 
     @GetMapping("/{id}")
-    public LowerClothResponseDTO getLowerClothById(@PathVariable Integer id) {
+    public LowerClothResponseDTO getById(@PathVariable int id) {
         return lowerClothService.getById(id);
     }
 
-    @PostMapping("/add")
-    public void createLowerCloth(@RequestBody LowerClothRequestDTO request) {
-        lowerClothService.create(request);
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<LowerClothResponseDTO> create(
+            @ModelAttribute LowerClothRequestDTO request,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+        LowerClothResponseDTO created = lowerClothService.create(request, image);
+        return ResponseEntity.ok(created);
     }
 
-    @PutMapping("/update/{id}")
-    public void updateLowerCloth(@PathVariable Integer id, @RequestBody LowerClothRequestDTO request) {
-        lowerClothService.update(id, request);
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<LowerClothResponseDTO> update(
+            @PathVariable int id,
+            @ModelAttribute LowerClothRequestDTO request,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+        LowerClothResponseDTO updated = lowerClothService.update(id, request, image);
+        return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public void deleteLowerCloth(@PathVariable Integer id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable int id) {
         lowerClothService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -44,6 +44,28 @@ public class Food {
     @Column(name = "living_requirement")
     private LivingRequirement livingRequirement;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "public_id")
+    private String publicId;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
+    }
+
     public Integer getFoodId() {
         return foodId;
     }

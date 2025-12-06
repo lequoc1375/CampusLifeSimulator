@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Manage Gym Exercises</title>
+  <link rel="stylesheet" th:href="@{/css/AdminGymExercise.css}" />
+</head>
+<body>
+
+<h2>Number of Exercises to Add:</h2>
+<input type="number" id="noOfExercises" min="1" max="10" value="1" />
+<button onclick="generateExerciseForm()">Generate Exercise</button>
+
+<form id="formExercise" enctype="multipart/form-data">
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Image</th>
+        <th>Energy Cost</th>
+        <th>Stress Increase</th>
+        <th>EXP Reward</th>
+        <th>Min Level</th>
+      </tr>
+    </thead>
+    <tbody id="exerciseTable"></tbody>
+  </table>
+  <br />
+  <button type="submit">Add Exercises</button>
+</form>
+
+<hr />
+
+<h2>Exercise List</h2>
+<div id="exerciseList" class="exercise-container"></div>
+
+<!-- UPDATE MODAL -->
+<div id="updateModal" style="display:none;">
+  <h3>Update Exercise</h3>
+  <form id="updateForm" enctype="multipart/form-data">
+    <input type="hidden" id="updateExerciseId" />
+
+    <label>Name</label><br />
+    <input type="text" id="updateName" required /><br />
+
+    <label>Image</label><br />
+    <img id="previewImage" width="120" /><br />
+    <input type="file" id="updateImage" accept="image/*" /><br />
+
+    <label>Energy Cost</label><br />
+    <input type="number" id="updateEnergy" required /><br />
+
+    <label>Stress Increase</label><br />
+    <input type="number" id="updateStress" required /><br />
+
+    <label>EXP Reward</label><br />
+    <input type="number" id="updateExp" required /><br /><br />
+
+    <label>Min Level</label><br />
+    <input type="number" id="updateMinLevel" required min="1" /><br />
+
+    <button type="submit">Save</button>
+    <button type="button" onclick="closeModal()">Cancel</button>
+  </form>
+</div>
+
+<script>
+function generateExerciseForm() {
+  const count = document.getElementById("noOfExercises").value;
+  const table = document.getElementById("exerciseTable");
+  table.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><input type="text" name="name" required></td>
+      <td><input type="file" name="image" accept="image/*" required></td>
+      <td><input type="number" name="energyCost" required></td>
+      <td><input type="number" name="stressIncrease" required></td>
+      <td><input type="number" name="expReward" required></td>
+      <td><input type="number" name="minLevel" required min="1"></td>
+    `;
+    table.appendChild(row);
+  }
+}
+
+document.getElementById("formExercise").addEventListener("submit", async function (e) {
+  e.preventDefault();
+
+  const rows = document.querySelectorAll("#exerciseTable tr");
+
+  for (const row of rows) {
+    const inputs = row.querySelectorAll("input");
+
+    const formData = new FormData();
+    formData.append("name", inputs[0].value);
+    formData.append("image", inputs[1].files[0]);
+    formData.append("energyCost", inputs[2].value);
+    formData.append("stressIncrease", inputs[3].value);
+    formData.append("expReward", inputs[4].value);
+    formData.append("minLevel", inputs[5].value);
+
+    await fetch("/admin/api/gym/exercise", {
+      method: "POST",
+      body: formData
+    });
+  }
+
+  await loadExercises();
+  this.reset();
+});
+
+async function loadExercises() {
+  const res = await fetch("/admin/api/gym/exercise");
+  const data = await res.json();
+  const list = document.getElementById("exerciseList");
+  list.innerHTML = "";
+
+  data.forEach(ex => {
+    const card = document.createElement("div");
+    card.className = "exercise-card";
+    card.innerHTML = `
+      <button class="delete-btn" data-id="${ex.gymExerciseId}">Delete</button>
+      <img src="${ex.imageUrl}" width="120">
+      <p><b>${ex.name}</b></p>
+      <p>Energy: ${ex.energyCost}</p>
+      <p>Stress: ${ex.stressIncrease}</p>
+      <p>EXP: ${ex.expReward}</p>
+      <p>Min Level: ${ex.minLevel}</p>
+      <button class="edit-btn" onclick="openModal(${ex.gymExerciseId})">Edit</button>
+    `;
+    list.appendChild(card);
+  });
+}
+
+async function openModal(id) {
+  const res = await fetch(`/admin/api/gym/exercise/${id}`);
+  const data = await res.json();
+
+  document.getElementById("updateExerciseId").value = data.gymExerciseId;
+  document.getElementById("updateName").value = data.name;
+  document.getElementById("updateEnergy").value = data.energyCost;
+  document.getElementById("updateStress").value = data.stressIncrease;
+  document.getElementById("updateExp").value = data.expReward;
+  document.getElementById("previewImage").src = data.imageUrl;
+  document.getElementById("updateMinLevel").value = data.minLevel;
+
+  document.getElementById("updateModal").style.display = "block";
+}
+
+function closeModal() {
+  document.getElementById("updateModal").style.display = "none";
+}
+
+document.getElementById("updateForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+
+  const id = document.getElementById("updateExerciseId").value;
+  const formData = new FormData();
+
+  formData.append("name", document.getElementById("updateName").value);
+  formData.append("energyCost", document.getElementById("updateEnergy").value);
+  formData.append("stressIncrease", document.getElementById("updateStress").value);
+  formData.append("expReward", document.getElementById("updateExp").value);
+  formData.append("minLevel", document.getElementById("updateMinLevel").value);
+
+  const image = document.getElementById("updateImage").files[0];
+  if (image) formData.append("image", image);
+
+  await fetch(`/admin/api/gym/exercise/${id}`, {
+    method: "PUT",
+    body: formData
+  });
+
+  await loadExercises();
+  closeModal();
+});
+
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("delete-btn")) {
+    const id = e.target.dataset.id;
+    if (!confirm("Delete this exercise?")) return;
+
+    await fetch(`/admin/api/gym/exercise/${id}`, { method: "DELETE" });
+    await loadExercises();
+  }
+});
+
+window.addEventListener("DOMContentLoaded", loadExercises);
+</script>
+
+</body>
+</html>

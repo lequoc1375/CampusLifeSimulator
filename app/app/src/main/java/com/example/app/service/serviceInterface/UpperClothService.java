@@ -1,14 +1,17 @@
 package com.example.app.service.serviceInterface;
 
+import java.io.IOException;
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.app.dto.requestDTO.UpperClothRequestDTO;
 import com.example.app.dto.responseDTO.UpperClothResponseDTO;
 
 public interface UpperClothService {
-    void create(UpperClothRequestDTO request);
+    UpperClothResponseDTO create(UpperClothRequestDTO request, MultipartFile image) throws IOException;
 
-    void update(Integer id, UpperClothRequestDTO request);
+    UpperClothResponseDTO update(Integer id, UpperClothRequestDTO request, MultipartFile image) throws IOException;
 
     void delete(Integer id);
 
